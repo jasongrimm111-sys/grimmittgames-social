@@ -92,6 +92,16 @@ button.sm{padding:6px 11px;font-size:.85rem}
 .cap{background:#0e1118;border-radius:14px}
 .tabs{gap:4px}.tabs button{padding:8px 13px}
 .status:empty{display:none}
+.navmore{position:relative;margin-left:auto}
+/* the menu bar (and its Settings menu) always sit above the cards */
+.tabs{z-index:40!important;isolation:isolate}
+#app > section,#app > .bar{position:relative;z-index:1}
+#app > .bar{position:sticky;z-index:6}
+.navmore>button{display:flex;gap:6px;align-items:center}
+.navmore>button.on{background:var(--chip);color:var(--fg);border-color:var(--line)}
+.navmore .menu{position:absolute;right:0;top:calc(100% + 6px);min-width:200px;display:flex;flex-direction:column;gap:2px;padding:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.5);z-index:30}
+.navmore .menu button{text-align:left;width:100%;background:none;border-color:transparent;color:var(--fg);font-weight:500}
+.navmore .menu button:hover,.navmore .menu button[aria-selected="true"]{background:var(--chip)}
 #stepNext{margin-left:auto}
 details.how{margin-top:6px}
 .steps{list-style:none;display:flex;gap:6px;padding:0;margin:4px 0 16px;flex-wrap:wrap;counter-reset:none}
@@ -168,7 +178,7 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 #queue li.dragging{background:var(--chip);box-shadow:0 8px 24px rgba(0,0,0,.45);position:relative;z-index:2;outline:1px solid var(--accent)}
 .where label.off{opacity:.5;font-weight:400}
 .where small{color:var(--muted);font-weight:400}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;margin:0 0 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:thin}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 12px;margin:0 0 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:thin}
 .tabs button{white-space:nowrap;background:none;border-color:transparent;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--chip);color:var(--fg);border-color:var(--line)}
 .dashhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 10px}
@@ -257,11 +267,16 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <button type="button" role="tab" data-go="activity">Activity</button>
     <button type="button" role="tab" data-go="videos">Videos</button>
     <button type="button" role="tab" data-go="schedule">Schedule</button>
-    <button type="button" role="tab" data-go="platforms">Platforms</button>
-    <button type="button" role="tab" data-go="credentials">Credentials</button>
-    <button type="button" role="tab" data-go="ai">AI &amp; captions</button>
     <button type="button" role="tab" data-go="outreach">Outreach</button>
-    <button type="button" role="tab" data-go="account">Account</button>
+    <div class="navmore" id="moreBox">
+      <button type="button" id="moreBtn" aria-haspopup="true" aria-expanded="false">Settings <span aria-hidden="true">▾</span></button>
+      <div class="menu" id="moreMenu" role="menu" hidden>
+        <button type="button" role="menuitem" data-go="platforms">Platforms</button>
+        <button type="button" role="menuitem" data-go="credentials">Credentials</button>
+        <button type="button" role="menuitem" data-go="ai">AI &amp; captions</button>
+        <button type="button" role="menuitem" data-go="account">Account</button>
+      </div>
+    </div>
   </nav>
   <section id="dash" data-tab="dashboard">
     <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary" data-go="new">+ Create new post</button></div>
@@ -1029,12 +1044,18 @@ function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
   document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('on', el.dataset.tab.split(' ').includes(t)));
   document.querySelectorAll('.tabs [data-go]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === t)));
+  $('#moreBtn').classList.toggle('on', ['platforms', 'credentials', 'ai', 'account'].includes(t));
+  $('#moreBtn').firstChild.textContent = ({ platforms:'Platforms', credentials:'Credentials', ai:'AI & captions', account:'Account' })[t] ? ({ platforms:'Platforms', credentials:'Credentials', ai:'AI & captions', account:'Account' })[t] + ' ' : 'Settings ';
   if (push && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
   if (t === 'activity') renderHistory();
   if (t === 'outreach') loadOutreach();
   window.scrollTo({ top:0 });
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
+const moreMenu = open => { $('#moreMenu').hidden = !open; $('#moreBtn').setAttribute('aria-expanded', String(open)); };
+$('#moreBtn').onclick = e => { e.stopPropagation(); moreMenu($('#moreMenu').hidden); };
+document.addEventListener('click', e => { if (!e.target.closest('#moreBox')) moreMenu(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#moreMenu').hidden){ moreMenu(false); $('#moreBtn').focus(); } });
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
 const isReady = k => NEED[k].every(n => haveSecrets.has(n));
 // one checkbox per platform: set-up ones ticked to start with (unless switched off on the Platforms tab)
