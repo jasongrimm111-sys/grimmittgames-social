@@ -73,8 +73,22 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 .pvnote{font-size:.78rem;color:var(--muted)}
 .promo{display:inline-block;background:rgba(255,255,255,.18);border-radius:4px;padding:0 5px;font-size:10px;margin-top:3px}
 #ttOpts .row{gap:4px 18px}
-.where{display:flex;flex-wrap:wrap;gap:6px 16px;margin:4px 0 0}
-.where label{display:flex;gap:6px;align-items:center;font-weight:600;margin:0}
+.ms{position:relative;min-width:260px}
+.ms>button{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);font-weight:400;text-align:left}
+.ms>button::after{content:'▾';color:var(--muted)}
+.ms>button[aria-expanded="true"]::after{content:'▴'}
+.ms .panel{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.ms .acts{display:flex;gap:6px;padding:0 0 8px;margin:0 0 6px;border-bottom:1px solid var(--line)}
+.ms .acts button{flex:1;padding:5px 8px;font-size:.85rem}
+.where{display:flex;flex-direction:column;gap:2px;margin:0}
+.where label{display:flex;gap:8px;align-items:center;font-weight:600;margin:0;padding:6px 6px;border-radius:8px;cursor:pointer}
+.where label:hover{background:var(--chip)}
+#queue{max-height:560px}
+#queue li{grid-template-columns:22px 2em 40px minmax(0,1fr) auto;user-select:none}
+#queue .grip{cursor:grab;touch-action:none;color:var(--muted);font-size:18px;line-height:1;text-align:center;padding:8px 0}
+#queue .grip:active{cursor:grabbing}
+#queue .th{width:40px;aspect-ratio:9/16;border-radius:6px;background:#000 center/cover no-repeat}
+#queue li.dragging{background:var(--chip);box-shadow:0 8px 24px rgba(0,0,0,.45);position:relative;z-index:2;outline:1px solid var(--accent)}
 .where label.off{opacity:.5;font-weight:400}
 .where small{color:var(--muted);font-weight:400}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;margin:0 0 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:thin}
@@ -178,7 +192,15 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h2>New post</h2>
     <div class="row">
       <div style="flex:1 1 260px"><label>Video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div></div>
-      <div><label>Post to</label><div class="where" id="where"></div></div>
+      <div><label id="whereLbl">Post to</label>
+        <div class="ms" id="whereBox">
+          <button type="button" id="whereBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="whereLbl whereBtn"><span id="whereSum">None selected</span></button>
+          <div class="panel" id="wherePanel" hidden>
+            <div class="acts"><button type="button" id="whereAll">Select all</button><button type="button" id="whereNone">Unselect all</button></div>
+            <div class="where" id="where" role="group" aria-labelledby="whereLbl"></div>
+          </div>
+        </div>
+      </div>
     </div>
     <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
     <label for="aiPrompt">Ask AI (optional)</label>
@@ -194,6 +216,12 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div class="cap" data-cap="facebook"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
       <div class="cap" data-cap="tiktok"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
       <div class="cap" data-cap="x"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
+    </div>
+    <div id="metaOpts" class="cap">
+      <h3>Facebook and Instagram: where it appears</h3>
+      <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
+      <div class="row" id="metaIg"><span style="width:110px;font-weight:600">Instagram</span><label class="check"><input id="mIgReel" type="checkbox"> Reels</label><label class="check"><input id="mIgStory" type="checkbox"> Story</label></div>
+      <p class="hint">Stories last 24 hours and show without a caption on Instagram; Reels stay on your profile and in feeds. Tick both to post to each.</p>
     </div>
     <div id="ttOpts" class="cap">
       <h3>TikTok settings for this post</h3>
@@ -273,6 +301,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <option value="random">Random</option>
     </select>
     <label class="check"><input id="rWorld" type="checkbox"> Don't post the same world twice in a row</label>
+    <label class="check"><input id="rPer" type="checkbox"> Post a different video on each platform (each site goes through the videos in its own order)</label>
     <div class="row">
       <div><label for="rMax">Most posts in a day</label><input id="rMax" type="number" min="0" max="24" step="1" style="width:110px"><p class="hint">0 means no limit.</p></div>
       <div><label for="rFrom">Pause from</label><input id="rFrom" type="date"></div>
@@ -295,6 +324,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div><label for="ytPrivacy">YouTube visibility</label><select id="ytPrivacy"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></div>
       <div><label for="ttPrivacy">TikTok visibility</label><select id="ttPrivacy"><option value="SELF_ONLY">Only me (until TikTok approves the app)</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option></select></div>
     </div>
+    <div class="row" style="margin-top:6px"><span class="hint" style="width:100%">Scheduled Facebook and Instagram posts go to:</span><label class="check"><input id="dFbReel" type="checkbox"> Facebook Reels</label><label class="check"><input id="dFbStory" type="checkbox"> Facebook Story</label><label class="check"><input id="dIgReel" type="checkbox"> Instagram Reels</label><label class="check"><input id="dIgStory" type="checkbox"> Instagram Story</label></div>
     <div class="row" style="margin-top:6px"><span class="hint" style="width:100%">Scheduled TikTok posts:</span><label class="check"><input id="tdCom" type="checkbox"> Allow comments</label><label class="check"><input id="tdDuet" type="checkbox"> Allow Duet</label><label class="check"><input id="tdStitch" type="checkbox"> Allow Stitch</label><label class="check"><input id="tdBrand" type="checkbox"> Disclose as promoting our own business ("Promotional content")</label></div>
     <label class="check"><input id="ytKids" type="checkbox"> Mark YouTube videos as "made for kids"</label>
     <p class="hint">Leave this off unless the videos are aimed mainly at children: it turns off comments and some features on YouTube.</p>
@@ -318,7 +348,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
   <section data-tab="schedule">
     <h2>Order</h2>
-    <p class="hint">Videos post from the top. Move them up or down, or skip one.</p>
+    <p class="hint">Videos post from the top (newest uploads can be put first with "Post it next"). Drag a video by ⠿ to move it, use ↑ ↓, or skip one, then press Save changes.</p>
     <ul id="queue" class="q"></ul>
   </section>
 
@@ -559,24 +589,35 @@ document.addEventListener('play', e => { for (const v of document.querySelectorA
 const ICON = { youtube:'▶', instagram:'◎', facebook:'f', tiktok:'♪', x:'𝕏' };
 const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };
 const SRC = { ai:'<span class="tag ai">AI</span>', approved:'<span class="tag mine">your captions</span>', site:'<span class="tag mine">written here</span>', template:'<span class="tag">standard</span>' };
-let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0;
+let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0, hidden = { posted:[], failed:[] }, hiddenSha;
+async function hideItem(kind, key){
+  for (let attempt = 0; attempt < 2; attempt++){
+    try { const f = await readFile('hidden.json'); hidden = f.data; hiddenSha = f.sha; } catch(e){ hidden = { posted:[], failed:[] }; hiddenSha = undefined; }
+    hidden[kind] = [...new Set([...(hidden[kind] || []), key])];
+    try { await writeFile('hidden.json', hidden, hiddenSha, 'Removed from Activity'); return; } catch(e){ if (attempt) throw e; }
+  }
+}
 async function renderHistory(){
   try { state = (await readFile('state.json')).data; } catch(e){}
-  const rows = []; for (const [id, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) rows.push({ id, k, ...v });
+  try { hidden = (await readFile('hidden.json')).data; } catch(e){ hidden = { posted:[], failed:[] }; }
+  const hp = new Set(hidden.posted || []), hf = new Set(hidden.failed || []);
+  const rows = []; for (const [id, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) if (!hp.has(id + '|' + k)) rows.push({ id, k, ...v });
   rows.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.id))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}</span></li>`).join('')
+  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.id))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => p === 'story' ? 'Story' : 'Reels').join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-hide="posted" data-key="${esc(r.id + '|' + r.k)}" title="Remove from this list (it stays recorded as posted, so it won't post again)">Remove</button></span></li>`).join('')
     : '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>';
-  const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) probs.push({ id, k, ...v });
+  const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) if (!hf.has(id + '|' + k + '|' + v.at)) probs.push({ id, k, ...v });
   probs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#problems').innerHTML = probs.length ? probs.map(r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button></span></li>`).join('')
+  $('#problems').innerHTML = probs.length ? probs.map(r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button><button type="button" data-hide="failed" data-key="${esc(r.id + '|' + r.k + '|' + r.at)}">Remove</button></span></li>`).join('')
     : '<li><span></span><span class="t">No problems.</span><span></span></li>';
   document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => dispatch({ video:b.dataset.retry, platform:b.dataset.k }));
+  document.querySelectorAll('[data-hide]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Removing…'; try { await hideItem(b.dataset.hide, b.dataset.key); b.closest('li').remove(); } catch(e){ b.disabled = false; b.textContent = 'Remove'; say($('#runStatus'), 'Couldn\'t remove: ' + e.message, true); } });
   try {
     const runs = ((await gh('/actions/workflows/post.yml/runs?per_page=10')) || {}).workflow_runs || [];
     const live = runs.some(r => r.status !== 'completed');
     $('#liveNote').textContent = live ? 'A post is running: this list updates by itself.' : '';
     clearTimeout(liveTimer); if (live) liveTimer = setTimeout(renderHistory, 15000);
-    $('#runs').innerHTML = runs.length ? runs.map(r => `<li><span class="n">${r.conclusion === 'success' ? '✓' : r.conclusion === 'failure' ? '✗' : '…'}</span><span class="t">${r.event === 'schedule' ? 'Scheduled check' : 'Run from here'}${r.status !== 'completed' ? ' <span class="tag live">running</span>' : ''}<small>${new Date(r.created_at).toLocaleString()} · ${r.conclusion || r.status}</small></span><span class="b"><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Details</a></span></li>`).join('')
+    setTimeout(() => document.querySelectorAll('[data-run]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Removing…'; try { await gh('/actions/runs/' + b.dataset.run, { method:'DELETE' }); b.closest('li').remove(); } catch(e){ b.disabled = false; b.textContent = 'Remove'; } }), 0);
+    $('#runs').innerHTML = runs.length ? runs.map(r => `<li><span class="n">${r.conclusion === 'success' ? '✓' : r.conclusion === 'failure' ? '✗' : '…'}</span><span class="t">${r.event === 'schedule' ? 'Scheduled check' : 'Run from here'}${r.status !== 'completed' ? ' <span class="tag live">running</span>' : ''}<small>${new Date(r.created_at).toLocaleString()} · ${r.conclusion || r.status}</small></span><span class="b"><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Details</a>${r.status === 'completed' ? `<button type="button" data-run="${r.id}" title="Delete this run's record">Remove</button>` : ''}</span></li>`).join('')
       : '<li><span></span><span class="t">No runs yet.</span><span></span></li>';
   } catch(e){ $('#runs').innerHTML = ''; }
 }
@@ -603,15 +644,41 @@ function renderQueue(){
   queue.forEach((id, i) => {
     const p = (state.posted || {})[id] || {}, where = Object.keys(p);
     const li = document.createElement('li'); li.className = (skip.has(id) ? 'skipped' : '') + (where.length ? ' done' : '');
-    li.innerHTML = `<span class="n">${i + 1}</span><span class="t">${esc(label(id))}<small>${where.length ? 'Posted to ' + where.join(', ') : id}</small></span>
+    li.dataset.id = id;
+    li.innerHTML = `<span class="grip" title="Drag to reorder" aria-hidden="true">⠿</span><span class="n">${i + 1}</span><span class="th"></span><span class="t">${esc(label(id))}<small>${where.length ? 'Posted to ' + where.join(', ') : id}</small></span>
       <span class="b"><button type="button" aria-label="Move up">↑</button><button type="button" aria-label="Move down">↓</button><button type="button">${skip.has(id) ? 'Unskip' : 'Skip'}</button></span>`;
     const [up, down, sk] = li.querySelectorAll('.b button');
     up.disabled = i === 0; down.disabled = i === queue.length - 1;
     up.onclick = () => { [queue[i - 1], queue[i]] = [queue[i], queue[i - 1]]; renderQueue(); };
     down.onclick = () => { [queue[i + 1], queue[i]] = [queue[i], queue[i + 1]]; renderQueue(); };
     sk.onclick = () => { cfg.skip = skip.has(id) ? [...skip].filter(x => x !== id) : [...skip, id]; renderQueue(); };
+    poster(id).then(u => li.querySelector('.th').style.backgroundImage = `url(${u})`).catch(() => {});
+    li.querySelector('.grip').addEventListener('pointerdown', e => dragRow(e, li));
     ul.appendChild(li);
   });
+}
+// drag a row by its handle: it moves between the others as the pointer passes their middle; the list scrolls near its edges
+function dragRow(e, li){
+  e.preventDefault();
+  const ul = $('#queue'), grip = e.currentTarget; grip.setPointerCapture(e.pointerId);
+  li.classList.add('dragging');
+  let scroll = 0; const tick = setInterval(() => { if (scroll) ul.scrollTop += scroll; }, 16);
+  const move = ev => {
+    const r = ul.getBoundingClientRect();
+    scroll = ev.clientY < r.top + 40 ? -8 : ev.clientY > r.bottom - 40 ? 8 : 0;
+    for (const other of ul.children){
+      if (other === li) continue;
+      const b = other.getBoundingClientRect();
+      if (ev.clientY > b.top && ev.clientY < b.bottom){ ul.insertBefore(li, ev.clientY < b.top + b.height / 2 ? other : other.nextSibling); break; }
+    }
+  };
+  const up = () => {
+    clearInterval(tick); grip.removeEventListener('pointermove', move); grip.removeEventListener('pointerup', up); grip.removeEventListener('pointercancel', up);
+    li.classList.remove('dragging');
+    const order = [...ul.children].map(x => x.dataset.id);
+    if (order.join() !== queue.join()){ queue.splice(0, queue.length, ...order); renderQueue(); say($('#status'), 'Order changed: press Save changes to keep it.'); }
+  };
+  grip.addEventListener('pointermove', move); grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
 }
 function render(){
   $('#paused').checked = !!cfg.paused;
@@ -619,9 +686,11 @@ function render(){
   document.querySelectorAll('[data-p]').forEach(c => c.checked = cfg.platforms[c.dataset.p] !== false);
   $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy;
   $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
+  const pl = k => ((cfg[k] || {}).places || ['reels']);
+  $('#dFbReel').checked = pl('facebook').includes('reels'); $('#dFbStory').checked = pl('facebook').includes('story'); $('#dIgReel').checked = pl('instagram').includes('reels'); $('#dIgStory').checked = pl('instagram').includes('story');
   const td = cfg.tiktok || {}; $('#tdCom').checked = td.allowComment !== false; $('#tdDuet').checked = td.allowDuet !== false; $('#tdStitch').checked = td.allowStitch !== false; $('#tdBrand').checked = td.yourBrand !== false;
   cfg.notify = cfg.notify || { enabled:true, email:OWNER }; $('#nOn').checked = cfg.notify.enabled !== false; $('#nEmail').value = cfg.notify.email || '';
-  cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order || 'queue'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
+  cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order || 'queue'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rPer').checked = !!cfg.rules.perPlatform; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
   cfg.ai = cfg.ai || { enabled:true, voice:'' }; $('#aiOn').checked = cfg.ai.enabled !== false; $('#aiVoice').value = cfg.ai.voice || '';
   $('#pickVideo').innerHTML = '<option value="">Next in line</option>' + queue.map(id => `<option value="${id}">${esc(label(id))}${(state.posted || {})[id] ? ' (posted)' : ''}</option>`).join('');
   renderSlots(); renderQueue();
@@ -632,9 +701,12 @@ function collect(){
   cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value;
   cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
   cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
+  const places = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
+  cfg.facebook = { ...(cfg.facebook || {}), places:places('#dFbReel', '#dFbStory').length ? places('#dFbReel', '#dFbStory') : ['reels'] };
+  cfg.instagram = { ...(cfg.instagram || {}), places:places('#dIgReel', '#dIgStory').length ? places('#dIgReel', '#dIgStory') : ['reels'] };
   cfg.tiktok = { ...(cfg.tiktok || {}), allowComment:$('#tdCom').checked, allowDuet:$('#tdDuet').checked, allowStitch:$('#tdStitch').checked, yourBrand:$('#tdBrand').checked };
   cfg.notify = { ...(cfg.notify || {}), enabled:$('#nOn').checked, email:$('#nEmail').value.trim() };
-  cfg.rules = { order:$('#rOrder').value, noSameWorld:$('#rWorld').checked, maxPerDay:Math.max(0, Math.min(24, parseInt($('#rMax').value, 10) || 0)), pauseFrom:$('#rFrom').value, pauseTo:$('#rTo').value };
+  cfg.rules = { order:$('#rOrder').value, noSameWorld:$('#rWorld').checked, perPlatform:$('#rPer').checked, maxPerDay:Math.max(0, Math.min(24, parseInt($('#rMax').value, 10) || 0)), pauseFrom:$('#rFrom').value, pauseTo:$('#rTo').value };
   if (cfg.rules.pauseFrom && cfg.rules.pauseTo && cfg.rules.pauseTo < cfg.rules.pauseFrom) [cfg.rules.pauseFrom, cfg.rules.pauseTo] = [cfg.rules.pauseTo, cfg.rules.pauseFrom];
   cfg.slots = cfg.slots.filter(s => s.days.length);
 }
@@ -672,9 +744,12 @@ async function upcoming(count = 10){
     const why = R.blocked({ ...cfg, paused:false }, sim, parts);
     if (why){ out.push({ label, why }); continue; }
     const plats = R.slotPlatforms(slot, ready);
-    const id = plats.length ? R.pickVideo({ cfg, state:sim, queue, platforms:plats, hasMedia:v => mediaIds.has(v), slot, seed:R.seedOf(key) }) : null;
-    out.push({ label, id, plats });
-    if (id) for (const k of plats) (sim.posted[id] = sim.posted[id] || {})[k] = { at:t.toISOString() };
+    const plan = plats.length ? R.planSlot({ cfg, state:sim, queue, platforms:plats, hasMedia:v => mediaIds.has(v), slot, key }) : [];
+    if (!plan.length) out.push({ label, id:null, plats });
+    for (const [id, ks] of plan){
+      out.push({ label, id, plats:ks });
+      for (const k of ks) (sim.posted[id] = sim.posted[id] || {})[k] = { at:t.toISOString() };
+    }
   }
   const skip = new Set(cfg.skip || []);
   const left = queue.filter(v => !skip.has(v) && mediaIds.has(v) && ready.some(k => !((state.posted || {})[v] || {})[k])).length;
@@ -716,16 +791,31 @@ window.addEventListener('hashchange', () => showTab(location.hash.slice(1), fals
 const isReady = k => NEED[k].every(n => haveSecrets.has(n));
 // one checkbox per platform: set-up ones ticked to start with (unless switched off on the Platforms tab)
 function renderWhere(){
-  $('#where').innerHTML = Object.keys(NAME).map(k => { const ok = isReady(k); return `<label class="${ok ? '' : 'off'}"><input type="checkbox" data-w="${k}"${ok ? '' : ' disabled'}${ok && cfg.platforms[k] !== false ? ' checked' : ''}> ${NAME[k]}${ok ? '' : ' <small>(not set up)</small>'}</label>`; }).join('');
+  $('#where').innerHTML = Object.keys(NAME).map(k => { const ok = isReady(k); return `<label class="${ok ? '' : 'off'}"><input type="checkbox" data-w="${k}"${ok ? '' : ' disabled'}> ${NAME[k]}${ok ? '' : ' <small>(not set up)</small>'}</label>`; }).join('');
   document.querySelectorAll('#where input').forEach(c => c.onchange = whereChanged);
   whereChanged();
 }
 const picked = () => [...document.querySelectorAll('#where input:checked')].map(c => c.dataset.w);
+const wherePanel = open => { $('#wherePanel').hidden = !open; $('#whereBtn').setAttribute('aria-expanded', String(open)); };
+$('#whereBtn').onclick = () => wherePanel($('#wherePanel').hidden);
+$('#whereAll').onclick = () => { document.querySelectorAll('#where input:not(:disabled)').forEach(c => c.checked = true); whereChanged(); };
+$('#whereNone').onclick = () => { document.querySelectorAll('#where input').forEach(c => c.checked = false); whereChanged(); };
+document.addEventListener('click', e => { if (!$('#wherePanel').hidden && !e.target.closest('#whereBox')) wherePanel(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#wherePanel').hidden){ wherePanel(false); $('#whereBtn').focus(); } });
 function whereChanged(){
   const on = new Set(picked());
+  $('#whereSum').textContent = !on.size ? 'None selected' : on.size === Object.keys(NAME).filter(isReady).length && on.size > 1 ? 'All set-up platforms (' + [...on].map(k => NAME[k]).join(', ') + ')' : [...on].map(k => NAME[k]).join(', ');
   document.querySelectorAll('[data-cap]').forEach(c => c.hidden = !on.has(c.dataset.cap));
-  ttShow();
+  ttShow(); metaShow();
   if (!$('#previews').hidden) renderPreviews();
+}
+function metaShow(){
+  const on = new Set(picked());
+  $('#metaOpts').hidden = !on.has('facebook') && !on.has('instagram'); $('#metaFb').hidden = !on.has('facebook'); $('#metaIg').hidden = !on.has('instagram');
+}
+function metaReset(){
+  const pl = k => ((cfg[k] || {}).places || ['reels']);
+  $('#mFbReel').checked = pl('facebook').includes('reels'); $('#mFbStory').checked = pl('facebook').includes('story'); $('#mIgReel').checked = pl('instagram').includes('reels'); $('#mIgStory').checked = pl('instagram').includes('story');
 }
 function ttShow(){
   $('#ttOpts').hidden = !picked().includes('tiktok');
@@ -734,7 +824,7 @@ function ttShow(){
 }
 async function compose(id){
   showTab('new'); ttShow(); $('#ttPriv').value = '';
-  choose(id || ''); renderWhere();
+  choose(id || ''); metaReset(); renderWhere();
   $('#capEdit').hidden = true; say($('#aiStatus'), '');
   if (id && planned.has(id)){ try { fill((await readFile('captions/' + id + '.json')).data); say($('#aiStatus'), 'These are the captions you saved for this video.'); } catch(e){} }
 }
@@ -900,7 +990,7 @@ async function renderPreviews(){
   const side = '<div class="side"><span>♥</span><span>💬</span><span>↗</span></div>';
   const card = (name, inner, note) => `<div class="pvc"><b>${name}</b>${inner}<span class="pvnote">${note}</span></div>`;
   const caps = { youtube:p.youtube.title, tiktok:p.tiktok.title, instagram:p.instagram.caption, facebook:p.facebook.description, x:p.x.text }, on = new Set(picked());
-  if (!on.size){ box.innerHTML = '<p class="hint">Tick a platform to preview it.</p>'; box.hidden = false; return; }
+  if (!on.size){ box.innerHTML = '<p class="hint">Choose platforms under "Post to" to preview them.</p>'; box.hidden = false; return; }
   box.innerHTML = `<div class="pvgrid">`
     + (on.has('tiktok') ? card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`) : '')
     + (on.has('instagram') ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
@@ -911,9 +1001,9 @@ async function renderPreviews(){
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 $('#btnPreview').onclick = renderPreviews;
-async function dispatch({ video = '', platform = '', captions = null, tiktok = null } = {}){
+async function dispatch({ video = '', platform = '', captions = null, tiktok = null, meta = null } = {}){
   const st = $('#runStatus'); say(st, 'Starting the post…');
-  try { await gh('/actions/workflows/post.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ dry_run:'false', platform, video, captions:captions ? b64(JSON.stringify(captions)) : '', tiktok:tiktok ? b64(JSON.stringify(tiktok)) : '' } }) });
+  try { await gh('/actions/workflows/post.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ dry_run:'false', platform, video, captions:captions ? b64(JSON.stringify(captions)) : '', tiktok:tiktok ? b64(JSON.stringify(tiktok)) : '', meta:meta && Object.keys(meta).length ? b64(JSON.stringify(meta)) : '' } }) });
     say(st, 'Posting now: follow it under Activity (it updates by itself).'); setTimeout(renderHistory, 6000); }
   catch(e){ say(st, 'Could not start: ' + e.message + '. The GitHub key needs Actions: Read and write.', true); }
 }
@@ -967,9 +1057,12 @@ $('#btnNow').onclick = () => {
     tiktok = { privacy:$('#ttPriv').value, allowComment:$('#ttCom').checked, allowDuet:$('#ttDuet').checked, allowStitch:$('#ttStitch').checked, yourBrand:$('#ttBrand').checked };
   }
   const where = picked();
-  if (!where.length){ say($('#runStatus'), 'Tick at least one platform to post to.', true); return; }
+  if (!where.length){ say($('#runStatus'), 'Choose at least one platform under "Post to".', true); wherePanel(true); return; }
   let caps = edited(); if (caps) caps = Object.fromEntries(Object.entries(caps).filter(([k]) => where.includes(k)));
-  dispatch({ video:$('#pickVideo').value, platform:where.join(','), captions:caps, tiktok });
+  const meta = {}, pick2 = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
+  if (where.includes('facebook')){ meta.facebook = pick2('#mFbReel', '#mFbStory'); if (!meta.facebook.length){ say($('#runStatus'), 'Choose Reels and/or Story for Facebook.', true); return; } }
+  if (where.includes('instagram')){ meta.instagram = pick2('#mIgReel', '#mIgStory'); if (!meta.instagram.length){ say($('#runStatus'), 'Choose Reels and/or Story for Instagram.', true); return; } }
+  dispatch({ video:$('#pickVideo').value, platform:where.join(','), captions:caps, tiktok, meta });
 };
 $('#btnCreds').onclick = saveCreds;
 $('#btnRefresh').onclick = renderHistory;
