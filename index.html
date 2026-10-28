@@ -308,9 +308,16 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h2>Credentials</h2>
     <p class="hint">Each platform has its own tab (✓ = everything saved). Open "Where to find this" under any box for step-by-step help. They're encrypted in this browser and saved as GitHub secrets: nobody can read them back, not even here. Leave a box empty to keep what's already saved. A platform starts posting once all of its boxes are saved.</p>
     <div id="creds"></div>
-    <div id="credPassWrap" hidden><label for="credPass">Your sign-in password <span class="unset">· needed to save the Anthropic key, so AI suggestions also work on this page</span></label>
+    <div id="credPassWrap"><label for="credPass">Your sign-in password <span class="unset">· keeps an encrypted copy you can export (and is needed for the Anthropic key)</span></label>
     <input id="credPass" type="password" autocomplete="current-password"></div>
     <div class="row" style="margin-top:12px"><button id="btnCreds" class="primary" type="button">Save credentials</button></div>
+    <div class="cap" style="margin-top:16px">
+      <h3>Back up and restore</h3>
+      <p class="hint" id="copyNote">GitHub never shows saved credentials again, so the site keeps its own copy, encrypted with your sign-in password, whenever you save with the password above. Export it to keep somewhere safe; import it to fill every box again.</p>
+      <div class="row"><button id="btnExport" type="button">Export credentials</button><label class="check" style="margin:0"><input id="btnImportFile" type="file" accept=".json,application/json" hidden><button id="btnImport" type="button">Import a backup…</button></label></div>
+      <p class="hint">Exporting and importing both need your sign-in password in the box above. The file stays encrypted: keep it somewhere private all the same.</p>
+      <p id="copyStatus" class="status" role="status"></p>
+    </div>
     <p id="credStatus" class="status" role="status"></p>
   </section>
 
@@ -536,11 +543,49 @@ async function renderCreds(){
     `<label for="c-${k}">${l} ${have.has(k) ? '<span class="saved">· saved ✓</span>' : '<span class="unset">· not set</span>'}</label>
      <input id="c-${k}" data-k="${k}" type="password" autocomplete="off" placeholder="${have.has(k) ? 'Saved: type here only to replace it' : ''}">
      <details class="how"><summary>Where to find this</summary><ol>${how}</ol></details>`).join('') + '</div>').join('');
-  const showCred = i => { credTab = i; document.querySelectorAll('.credgrp').forEach(g => g.hidden = +g.dataset.ci !== i); document.querySelectorAll('[data-ct]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.ct === i))); $('#credPassWrap').hidden = CREDS[i][0] !== 'AI (Anthropic)'; };
+  const showCred = i => { credTab = i; document.querySelectorAll('.credgrp').forEach(g => g.hidden = +g.dataset.ci !== i); document.querySelectorAll('[data-ct]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.ct === i))); };
   document.querySelectorAll('[data-ct]').forEach(b => b.onclick = () => showCred(+b.dataset.ct));
+  copyInfo();
   showCred(credTab);
 }
 let credTab = 0;
+// ---------- encrypted copy of credentials, for export/import ----------
+const COPY = 'credentials.vault.json';
+async function readCopy(pass){
+  let f; try { f = await readFile(COPY); } catch(e){ return { vals:{}, sha:undefined }; }
+  try { return { vals:(await unlock(OWNER, pass, f.data)).creds || {}, sha:f.sha, at:f.data.at }; }
+  catch(e){ throw new Error('that sign-in password doesn\u2019t open the saved copy'); }
+}
+async function saveCopy(pass, newVals){
+  try { vault = vault || await getVault(); await unlock(OWNER, pass, vault); } catch(e){ throw new Error('that sign-in password isn\u2019t right'); }
+  const cur = await readCopy(pass), creds = { ...cur.vals, ...newVals };
+  const v = await lock(OWNER, pass, { creds }); v.at = new Date().toISOString(); v.keys = Object.keys(creds);
+  await writeFile(COPY, v, cur.sha, 'Credentials backup updated');
+}
+async function copyInfo(){
+  try { const f = await readFile(COPY); $('#copyNote').textContent = `Encrypted copy: ${(f.data.keys || []).length} credential${(f.data.keys || []).length === 1 ? '' : 's'}, last updated ${new Date(f.data.at).toLocaleString()}. Export it to keep somewhere safe; import it to fill every box again.`; } catch(e){}
+}
+$('#btnExport').onclick = async () => {
+  const st = $('#copyStatus'), pass = $('#credPass').value;
+  if (!pass){ say(st, 'Type your sign-in password above first.', true); $('#credPass').focus(); return; }
+  try {
+    const f = await readFile(COPY); await unlock(OWNER, pass, f.data);   // only export what this password opens
+    const blob = new Blob([JSON.stringify({ app:'Grimmitt Social credentials', exported:new Date().toISOString(), ...f.data }, null, 1)], { type:'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'grimmitt-social-credentials-' + new Date().toISOString().slice(0, 10) + '.json'; a.click();
+    say(st, `Exported ${(f.data.keys || []).length} credentials (encrypted). Keep the file somewhere private.`);
+  } catch(e){ say(st, e.message.startsWith('404') ? 'There\u2019s no saved copy yet: save your credentials once with your sign-in password typed in.' : e.name === 'OperationError' ? 'That sign-in password doesn\u2019t open the copy.' : 'Couldn\u2019t export: ' + e.message, true); }
+};
+$('#btnImport').onclick = () => $('#btnImportFile').click();
+$('#btnImportFile').onchange = async () => {
+  const st = $('#copyStatus'), file = $('#btnImportFile').files[0], pass = $('#credPass').value; $('#btnImportFile').value = '';
+  if (!file) return;
+  if (!pass){ say(st, 'Type the sign-in password the backup was made with, then import again.', true); $('#credPass').focus(); return; }
+  try {
+    const data = JSON.parse(await file.text()), creds = (await unlock(OWNER, pass, data)).creds || {};
+    let n = 0; for (const [k, v] of Object.entries(creds)){ const box = document.querySelector('#creds input[data-k="' + k + '"]'); if (box){ box.value = v; n++; } }
+    say(st, `Filled in ${n} credential${n === 1 ? '' : 's'} from the backup. Check them, then press Save credentials.`);
+  } catch(e){ say(st, e.name === 'OperationError' ? 'That password doesn\u2019t open this backup (it needs the password it was made with).' : 'That file isn\u2019t a Grimmitt Social backup.', true); }
+};
 async function saveCreds(){
   const st = $('#credStatus'), todo = [...document.querySelectorAll('#creds input')].filter(i => i.value.trim());
   if (!todo.length){ say(st, 'Nothing to save: type into a box first.'); return; }
@@ -550,7 +595,8 @@ async function saveCreds(){
     if (!pass){ say(st, 'Type your sign-in password (below the boxes) to save the Anthropic key.', true); return; }
     try { vault = vault || await getVault(); await unlock(OWNER, pass, vault); }
     catch(e){ say(st, 'That sign-in password isn\'t right.', true); return; }
-    try { const k = aiInput.value.trim(), v = await lock(OWNER, pass, { token, anthropic:k, at:new Date().toISOString() }); await saveVault(v, token); vault = v; signedIn(token, OWNER, k); $('#credPass').value = ''; }
+    // (the password stays in the box so the encrypted copy is updated below too)
+    try { const k = aiInput.value.trim(), v = await lock(OWNER, pass, { token, anthropic:k, at:new Date().toISOString() }); await saveVault(v, token); vault = v; signedIn(token, OWNER, k); }
     catch(e){ say(st, 'Not saved: ' + e.message, true); return; }
   }
   say(st, 'Encrypting and saving…');
@@ -560,9 +606,16 @@ async function saveCreds(){
     for (const i of todo){
       const enc = sodium.to_base64(sodium.crypto_box_seal(sodium.from_string(i.value.trim()), pk), sodium.base64_variants.ORIGINAL);
       await gh('/actions/secrets/' + i.dataset.k, { method:'PUT', body:JSON.stringify({ encrypted_value:enc, key_id:key.key_id }) });
-      i.value = '';
+      i.dataset.v = i.value.trim(); i.value = '';
     }
-    say(st, `Saved ${todo.length} credential${todo.length > 1 ? 's' : ''}.`); renderCreds();
+    let copied = '';
+    const pass = $('#credPass').value;
+    if (pass){
+      try { const vals = Object.fromEntries(todo.map(i => [i.dataset.k, i.dataset.v])); await saveCopy(pass, vals); copied = ' The encrypted copy is updated.'; }
+      catch(e){ copied = ' (The encrypted copy wasn\u2019t updated: ' + e.message + ')'; }
+    } else copied = ' Type your sign-in password above when saving to keep an exportable copy.';
+    $('#credPass').value = '';
+    say(st, `Saved ${todo.length} credential${todo.length > 1 ? 's' : ''}.` + copied); renderCreds(); copyInfo();
   } catch(e){ say(st, 'Not saved: ' + e.message + '. The token needs Secrets: Read and write.', true); }
 }
 
