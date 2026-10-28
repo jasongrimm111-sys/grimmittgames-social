@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Grimmitt Games Social</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="icon.png" type="image/png">
+<style>
+:root{--bg:#0b0d13;--card:#131722;--fg:#f4f1ea;--muted:#a8adba;--line:#262c3a;--accent:#c6f432;--accentfg:#11160a;--warn:#ff8a6a;--chip:#1c2230;--on:#c6f432;--onfg:#11160a;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(700px 360px at 85% -5%,rgba(198,244,50,.09),transparent 70%),var(--bg);background-attachment:fixed;color:var(--fg);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.brand{display:flex;align-items:center;gap:12px;margin:4px 0 18px;flex-wrap:wrap}.brand b{display:block;font-size:1.05rem;letter-spacing:.06em}.brand small{display:block;color:var(--accent);font-size:.72rem;letter-spacing:.3em;font-weight:700}
+.who{margin-left:auto;display:flex;gap:10px;align-items:center;color:var(--muted);font-size:.88rem;min-width:0;overflow-wrap:anywhere}
+.gate{max-width:440px;margin:6vh auto 0}
+.gate h2{font-size:1.4rem}
+main{max-width:880px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:1.8rem;margin:0 0 4px} h2{font-size:1.2rem;margin:0 0 10px} h3{font-size:1.02rem;margin:16px 0 4px}
+.lede{color:var(--muted);margin:0 0 20px}
+section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px}
+label{display:block;font-weight:600;margin:10px 0 4px}
+input[type=text],input[type=password],input[type=time],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);max-width:100%}
+input[type=text],input[type=password],textarea{width:100%}
+textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);resize:vertical}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:0 0 12px}
+.stats div{background:var(--chip);border-radius:12px;padding:10px 12px}.stats b{display:block;font-size:1.35rem}.stats span{color:var(--muted);font-size:.8rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:99px;padding:1px 8px;margin-left:4px;background:var(--chip);color:var(--muted)}
+.tag.ai{background:rgba(198,244,50,.15);color:var(--accent)}.tag.mine{background:rgba(255,138,106,.15);color:var(--warn)}.tag.live{background:var(--accent);color:var(--accentfg)}
+.count{float:right;font-weight:400;color:var(--muted);font-size:.8rem}.count.over{color:var(--warn)}
+.cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
+.cap h3{margin:0 0 6px;font-size:.95rem}
+.prob{color:var(--warn)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+.check{display:flex;gap:8px;align-items:center;font-weight:600;margin:6px 0}
+.hint{color:var(--muted);font-size:.88rem;margin:4px 0 0}
+details.how{margin:4px 0 0;font-size:.88rem;color:var(--muted)}
+details.how summary{cursor:pointer;color:var(--accent);font-weight:600}
+details.how ol{margin:6px 0 0;padding-left:1.3em} details.how li{margin:3px 0}
+button{font:600 .95rem system-ui,sans-serif;border:1px solid var(--line);background:var(--chip);color:var(--fg);border-radius:10px;padding:8px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accentfg);border-color:transparent}
+button:disabled{opacity:.5;cursor:default}
+.slot{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border:1px solid var(--line);border-radius:12px;padding:10px;margin:8px 0}
+.day{border-radius:99px;padding:4px 10px;font-size:.85rem}
+.day[aria-pressed="true"]{background:var(--on);color:var(--onfg);border-color:transparent}
+.q{list-style:none;padding:0;margin:0;max-height:440px;overflow:auto;border:1px solid var(--line);border-radius:12px}
+.q li{display:grid;grid-template-columns:2.2em minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line)}
+.q li:last-child{border-bottom:0}
+.q .n{color:var(--muted);font-size:.9rem;text-align:center}
+.q .t{min-width:0;overflow-wrap:anywhere}
+.q .t small{display:block;color:var(--muted)}
+.q .b{display:flex;gap:4px}
+.q .b button{padding:3px 8px}
+.q li.skipped .t{opacity:.45;text-decoration:line-through}
+.q li.done .t small{color:var(--accent)}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.vcard{border:1px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.vcard .pv{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000 center/cover no-repeat;border:0;padding:0;cursor:pointer;position:relative}
+.vcard .pv::after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:2rem;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.vcard video{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000}
+.vcard b{font-size:.92rem;line-height:1.25} .vcard small{color:var(--muted);font-size:.78rem}
+.vcard .vb{display:flex;gap:6px;flex-wrap:wrap} .vcard .vb button{padding:4px 8px;font-size:.8rem}
+.saved{font-weight:400;color:var(--accent);font-size:.85rem} .unset{font-weight:400;color:var(--muted);font-size:.85rem}
+.status{min-height:1.5em;font-weight:600;margin:10px 0 0}
+.status.err{color:var(--warn)}
+.bar{position:sticky;bottom:0;background:var(--bg);padding:10px 0;display:flex;flex-wrap:wrap;gap:10px;border-top:1px solid var(--line)}
+a{color:var(--accent)}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
+</style>
+</head>
+<body>
+<main>
+  <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button">Sign out</button></div></div>
+
+  <section id="login" class="gate" hidden>
+    <h2>Sign in</h2>
+    <form id="loginForm">
+      <label for="lEmail">Email</label><input id="lEmail" type="text" inputmode="email" autocomplete="username" required>
+      <label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password" required>
+      <div class="row" style="margin-top:14px"><button class="primary" type="submit">Sign in</button></div>
+    </form>
+    <p id="loginStatus" class="status" role="status"></p>
+  </section>
+
+  <section id="setup" class="gate" hidden>
+    <h2>Set up your sign-in</h2>
+    <p class="hint">One time only. Choose a password, and paste the GitHub key that lets this page manage your private posting project. The key is locked with your email and password before it's saved, so only you can sign in and use it.</p>
+    <form id="setupForm">
+      <label for="sEmail">Email</label><input id="sEmail" type="text" inputmode="email" autocomplete="username" required>
+      <label for="sPass">Choose a password</label><input id="sPass" type="password" autocomplete="new-password" minlength="12" required>
+      <p class="hint">At least 12 characters. A few random words together works well, e.g. "lemon-orbit-kettle-91".</p>
+      <label for="sPass2">Type it again</label><input id="sPass2" type="password" autocomplete="new-password" minlength="12" required>
+      <label for="sTok">GitHub key</label><input id="sTok" type="password" autocomplete="off" placeholder="github_pat_…" required>
+      <details class="how"><summary>How to make the GitHub key</summary><ol>
+        <li>On github.com, click your profile picture → <b>Settings</b> → <b>Developer settings</b> (bottom of the left menu) → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b>.</li>
+        <li>Name it "Grimmitt Social" and pick an expiry (a year is fine; you can replace it here later).</li>
+        <li>Repository access: <b>Only select repositories</b> → <code>monkey-vine-rush-social</code> and <code>grimmittgames-social</code>.</li>
+        <li>Repository permissions: set <b>Actions</b>, <b>Contents</b> and <b>Secrets</b> to <b>Read and write</b>.</li>
+        <li>Click <b>Generate token</b>, copy it (it starts <code>github_pat_</code>) and paste it above.</li>
+      </ol></details>
+      <div class="row" style="margin-top:14px"><button class="primary" type="submit">Save and sign in</button></div>
+    </form>
+    <p id="setupStatus" class="status" role="status"></p>
+  </section>
+  <p id="connStatus" class="status" role="status"></p>
+
+  <div id="app" hidden>
+  <section id="dash">
+    <h2>Coming up</h2>
+    <div class="stats" id="stats"></div>
+    <ul id="upcoming" class="q"></ul>
+    <p class="hint">Times are in your schedule's time zone. Captions are written by AI just before each post, unless you've saved your own for that video (<span class="tag mine">your captions</span>). Tap Edit to plan one.</p>
+  </section>
+  <p class="lede">Post the Monkey Vine Rush promo videos to YouTube, Instagram, Facebook, TikTok and X: set the credentials, the schedule and the order, post one now, and see everything that's gone out.</p>
+  <section id="compose">
+    <h2>Write and post</h2>
+    <div class="row">
+      <div style="flex:1 1 260px"><label for="pickVideo">Video</label><select id="pickVideo" style="width:100%"></select></div>
+      <div><label for="pickPlatform">Where</label><select id="pickPlatform"><option value="">Every platform that's set up</option><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="x">X</option></select></div>
+    </div>
+    <label for="aiPrompt">Ask AI (optional)</label>
+    <textarea id="aiPrompt" rows="2" placeholder="e.g. Halloween theme, short and funny, challenge people to beat the boss"></textarea>
+    <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
+    <p id="aiStatus" class="status" role="status"></p>
+    <div id="capEdit" hidden>
+      <div class="cap"><h3>YouTube Shorts</h3>
+        <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
+        <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
+        <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
+      <div class="cap"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
+      <div class="cap"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
+      <div class="cap"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
+      <div class="cap"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
+    </div>
+    <div class="row" style="margin-top:10px"><button id="btnNow" class="primary" type="button">Post it now</button><button id="btnPlan" type="button">Save for its scheduled post</button><button id="btnUnplan" type="button">Remove saved captions</button></div>
+    <p class="hint">Post it now uses the captions above if you've written or suggested some, otherwise AI writes them as it posts. A post takes a minute or two; watch it under Activity.</p>
+    <p id="runStatus" class="status" role="status"></p>
+  </section>
+
+  <section>
+    <h2>Videos</h2>
+    <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
+    <div id="videos" class="vgrid"></div>
+  </section>
+
+  <section id="activity">
+    <h2>Activity</h2>
+    <div class="row"><button id="btnRefresh" type="button">Refresh</button><span id="liveNote" class="hint"></span></div>
+    <h3>Running now and recent runs</h3>
+    <ul id="runs" class="q"></ul>
+    <h3>Problems</h3>
+    <ul id="problems" class="q"></ul>
+    <h3>Posted</h3>
+    <ul id="history" class="q"></ul>
+  </section>
+
+  <section>
+    <h2>Credentials</h2>
+    <p class="hint">Each platform needs its own keys. Open "Where to find this" under any box for step-by-step help. They're encrypted in this browser and saved as GitHub secrets: nobody can read them back, not even here. Leave a box empty to keep what's already saved. A platform starts posting once all of its boxes are saved.</p>
+    <div id="creds"></div>
+    <label for="credPass">Your sign-in password <span class="unset">· only needed when you save the Anthropic key, to lock it into your sign-in</span></label>
+    <input id="credPass" type="password" autocomplete="current-password">
+    <div class="row" style="margin-top:12px"><button id="btnCreds" class="primary" type="button">Save credentials</button></div>
+    <p id="credStatus" class="status" role="status"></p>
+  </section>
+
+  <section>
+    <h2>Schedule</h2>
+    <label class="check"><input id="paused" type="checkbox"> Pause all posting</label>
+    <label for="tz">Time zone</label>
+    <select id="tz"></select>
+    <p class="hint">Each time below posts one video. Research suggests evenings suit gaming videos: about 7 to 9 pm for a UK audience.</p>
+    <div id="slots"></div>
+    <button id="btnAddSlot" type="button">Add a posting time</button>
+  </section>
+
+  <section>
+    <h2>Platforms</h2>
+    <div class="row">
+      <label class="check"><input type="checkbox" data-p="youtube"> YouTube Shorts</label>
+      <label class="check"><input type="checkbox" data-p="instagram"> Instagram Reels</label>
+      <label class="check"><input type="checkbox" data-p="facebook"> Facebook Reels</label>
+      <label class="check"><input type="checkbox" data-p="tiktok"> TikTok</label>
+      <label class="check"><input type="checkbox" data-p="x"> X</label>
+    </div>
+    <div class="row">
+      <div><label for="ytPrivacy">YouTube visibility</label><select id="ytPrivacy"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></div>
+      <div><label for="ttPrivacy">TikTok visibility</label><select id="ttPrivacy"><option value="SELF_ONLY">Only me (until TikTok approves the app)</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option></select></div>
+    </div>
+    <label class="check"><input id="ytKids" type="checkbox"> Mark YouTube videos as "made for kids"</label>
+    <p class="hint">Leave this off unless the videos are aimed mainly at children: it turns off comments and some features on YouTube.</p>
+  </section>
+
+  <section>
+    <h2>AI captions</h2>
+    <label class="check"><input id="aiOn" type="checkbox"> Write each scheduled post's captions with AI</label>
+    <label for="aiVoice">House style</label>
+    <textarea id="aiVoice" rows="3" placeholder="How your posts should sound"></textarea>
+    <p class="hint">Uses Claude (Anthropic) with your own API key (under Credentials). It writes fresh captions for every platform each time, following the platform research and your house style; it never calls players "monkeys" and keeps everything family-friendly. Each post costs a few pence. If AI isn't set up or fails, the standard captions are used.</p>
+  </section>
+
+  <section>
+    <h2>Captions</h2>
+    <label class="check"><input id="ask" type="checkbox"> End with a question to invite comments ("How far would you get? 👇")</label>
+    <label for="extra">Extra hashtags on every post</label>
+    <input id="extra" type="text" placeholder="e.g. newgame indiegame">
+    <p class="hint">Each post already has 3 to 5 hashtags matched to the video. Keep extras to one or two: a few relevant tags beat long lists.</p>
+  </section>
+
+  <section>
+    <h2>Order</h2>
+    <p class="hint">Videos post from the top. Move them up or down, or skip one.</p>
+    <ul id="queue" class="q"></ul>
+  </section>
+
+  <section>
+    <h2>Sign-in</h2>
+    <p class="hint">Change your password, or paste a new GitHub key when the old one expires. Both are saved locked with your email and password.</p>
+    <form id="acctForm">
+      <label for="aPass">New password <span class="unset">· leave empty to keep it</span></label><input id="aPass" type="password" autocomplete="new-password" minlength="12">
+      <label for="aTok">New GitHub key <span class="unset">· leave empty to keep it</span></label><input id="aTok" type="password" autocomplete="off" placeholder="github_pat_…">
+      <label for="aCur">Current password</label><input id="aCur" type="password" autocomplete="current-password" required>
+      <div class="row" style="margin-top:12px"><button class="primary" type="submit">Update sign-in</button></div>
+    </form>
+    <p id="acctStatus" class="status" role="status"></p>
+  </section>
+
+  <div class="bar"><button id="btnSave" class="primary" type="button">Save schedule, platforms, captions and order</button></div>
+  <p id="status" class="status" role="status"></p>
+  </div>
+</main>
+<script type="module">
+const REPO = 'jasongrimm111-sys/monkey-vine-rush-social', SITE_REPO = 'jasongrimm111-sys/grimmittgames-social';
+const OWNER = 'jasongrimm111@gmail.com';
+const API = 'https://api.github.com/repos/' + REPO;
+const auth = () => ({ Authorization:'Bearer ' + token });
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const ZONES = ['Europe/London', 'Europe/Dublin', 'Europe/Paris', 'America/New_York', 'America/Chicago', 'America/Los_Angeles', 'Australia/Sydney', 'UTC'];
+const $ = s => document.querySelector(s);
+let token = '', cfg = null, cfgSha = '', queue = [], queueSha = '', state = { posted:{} };
+let aiKey = '';
+try { token = sessionStorage.getItem('gg-social-key') || ''; aiKey = sessionStorage.getItem('gg-social-ai') || ''; } catch(e){}
+
+// ---------- sign-in: the GitHub key is stored only encrypted (vault.json, AES-GCM with a key from email + password) ----------
+const te = new TextEncoder(), toB64 = a => btoa(String.fromCharCode(...a)), fromB64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const norm = e => e.trim().toLowerCase();
+async function keyFrom(email, pass, salt, iter){
+  const base = await crypto.subtle.importKey('raw', te.encode(norm(email) + '\n' + pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name:'PBKDF2', salt, iterations:iter, hash:'SHA-256' }, base, { name:'AES-GCM', length:256 }, false, ['encrypt', 'decrypt']);
+}
+async function lock(email, pass, secret){
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12)), iter = 600000;
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name:'AES-GCM', iv }, await keyFrom(email, pass, salt, iter), te.encode(JSON.stringify(secret))));
+  return { v:1, kdf:'PBKDF2-SHA256', iter, salt:toB64(salt), iv:toB64(iv), ct:toB64(ct) };
+}
+async function unlock(email, pass, v){
+  const pt = await crypto.subtle.decrypt({ name:'AES-GCM', iv:fromB64(v.iv) }, await keyFrom(email, pass, fromB64(v.salt), v.iter), fromB64(v.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+let vault = null;
+const getVault = async () => { const r = await fetch('vault.json?' + Date.now(), { cache:'no-store' }); return r.ok ? r.json() : null; };
+// vault.json lives in this site's own (public) repository; only the encrypted form is ever written
+async function saveVault(v, key){
+  const url = 'https://api.github.com/repos/' + SITE_REPO + '/contents/vault.json', H = { Authorization:'Bearer ' + key, Accept:'application/vnd.github+json' };
+  const cur = await fetch(url, { headers:H }), sha = cur.ok ? (await cur.json()).sha : undefined;
+  const res = await fetch(url, { method:'PUT', headers:{ ...H, 'Content-Type':'application/json' }, body:JSON.stringify({ message:'Update sign-in', content:btoa(JSON.stringify(v, null, 1) + '\n'), sha }) });
+  if (!res.ok) throw new Error(res.status + ' ' + ((await res.json().catch(() => ({}))).message || '') + ' (the key needs Contents: Read and write on grimmittgames-social)');
+}
+const signedIn = (key, email, ai) => { token = key; aiKey = ai || aiKey || ''; try { sessionStorage.setItem('gg-social-key', key); sessionStorage.setItem('gg-social-ai', aiKey); sessionStorage.setItem('gg-social-who', norm(email)); } catch(e){} };
+function showSignedIn(){
+  $('#login').hidden = $('#setup').hidden = true; $('#who').hidden = false;
+  let who = OWNER; try { who = sessionStorage.getItem('gg-social-who') || OWNER; } catch(e){}
+  $('#whoEmail').textContent = who;
+  load();
+}
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+const gh = async (path, opt = {}) => {
+  const res = await fetch(API + path, { ...opt, headers:{ ...auth(), Accept:'application/vnd.github+json', 'Content-Type':'application/json', ...(opt.headers || {}) } });
+  if (!res.ok) throw new Error(res.status + ' ' + ((await res.json().catch(() => ({}))).message || res.statusText));
+  return res.status === 204 || res.status === 201 && !res.headers.get('content-length') ? null : res.json().catch(() => null);
+};
+const b64 = s => btoa(unescape(encodeURIComponent(s))), unb64 = s => decodeURIComponent(escape(atob(s.replace(/\n/g, ''))));
+const readFile = async p => { const j = await gh('/contents/' + p); return { data:JSON.parse(unb64(j.content)), sha:j.sha }; };
+const writeFile = (p, data, sha, msg) => gh('/contents/' + p, { method:'PUT', body:JSON.stringify({ message:msg, content:b64(JSON.stringify(data, null, 2) + '\n'), sha }) });
+const say = (el, msg, err) => { el.textContent = msg; el.classList.toggle('err', !!err); };
+const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+const label = id => { const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || []; const k = { levels:'Level play', rush:'Rush chase', boss:'Boss fight' }[m[3]] || m[3]; return m[2] ? `World ${+m[1]} · ${m[2][0].toUpperCase() + m[2].slice(1)} · ${k}` : id; };
+
+// ---------- credentials, with where to find each one ----------
+const CREDS = [
+  ['YouTube', 'YouTube uses a Google Cloud project you own. Make it once, then copy three values from it.', [
+    ['YT_CLIENT_ID', 'Client ID', `<li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> and sign in with the Google account that owns your YouTube channel.</li>
+      <li>Top bar → project picker → <b>New project</b>, name it "Monkey Vine Rush", <b>Create</b>, then select it.</li>
+      <li>Menu → <b>APIs &amp; Services</b> → <b>Library</b> → search <b>YouTube Data API v3</b> → <b>Enable</b>.</li>
+      <li><b>APIs &amp; Services</b> → <b>OAuth consent screen</b>: User type <b>External</b>, fill in the app name and your email, save. Under <b>Audience</b> click <b>Publish app</b> (otherwise sign-in expires after 7 days).</li>
+      <li><b>APIs &amp; Services</b> → <b>Credentials</b> → <b>Create credentials</b> → <b>OAuth client ID</b> → Application type <b>Web application</b>. Under Authorised redirect URIs add <code>https://developers.google.com/oauthplayground</code>. <b>Create</b>.</li>
+      <li>Copy the <b>Client ID</b> (ends in <code>.apps.googleusercontent.com</code>) into this box.</li>`],
+    ['YT_CLIENT_SECRET', 'Client secret', `<li>Same window as the Client ID: copy the <b>Client secret</b> (starts <code>GOCSPX-</code>). If you closed it, open the client under <b>Credentials</b> → <b>OAuth 2.0 Client IDs</b>.</li>`],
+    ['YT_REFRESH_TOKEN', 'Refresh token', `<li>Open the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth 2.0 Playground</a>.</li>
+      <li>Click the ⚙ (top right), tick <b>Use your own OAuth credentials</b>, paste your Client ID and Client secret.</li>
+      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/youtube.upload</code> and click <b>Authorize APIs</b>. Sign in with the channel's account and allow it (if Google warns the app isn't verified, click <b>Advanced</b> → <b>Go to …</b>).</li>
+      <li>Click <b>Exchange authorization code for tokens</b>, then copy the <b>Refresh token</b> (starts <code>1//</code>) into this box.</li>`],
+  ]],
+  ['Instagram and Facebook', 'Both use your Facebook Page. Your Instagram must be a Business or Creator account linked to that Page (Instagram app → Settings → Account type and tools).', [
+    ['META_PAGE_ID', 'Facebook Page ID', `<li>Open your Facebook Page → <b>About</b> → <b>Page transparency</b>: the <b>Page ID</b> is the long number. (Or from the Graph API Explorer step below: the <code>id</code> next to your Page.)</li>`],
+    ['META_PAGE_TOKEN', 'Page access token', `<li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → <b>Create app</b> → use case <b>Other</b> → type <b>Business</b>. Add the products <b>Instagram</b> (API setup with Facebook login) and <b>Facebook Login for Business</b>.</li>
+      <li>Open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>, pick your app, then <b>Add a permission</b>: <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>pages_manage_posts</code>, <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>business_management</code>. Click <b>Generate access token</b> and allow it for your Page and Instagram.</li>
+      <li>Make it long-lived: open the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener">Access Token Debugger</a>, paste the token, <b>Debug</b>, then <b>Extend access token</b> and copy the new one.</li>
+      <li>Back in the Explorer, paste that long-lived token, run <code>GET me/accounts</code>. In the result, find your Page: copy its <code>access_token</code> into this box (it doesn't expire) and its <code>id</code> into Page ID.</li>`],
+    ['IG_USER_ID', 'Instagram account ID', `<li>In the Graph API Explorer (with the Page token), run <code>GET {your-page-id}?fields=instagram_business_account</code>.</li>
+      <li>Copy the <code>id</code> inside <code>instagram_business_account</code> (a long number starting 1784…) into this box.</li>`],
+  ]],
+  ['TikTok', 'TikTok needs a developer app. Until TikTok audits and approves it, posts can only be private ("Only me"): apply for the audit in the developer portal, then set TikTok visibility to Everyone below.', [
+    ['TIKTOK_CLIENT_KEY', 'Client key', `<li>Go to <a href="https://developers.tiktok.com/" target="_blank" rel="noopener">developers.tiktok.com</a>, sign in with your TikTok business account → <b>Manage apps</b> → <b>Connect an app</b>.</li>
+      <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>. Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
+      <li>On the app page copy the <b>Client key</b> into this box.</li>`],
+    ['TIKTOK_CLIENT_SECRET', 'Client secret', `<li>Same app page: copy the <b>Client secret</b> into this box.</li>`],
+    ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,video.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
+      <li>Sign in and allow it. You land on monkeyvinerush.com with <code>?code=…</code> in the address bar: copy that code.</li>
+      <li>Ask Claude to swap the code for a refresh token (it needs your client key and secret), or use the token endpoint in TikTok's docs. Paste the <b>refresh token</b> here. It lasts about a year; you'll see a warning in the runs when it needs renewing.</li>`],
+  ]],
+  ['AI (Anthropic)', 'Lets AI write your captions. Saved for scheduled posts, and also locked into your sign-in so "Suggest captions" works on this page.', [
+    ['ANTHROPIC_API_KEY', 'Anthropic API key', `<li>Go to <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a> and sign in (or sign up) with your email.</li>
+      <li><b>Settings</b> → <b>Billing</b>: add a small amount of credit (e.g. £5 lasts a long time at a few pence a post). Optionally set a monthly spend limit under <b>Limits</b>.</li>
+      <li><b>Settings</b> → <b>API keys</b> → <b>Create key</b>, name it "Grimmitt Social", and copy it (it starts <code>sk-ant-</code>; it's only shown once) into this box.</li>`],
+  ]],
+  ['X', 'X needs a free developer account and an app allowed to post. All four values come from the app\'s <b>Keys and tokens</b> page. The free plan allows a limited number of posts a month, plenty for one a day.', [
+    ['X_API_KEY', 'API key', `<li>Go to <a href="https://developer.x.com/" target="_blank" rel="noopener">developer.x.com</a> and sign in with the X account you want to post from. Choose the <b>Free</b> plan and describe your use (e.g. "Posting my own game's promo videos to my own account").</li>
+      <li>In the <b>Developer Portal</b> → <b>Projects &amp; Apps</b>, open your app (one is made for you) → <b>Settings</b> → <b>User authentication settings</b> → <b>Set up</b>.</li>
+      <li>App permissions: <b>Read and write</b>. Type of app: <b>Web App, Automated App or Bot</b>. Callback URI and Website: <code>https://www.grimmittgames.com/</code>. <b>Save</b>.</li>
+      <li>Open the app's <b>Keys and tokens</b> tab → <b>API Key and Secret</b> → <b>Regenerate</b>. Copy the <b>API Key</b> into this box.</li>`],
+    ['X_API_SECRET', 'API key secret', `<li>Same screen as the API key: copy the <b>API Key Secret</b> into this box. It's only shown once; if you lose it, regenerate both.</li>`],
+    ['X_ACCESS_TOKEN', 'Access token', `<li>On <b>Keys and tokens</b> → <b>Access Token and Secret</b> → <b>Generate</b>. Do this <i>after</i> setting Read and write above: it must say "Created with Read and Write permissions".</li>
+      <li>Copy the <b>Access Token</b> (a number, a dash, then letters) into this box.</li>`],
+    ['X_ACCESS_SECRET', 'Access token secret', `<li>Same screen: copy the <b>Access Token Secret</b> into this box.</li>`],
+  ]],
+];
+async function renderCreds(){
+  let have = new Set(); try { have = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
+  $('#creds').innerHTML = CREDS.map(([group, intro, list]) => `<h3>${group}</h3><p class="hint">${intro}</p>` + list.map(([k, l, how]) =>
+    `<label for="c-${k}">${l} ${have.has(k) ? '<span class="saved">· saved ✓</span>' : '<span class="unset">· not set</span>'}</label>
+     <input id="c-${k}" data-k="${k}" type="password" autocomplete="off" placeholder="${have.has(k) ? 'Saved: type here only to replace it' : ''}">
+     <details class="how"><summary>Where to find this</summary><ol>${how}</ol></details>`).join('')).join('');
+}
+async function saveCreds(){
+  const st = $('#credStatus'), todo = [...document.querySelectorAll('#creds input')].filter(i => i.value.trim());
+  if (!todo.length){ say(st, 'Nothing to save: type into a box first.'); return; }
+  const aiInput = todo.find(i => i.dataset.k === 'ANTHROPIC_API_KEY');
+  if (aiInput){
+    const pass = $('#credPass').value;
+    if (!pass){ say(st, 'Type your sign-in password (below the boxes) to save the Anthropic key.', true); return; }
+    try { vault = vault || await getVault(); await unlock(OWNER, pass, vault); }
+    catch(e){ say(st, 'That sign-in password isn\'t right.', true); return; }
+    try { const k = aiInput.value.trim(), v = await lock(OWNER, pass, { token, anthropic:k, at:new Date().toISOString() }); await saveVault(v, token); vault = v; signedIn(token, OWNER, k); $('#credPass').value = ''; }
+    catch(e){ say(st, 'Not saved: ' + e.message, true); return; }
+  }
+  say(st, 'Encrypting and saving…');
+  try {
+    const sodium = (await import('https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.7.13/+esm')).default; await sodium.ready;
+    const key = await gh('/actions/secrets/public-key'), pk = sodium.from_base64(key.key, sodium.base64_variants.ORIGINAL);
+    for (const i of todo){
+      const enc = sodium.to_base64(sodium.crypto_box_seal(sodium.from_string(i.value.trim()), pk), sodium.base64_variants.ORIGINAL);
+      await gh('/actions/secrets/' + i.dataset.k, { method:'PUT', body:JSON.stringify({ encrypted_value:enc, key_id:key.key_id }) });
+      i.value = '';
+    }
+    say(st, `Saved ${todo.length} credential${todo.length > 1 ? 's' : ''}.`); renderCreds();
+  } catch(e){ say(st, 'Not saved: ' + e.message + '. The token needs Secrets: Read and write.', true); }
+}
+
+// ---------- videos (loaded from the private project with the token) ----------
+const raw = async path => { const res = await fetch(API + '/contents/' + path, { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error(res.status); return URL.createObjectURL(await res.blob()); };
+async function renderVideos(){
+  let files = [], xs = new Set(); try { files = ((await gh('/contents/media')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', '')); } catch(e){}
+  try { xs = new Set(((await gh('/contents/media/x')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', ''))); } catch(e){}
+  mediaIds = new Set(files);
+  const order = [...queue.filter(id => files.includes(id)), ...files.filter(id => !queue.includes(id))];
+  const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
+  for (const id of order){
+    const posted = Object.keys((state.posted || {})[id] || {});
+    const d = document.createElement('div'); d.className = 'vcard';
+    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}"></button><b>${esc(label(id))}</b><small>${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button></div>`;
+    box.appendChild(d);
+    raw('media/posters/' + id + '.jpg').then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
+    d.querySelector('.pv').onclick = async e => { const b = e.currentTarget; b.disabled = true; try { const v = document.createElement('video'); v.controls = true; v.playsInline = true; v.src = await raw('media/' + id + '.mp4'); b.replaceWith(v); v.play().catch(() => {}); } catch(err){ b.disabled = false; } };
+    const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
+    dl('[data-a="dl"]', 'media/' + id + '.mp4', 'monkey-vine-rush-' + id + '-9x16.mp4');
+    dl('[data-a="dlx"]', 'media/x/' + id + '.mp4', 'monkey-vine-rush-' + id + '-4x5.mp4');
+    d.querySelector('[data-a="post"]').onclick = () => compose(id);
+  }
+}
+document.addEventListener('play', e => { for (const v of document.querySelectorAll('video')) if (v !== e.target) v.pause(); }, true);
+
+// ---------- posted and recent runs ----------
+const ICON = { youtube:'▶', instagram:'◎', facebook:'f', tiktok:'♪', x:'𝕏' };
+const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };
+const SRC = { ai:'<span class="tag ai">AI</span>', approved:'<span class="tag mine">your captions</span>', site:'<span class="tag mine">written here</span>', template:'<span class="tag">standard</span>' };
+let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0;
+async function renderHistory(){
+  try { state = (await readFile('state.json')).data; } catch(e){}
+  const rows = []; for (const [id, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) rows.push({ id, k, ...v });
+  rows.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.id))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}</span></li>`).join('')
+    : '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>';
+  const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) probs.push({ id, k, ...v });
+  probs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  $('#problems').innerHTML = probs.length ? probs.map(r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button></span></li>`).join('')
+    : '<li><span></span><span class="t">No problems.</span><span></span></li>';
+  document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => dispatch({ video:b.dataset.retry, platform:b.dataset.k }));
+  try {
+    const runs = ((await gh('/actions/workflows/post.yml/runs?per_page=10')) || {}).workflow_runs || [];
+    const live = runs.some(r => r.status !== 'completed');
+    $('#liveNote').textContent = live ? 'A post is running: this list updates by itself.' : '';
+    clearTimeout(liveTimer); if (live) liveTimer = setTimeout(renderHistory, 15000);
+    $('#runs').innerHTML = runs.length ? runs.map(r => `<li><span class="n">${r.conclusion === 'success' ? '✓' : r.conclusion === 'failure' ? '✗' : '…'}</span><span class="t">${r.event === 'schedule' ? 'Scheduled check' : 'Run from here'}${r.status !== 'completed' ? ' <span class="tag live">running</span>' : ''}<small>${new Date(r.created_at).toLocaleString()} · ${r.conclusion || r.status}</small></span><span class="b"><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Details</a></span></li>`).join('')
+      : '<li><span></span><span class="t">No runs yet.</span><span></span></li>';
+  } catch(e){ $('#runs').innerHTML = ''; }
+}
+
+// ---------- schedule, platforms, captions, order ----------
+function renderSlots(){
+  const box = $('#slots'); box.innerHTML = '';
+  cfg.slots.forEach((s, i) => {
+    const d = document.createElement('div'); d.className = 'slot';
+    d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm">Remove</button>`;
+    d.querySelectorAll('.day').forEach(b => b.onclick = () => { const on = s.days.includes(b.dataset.d); s.days = on ? s.days.filter(x => x !== b.dataset.d) : [...s.days, b.dataset.d]; b.setAttribute('aria-pressed', String(!on)); });
+    d.querySelector('input').onchange = e => { s.time = e.target.value.slice(0, 2) + ':00'; e.target.value = s.time; };
+    d.querySelector('.rm').onclick = () => { cfg.slots.splice(i, 1); renderSlots(); };
+    box.appendChild(d);
+  });
+}
+function renderQueue(){
+  const ul = $('#queue'); ul.innerHTML = ''; const skip = new Set(cfg.skip || []);
+  queue.forEach((id, i) => {
+    const p = (state.posted || {})[id] || {}, where = Object.keys(p);
+    const li = document.createElement('li'); li.className = (skip.has(id) ? 'skipped' : '') + (where.length ? ' done' : '');
+    li.innerHTML = `<span class="n">${i + 1}</span><span class="t">${esc(label(id))}<small>${where.length ? 'Posted to ' + where.join(', ') : id}</small></span>
+      <span class="b"><button type="button" aria-label="Move up">↑</button><button type="button" aria-label="Move down">↓</button><button type="button">${skip.has(id) ? 'Unskip' : 'Skip'}</button></span>`;
+    const [up, down, sk] = li.querySelectorAll('.b button');
+    up.disabled = i === 0; down.disabled = i === queue.length - 1;
+    up.onclick = () => { [queue[i - 1], queue[i]] = [queue[i], queue[i - 1]]; renderQueue(); };
+    down.onclick = () => { [queue[i + 1], queue[i]] = [queue[i], queue[i + 1]]; renderQueue(); };
+    sk.onclick = () => { cfg.skip = skip.has(id) ? [...skip].filter(x => x !== id) : [...skip, id]; renderQueue(); };
+    ul.appendChild(li);
+  });
+}
+function render(){
+  $('#paused').checked = !!cfg.paused;
+  $('#tz').innerHTML = [...new Set([cfg.timezone, ...ZONES])].map(z => `<option${z === cfg.timezone ? ' selected' : ''}>${z}</option>`).join('');
+  document.querySelectorAll('[data-p]').forEach(c => c.checked = cfg.platforms[c.dataset.p] !== false);
+  $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy;
+  $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
+  cfg.ai = cfg.ai || { enabled:true, voice:'' }; $('#aiOn').checked = cfg.ai.enabled !== false; $('#aiVoice').value = cfg.ai.voice || '';
+  $('#pickVideo').innerHTML = '<option value="">Next in line</option>' + queue.map(id => `<option value="${id}">${esc(label(id))}${(state.posted || {})[id] ? ' (posted)' : ''}</option>`).join('');
+  renderSlots(); renderQueue();
+}
+function collect(){
+  cfg.paused = $('#paused').checked; cfg.timezone = $('#tz').value;
+  document.querySelectorAll('[data-p]').forEach(c => cfg.platforms[c.dataset.p] = c.checked);
+  cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value;
+  cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
+  cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
+  cfg.slots = cfg.slots.filter(s => s.days.length);
+}
+async function load(){
+  const st = $('#connStatus'); say(st, 'Loading…');
+  try {
+    ({ data:cfg, sha:cfgSha } = await readFile('config.json')); ({ data:queue, sha:queueSha } = await readFile('queue.json'));
+    try { state = (await readFile('state.json')).data; } catch(e){}
+    say(st, `${Object.keys(state.posted || {}).length} of ${queue.length} videos posted so far.`); $('#app').hidden = false;
+    try { planned = new Set(((await gh('/contents/captions')) || []).filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''))); } catch(e){ planned = new Set(); }
+    try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
+    render(); renderCreds(); renderHistory(); await renderVideos(); renderDash();
+  } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
+}
+// ---------- coming up: the next scheduled times and which video each will post ----------
+const NEED = { youtube:['YT_CLIENT_ID', 'YT_CLIENT_SECRET', 'YT_REFRESH_TOKEN'], instagram:['META_PAGE_TOKEN', 'IG_USER_ID'], facebook:['META_PAGE_ID', 'META_PAGE_TOKEN'], tiktok:['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET', 'TIKTOK_REFRESH_TOKEN'], x:['X_API_KEY', 'X_API_SECRET', 'X_ACCESS_TOKEN', 'X_ACCESS_SECRET'] };
+const readyPlatforms = () => Object.keys(NEED).filter(k => cfg.platforms[k] !== false && NEED[k].every(n => haveSecrets.has(n)));
+function upcoming(count = 10){
+  const tz = cfg.timezone || 'Europe/London', fmt = new Intl.DateTimeFormat('en-GB', { timeZone:tz, weekday:'short', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23' });
+  const out = [], t = new Date(); t.setUTCMinutes(3, 0, 0); if (t < new Date()) t.setUTCHours(t.getUTCHours() + 1);
+  for (let i = 0; i < 24 * 60 && out.length < count; i++, t.setUTCHours(t.getUTCHours() + 1)){
+    const p = Object.fromEntries(fmt.formatToParts(t).map(x => [x.type, x.value]));
+    const slot = (cfg.slots || []).find(sl => sl.days.includes(p.weekday) && +sl.time.split(':')[0] === +p.hour);
+    if (slot && state.lastSlot !== `${p.year}-${p.month}-${p.day} ${slot.time}`) out.push({ at:new Date(t), label:`${p.weekday} ${p.day}/${p.month} · ${slot.time}` });
+  }
+  const ready = readyPlatforms(), skip = new Set(cfg.skip || []);
+  const left = queue.filter(id => !skip.has(id) && mediaIds.has(id) && (ready.length ? ready.some(k => !((state.posted || {})[id] || {})[k]) : !(state.posted || {})[id]));
+  return { slots:out.map((o, i) => ({ ...o, id:left[i] })), ready, left:left.length };
+}
+function renderDash(){
+  const u = upcoming(), posted = Object.keys(state.posted || {}).length, probs = Object.values(state.failed || {}).reduce((n, p) => n + Object.keys(p).length, 0);
+  const days = (cfg.slots || []).reduce((n, sl) => n + sl.days.length, 0);
+  $('#stats').innerHTML = [[cfg.paused ? 'Paused' : u.slots[0] ? u.slots[0].label.split(' · ')[0] : '-', cfg.paused ? 'posting is paused' : 'next post'], [posted, 'videos posted'], [u.left, 'still to post'],
+    [u.ready.length ? u.ready.map(k => NAME[k]).join(', ') : 'None yet', 'platforms ready'], [days + ' a week', 'posting times'], [probs, 'problems']]
+    .map(([b, sp]) => `<div><b>${esc(b)}</b><span>${sp}</span></div>`).join('');
+  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => `<li><span class="n">🗓</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? u.ready.map(k => NAME[k]).join(', ') : 'no platforms set up yet'}</small></span><span class="b">${sl.id ? `<button type="button" data-edit="${sl.id}">Edit</button>` : ''}</span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => compose(b.dataset.edit));
+}
+
+// ---------- composer: AI suggestions, editing, saving captions for a scheduled post ----------
+const FIELDS = { 'e-yt-title':['youtube', 'title'], 'e-yt-desc':['youtube', 'description'], 'e-yt-tags':['youtube', 'tags'], 'e-ig':['instagram', 'caption'], 'e-fb':['facebook', 'description'], 'e-tt':['tiktok', 'title'], 'e-x':['x', 'text'] };
+const xLen = t => t.replace(/https?:\/\/\S+/g, 'x'.repeat(23)).length;
+function counts(){ document.querySelectorAll('.count').forEach(c => { const v = $('#' + c.dataset.for).value, n = c.dataset.x ? xLen(v) : v.length; c.textContent = n + ' / ' + c.dataset.max; c.classList.toggle('over', n > +c.dataset.max); }); }
+document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#capEdit')) counts(); });
+function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); }
+function edited(){
+  if ($('#capEdit').hidden) return null; const p = {};
+  for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
+  return p;
+}
+async function compose(id){
+  $('#pickVideo').value = id || ''; $('#pickPlatform').value = ''; $('#compose').scrollIntoView({ behavior:'smooth', block:'start' });
+  $('#capEdit').hidden = true; say($('#aiStatus'), '');
+  if (id && planned.has(id)){ try { fill((await readFile('captions/' + id + '.json')).data); say($('#aiStatus'), 'These are the captions you saved for this video.'); } catch(e){} }
+}
+const pickedId = () => $('#pickVideo').value || upcoming(1).slots[0]?.id || queue[0];
+let promptMod = null;
+async function aiModule(){
+  if (!promptMod){ const res = await fetch(API + '/contents/src/ai-prompt.js', { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error('could not load the AI prompt (' + res.status + ')'); promptMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
+  return promptMod;
+}
+let worlds = null;
+async function videoInfo(id){
+  worlds = worlds || (await readFile('src/worlds.json')).data;
+  const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || [], W = worlds.find(w => w.id === m[2]) || {};
+  return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
+}
+$('#btnSuggest').onclick = async () => {
+  const st = $('#aiStatus'), id = pickedId();
+  if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials first (with your sign-in password), then try again.', true); return; }
+  say(st, 'Writing captions for ' + label(id) + '…'); $('#btnSuggest').disabled = true;
+  try {
+    const P = await aiModule(), info = await videoInfo(id);
+    const { default:Anthropic } = await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm');
+    const client = new Anthropic({ apiKey:aiKey, dangerouslyAllowBrowser:true });
+    const res = await client.beta.messages.create({ model:P.MODEL, max_tokens:16000, output_config:{ effort:'low', format:{ type:'json_schema', schema:P.SCHEMA } },
+      betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:P.SYSTEM,
+      messages:[{ role:'user', content:P.userPrompt(info, { voice:$('#aiVoice').value.trim() || (cfg.ai || {}).voice, prompt:$('#aiPrompt').value.trim(), extraHashtags:cfg.extraHashtags, askQuestion:cfg.askQuestion !== false }) }] });
+    if (res.stop_reason === 'refusal') throw new Error('the AI declined this one; try rewording your request');
+    fill(P.finish(JSON.parse(res.content.filter(b => b.type === 'text').map(b => b.text).join(''))));
+    say(st, 'Here are the suggestions for ' + label(id) + '. Edit anything, then post now or save them for its scheduled post.');
+  } catch(e){ say(st, 'Couldn\'t write captions: ' + (e.message || e), true); }
+  $('#btnSuggest').disabled = false;
+};
+$('#btnStd').onclick = async () => {
+  const st = $('#aiStatus'), id = pickedId();
+  try {
+    const P = await aiModule(), info = await videoInfo(id);
+    const sample = { youtube:{ title:`${label(id)} | Monkey Vine Rush`, description:info.blurb || '', tags:['Monkey Vine Rush', 'mobile game', 'iPhone game'] }, instagram:{ caption:info.blurb + '\n\nFree on the App Store: link in bio 🔗\n\n#MonkeyVineRush #mobilegame' }, facebook:{ description:info.blurb || '' }, tiktok:{ title:info.blurb + ' Free on the App Store, link in bio! #MonkeyVineRush #mobilegame' }, x:{ text:info.blurb || '' } };
+    fill(P.finish(sample)); say(st, 'A simple starting point for ' + label(id) + ': edit away.');
+  } catch(e){ say(st, 'Couldn\'t load: ' + e.message, true); }
+};
+$('#btnPlan').onclick = async () => {
+  const st = $('#runStatus'), id = pickedId(), p = edited();
+  if (!p){ say(st, 'Suggest or write captions first.', true); return; }
+  say(st, 'Saving…');
+  try { let sha; try { sha = (await gh('/contents/captions/' + id + '.json')).sha; } catch(e){}
+    await writeFile('captions/' + id + '.json', p, sha, 'Captions for ' + id); planned.add(id); renderDash();
+    say(st, 'Saved: ' + label(id) + ' will post with these captions.'); } catch(e){ say(st, 'Not saved: ' + e.message, true); }
+};
+$('#btnUnplan').onclick = async () => {
+  const st = $('#runStatus'), id = pickedId();
+  try { const f = await gh('/contents/captions/' + id + '.json'); await gh('/contents/captions/' + id + '.json', { method:'DELETE', body:JSON.stringify({ message:'Remove captions for ' + id, sha:f.sha }) });
+    planned.delete(id); renderDash(); say(st, 'Removed: AI will write ' + label(id) + '\'s captions when it posts.'); }
+  catch(e){ say(st, e.message.startsWith('404') ? 'There are no saved captions for that video.' : 'Couldn\'t remove: ' + e.message, true); }
+};
+async function dispatch({ video = '', platform = '', captions = null } = {}){
+  const st = $('#runStatus'); say(st, 'Starting the post…');
+  try { await gh('/actions/workflows/post.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ dry_run:'false', platform, video, captions:captions ? b64(JSON.stringify(captions)) : '' } }) });
+    say(st, 'Posting now: follow it under Activity (it updates by itself).'); setTimeout(renderHistory, 6000); }
+  catch(e){ say(st, 'Could not start: ' + e.message + '. The GitHub key needs Actions: Read and write.', true); }
+}
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault(); const st = $('#loginStatus'), email = $('#lEmail').value, pass = $('#lPass').value;
+  if (norm(email) !== OWNER){ await wait(600); say(st, 'That email or password isn\'t right.', true); return; }
+  say(st, 'Signing in…');
+  try { const sec = await unlock(email, pass, vault); signedIn(sec.token, email, sec.anthropic); $('#lPass').value = ''; say(st, ''); showSignedIn(); }
+  catch(err){ say(st, 'That email or password isn\'t right.', true); }
+};
+$('#setupForm').onsubmit = async e => {
+  e.preventDefault(); const st = $('#setupStatus'), email = $('#sEmail').value, pass = $('#sPass').value, key = $('#sTok').value.trim();
+  if (norm(email) !== OWNER){ say(st, 'This site only accepts ' + OWNER + '.', true); return; }
+  if (pass.length < 12){ say(st, 'Use at least 12 characters.', true); return; }
+  if (pass !== $('#sPass2').value){ say(st, 'The two passwords don\'t match.', true); return; }
+  say(st, 'Checking the GitHub key…');
+  try {
+    const r = await fetch(API, { headers:{ Authorization:'Bearer ' + key, Accept:'application/vnd.github+json' } });
+    if (!r.ok) throw new Error(r.status + ' (the key can\'t open monkey-vine-rush-social)');
+    say(st, 'Locking and saving…'); vault = await lock(email, pass, { token:key, at:new Date().toISOString() }); await saveVault(vault, key);
+    signedIn(key, email); $('#sPass').value = $('#sPass2').value = $('#sTok').value = ''; say(st, ''); showSignedIn();
+  } catch(err){ say(st, 'Not saved: ' + err.message, true); }
+};
+$('#acctForm').onsubmit = async e => {
+  e.preventDefault(); const st = $('#acctStatus'), np = $('#aPass').value, nk = $('#aTok').value.trim(), cur = $('#aCur').value;
+  if (!np && !nk){ say(st, 'Type a new password or a new key first.'); return; }
+  if (np && np.length < 12){ say(st, 'Use at least 12 characters.', true); return; }
+  say(st, 'Saving…');
+  try {
+    vault = vault || await getVault(); await unlock(OWNER, cur, vault);   // proves the current password
+    const key = nk || token, v = await lock(OWNER, np || cur, { token:key, anthropic:aiKey || undefined, at:new Date().toISOString() });
+    await saveVault(v, key); vault = v; signedIn(key, OWNER, aiKey); $('#aPass').value = $('#aTok').value = $('#aCur').value = '';
+    say(st, 'Updated. It works everywhere within a minute or two.');
+  } catch(err){ say(st, err.name === 'OperationError' ? 'The current password isn\'t right.' : 'Not saved: ' + err.message, true); }
+};
+$('#btnOut').onclick = () => { try { sessionStorage.clear(); } catch(e){} location.reload(); };
+$('#btnAddSlot').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'20:00' }); renderSlots(); };
+$('#btnSave').onclick = async () => {
+  const st = $('#status'); collect(); say(st, 'Saving…');
+  try {
+    cfgSha = (await writeFile('config.json', cfg, cfgSha, 'Settings changed')).content.sha;
+    queueSha = (await writeFile('queue.json', queue, queueSha, 'Posting order changed')).content.sha;
+    say(st, 'Saved. New settings apply from the next hour.');
+  } catch(e){ say(st, 'Not saved: ' + e.message + (e.message.startsWith('409') ? ' (changed elsewhere: reload the page)' : ''), true); }
+};
+$('#btnNow').onclick = () => dispatch({ video:$('#pickVideo').value, platform:$('#pickPlatform').value, captions:edited() });
+$('#btnCreds').onclick = saveCreds;
+$('#btnRefresh').onclick = renderHistory;
+(async () => {
+  if (token){ showSignedIn(); return; }
+  try { vault = await getVault(); } catch(e){}
+  if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
+})();
+</script>
+</body>
+</html>
