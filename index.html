@@ -35,6 +35,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.pager{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}.pager .hint{margin-left:auto}
 .olinks{display:flex;flex-direction:column;gap:4px;margin:4px 0 10px}
 .olinks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500;padding:6px 8px;border-radius:8px;background:#0e1118;min-width:0;overflow-wrap:anywhere}
 .olinks small{color:var(--muted);font-weight:400}
@@ -379,6 +380,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h2>Videos</h2>
     <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
     <div id="videos" class="vgrid"></div>
+    <div id="vPager" class="pager" hidden></div>
   </section>
 
   <section id="activity" data-tab="activity">
@@ -791,13 +793,25 @@ function choose(id){
   $('#chosen').textContent = id ? 'Chosen: ' + label(id) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
   againShow();
 }
-async function renderVideos(){
-  let files = [], xs = new Set(); try { for (const f of ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name))){ const id = f.name.replace(/\.(mp4|mov)$/i, ''); fileOf[id] = f.name; files.push(id); } } catch(e){}
-  try { xs = new Set(((await gh('/contents/media/x')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', ''))); } catch(e){}
-  mediaIds = new Set(files);
-  try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
-  const order = byNewest(files);
+// the Videos tab shows a page at a time (posters load only for that page)
+const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set();
+async function renderVideos(keepPage = false){
+  if (!keepPage){
+    let files = [], xs = new Set(); try { for (const f of ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name))){ const id = f.name.replace(/\.(mp4|mov)$/i, ''); fileOf[id] = f.name; files.push(id); } } catch(e){}
+    try { xs = new Set(((await gh('/contents/media/x')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', ''))); } catch(e){}
+    mediaIds = new Set(files); vFiles = files; vXs = xs;
+    try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
+  }
+  const files = vFiles, xs = vXs, all = byNewest(files), pages = Math.max(1, Math.ceil(all.length / VPAGE));
+  vPage = Math.min(Math.max(0, vPage), pages - 1);
+  const order = all.slice(vPage * VPAGE, vPage * VPAGE + VPAGE);
   const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
+  const pager = $('#vPager');
+  pager.hidden = pages < 2;
+  pager.innerHTML = `<button type="button" class="ghost sm" data-vp="${vPage - 1}"${vPage === 0 ? ' disabled' : ''}>← Previous</button>`
+    + Array.from({ length:pages }, (_, i) => `<button type="button" class="sm${i === vPage ? ' primary' : ' ghost'}" data-vp="${i}" aria-label="Page ${i + 1}"${i === vPage ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('')
+    + `<button type="button" class="ghost sm" data-vp="${vPage + 1}"${vPage >= pages - 1 ? ' disabled' : ''}>Next →</button><span class="hint">${all.length} videos</span>`;
+  pager.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { vPage = +b.dataset.vp; renderVideos(true); $('#videos').scrollIntoView({ behavior:'smooth', block:'start' }); });
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
     const d = document.createElement('div'); d.className = 'vcard';
