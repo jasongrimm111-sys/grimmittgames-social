@@ -31,6 +31,15 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.steps{list-style:none;display:flex;gap:6px;padding:0;margin:4px 0 16px;flex-wrap:wrap;counter-reset:none}
+.steps li{flex:1 1 120px}
+.steps button{width:100%;display:flex;gap:8px;align-items:center;justify-content:center;background:var(--chip);color:var(--muted);border-color:transparent}
+.steps button b{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--line);color:var(--fg);font-size:.8rem}
+.steps button[aria-current="step"]{background:var(--accent);color:var(--accentfg)}
+.steps button[aria-current="step"] b{background:var(--accentfg);color:var(--accent)}
+.steps button.done b{background:var(--accent);color:var(--accentfg)}
+.stepnav{justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+#summary p{margin:4px 0}
 .foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem}
 .ytbadge{display:block;width:300px;height:54px;overflow:hidden;flex:none;max-width:100%}
 .ytbadge img{width:396px;height:auto;max-width:none;margin:-43px 0 0 -49px;display:block}
@@ -190,8 +199,20 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   </section>
   <section id="compose" data-tab="new">
     <h2>New post</h2>
-    <div class="row">
-      <div style="flex:1 1 260px"><label>Video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div></div>
+    <ol class="steps" id="steps">
+      <li><button type="button" data-step="1"><b>1</b> Video</button></li>
+      <li><button type="button" data-step="2"><b>2</b> Where</button></li>
+      <li><button type="button" data-step="3"><b>3</b> Captions</button></li>
+      <li><button type="button" data-step="4"><b>4</b> Preview &amp; post</button></li>
+    </ol>
+
+    <div class="step" data-s="1">
+      <label>Choose a video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div>
+      <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
+      <div id="againBox" hidden><p class="hint" id="againNote"></p><label class="check"><input id="repost" type="checkbox"> Post again to platforms it's already been on</label></div>
+    </div>
+
+    <div class="step" data-s="2" hidden>
       <div><label id="whereLbl">Post to</label>
         <div class="ms" id="whereBox">
           <button type="button" id="whereBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="whereLbl whereBtn"><span id="whereSum">None selected</span></button>
@@ -201,44 +222,53 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
           </div>
         </div>
       </div>
+      <div id="metaOpts" class="cap">
+        <h3>Facebook and Instagram: where it appears</h3>
+        <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
+        <div class="row" id="metaIg"><span style="width:110px;font-weight:600">Instagram</span><label class="check"><input id="mIgReel" type="checkbox"> Reels</label><label class="check"><input id="mIgStory" type="checkbox"> Story</label></div>
+        <p class="hint">Stories last 24 hours and show without a caption on Instagram; Reels stay on your profile and in feeds. Tick both to post to each.</p>
+      </div>
+      <div id="ttOpts" class="cap">
+        <h3>TikTok settings for this post</h3>
+        <p class="hint" id="ttWho">Posting to your connected TikTok account.</p>
+        <label for="ttPriv">Who can see this video</label>
+        <select id="ttPriv"><option value="">Choose…</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option><option value="SELF_ONLY">Only me</option></select>
+        <div class="row" style="margin-top:6px"><label class="check"><input id="ttCom" type="checkbox" checked> Allow comments</label><label class="check"><input id="ttDuet" type="checkbox" checked> Allow Duet</label><label class="check"><input id="ttStitch" type="checkbox" checked> Allow Stitch</label></div>
+        <label class="check"><input id="ttBrand" type="checkbox" checked> Disclose: this video promotes our own business (Monkey Vine Rush). TikTok labels it "Promotional content".</label>
+        <p class="hint">By posting, you agree to TikTok's <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank" rel="noopener">Music Usage Confirmation</a>.</p>
+      </div>
     </div>
-    <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
-    <div id="againBox" hidden><p class="hint" id="againNote"></p><label class="check"><input id="repost" type="checkbox"> Post again to platforms it's already been on</label></div>
-    <label for="aiPrompt">Ask AI (optional)</label>
-    <textarea id="aiPrompt" rows="2" placeholder="e.g. Halloween theme, short and funny, challenge people to beat the boss"></textarea>
-    <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
-    <p id="aiStatus" class="status" role="status"></p>
-    <div id="capEdit" hidden>
-      <div class="subtabs" id="capTabs" role="tablist" aria-label="Captions for each platform"></div>
-      <div class="cap" data-cap="youtube"><h3>YouTube Shorts</h3>
-        <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
-        <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
-        <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
-      <div class="cap" data-cap="instagram"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
-      <div class="cap" data-cap="facebook"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
-      <div class="cap" data-cap="tiktok"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
-      <div class="cap" data-cap="x"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
+
+    <div class="step" data-s="3" hidden>
+      <p class="hint">Optional: leave this step empty and AI writes the captions when it posts.</p>
+      <label for="aiPrompt">Ask AI (optional)</label>
+      <textarea id="aiPrompt" rows="2" placeholder="e.g. Halloween theme, short and funny, challenge people to beat the boss"></textarea>
+      <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
+      <p id="aiStatus" class="status" role="status"></p>
+      <div id="capEdit" hidden>
+        <div class="subtabs" id="capTabs" role="tablist" aria-label="Captions for each platform"></div>
+        <div class="cap" data-cap="youtube"><h3>YouTube Shorts</h3>
+          <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
+          <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
+          <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
+        <div class="cap" data-cap="instagram"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
+        <div class="cap" data-cap="facebook"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
+        <div class="cap" data-cap="tiktok"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
+        <div class="cap" data-cap="x"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
+      </div>
     </div>
-    <div id="metaOpts" class="cap">
-      <h3>Facebook and Instagram: where it appears</h3>
-      <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
-      <div class="row" id="metaIg"><span style="width:110px;font-weight:600">Instagram</span><label class="check"><input id="mIgReel" type="checkbox"> Reels</label><label class="check"><input id="mIgStory" type="checkbox"> Story</label></div>
-      <p class="hint">Stories last 24 hours and show without a caption on Instagram; Reels stay on your profile and in feeds. Tick both to post to each.</p>
+
+    <div class="step" data-s="4" hidden>
+      <div id="summary" class="cap"></div>
+      <div class="row"><button id="btnPreview" type="button">Refresh the preview</button></div>
+      <div id="previews" hidden></div>
+      <div class="row" style="margin-top:10px"><button id="btnNow" class="primary" type="button">Post it now</button><button id="btnPlan" type="button">Save for its scheduled post</button><button id="btnUnplan" type="button">Remove saved captions</button></div>
+      <p class="hint">Post it now uses the captions above if you've written or suggested some, otherwise AI writes them as it posts. A post takes a minute or two; watch it under Activity.</p>
+      <p id="runStatus" class="status" role="status"></p>
     </div>
-    <div id="ttOpts" class="cap">
-      <h3>TikTok settings for this post</h3>
-      <p class="hint" id="ttWho">Posting to your connected TikTok account.</p>
-      <label for="ttPriv">Who can see this video</label>
-      <select id="ttPriv"><option value="">Choose…</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option><option value="SELF_ONLY">Only me</option></select>
-      <div class="row" style="margin-top:6px"><label class="check"><input id="ttCom" type="checkbox" checked> Allow comments</label><label class="check"><input id="ttDuet" type="checkbox" checked> Allow Duet</label><label class="check"><input id="ttStitch" type="checkbox" checked> Allow Stitch</label></div>
-      <label class="check"><input id="ttBrand" type="checkbox" checked> Disclose: this video promotes our own business (Monkey Vine Rush). TikTok labels it "Promotional content".</label>
-      <p class="hint">By posting, you agree to TikTok's <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank" rel="noopener">Music Usage Confirmation</a>.</p>
-    </div>
-    <div class="row" style="margin-top:10px"><button id="btnPreview" type="button">Preview the posts</button></div>
-    <div id="previews" hidden></div>
-    <div class="row" style="margin-top:10px"><button id="btnNow" class="primary" type="button">Post it now</button><button id="btnPlan" type="button">Save for its scheduled post</button><button id="btnUnplan" type="button">Remove saved captions</button></div>
-    <p class="hint">Post it now uses the captions above if you've written or suggested some, otherwise AI writes them as it posts. A post takes a minute or two; watch it under Activity.</p>
-    <p id="runStatus" class="status" role="status"></p>
+
+    <div class="row stepnav"><button type="button" id="stepBack">← Back</button><button type="button" id="stepNext" class="primary">Next →</button></div>
+    <p id="stepStatus" class="status" role="status"></p>
   </section>
 
   <section data-tab="videos" id="upload">
@@ -430,7 +460,7 @@ function showSignedIn(){
 const wait = ms => new Promise(r => setTimeout(r, ms));
 
 const gh = async (path, opt = {}) => {
-  const res = await fetch(API + path, { ...opt, headers:{ ...auth(), Accept:'application/vnd.github+json', 'Content-Type':'application/json', ...(opt.headers || {}) } });
+  const res = await fetch(API + path, { cache:'no-store', ...opt, headers:{ ...auth(), Accept:'application/vnd.github+json', 'Content-Type':'application/json', ...(opt.headers || {}) } });
   if (!res.ok) throw new Error(res.status + ' ' + ((await res.json().catch(() => ({}))).message || res.statusText));
   return res.status === 204 ? null : res.json().catch(() => null);
 };
@@ -537,7 +567,7 @@ async function saveCreds(){
 }
 
 // ---------- videos (loaded from the private project with the token) ----------
-const raw = async path => { const res = await fetch(API + '/contents/' + path, { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error(res.status); return URL.createObjectURL(await res.blob()); };
+const raw = async path => { const res = await fetch(API + '/contents/' + path, { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error(res.status); return URL.createObjectURL(await res.blob()); };
 let created = {}; const fileOf = {};
 const byNewest = ids => [...ids].sort((a, b) => String(created[b] || '').localeCompare(String(created[a] || '')) || queue.indexOf(a) - queue.indexOf(b));
 const posters = {};
@@ -549,7 +579,7 @@ function renderPicker(){
     + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im"></span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
-    b.onclick = () => choose(b.dataset.id);
+    b.onclick = () => chooseAndNext(b.dataset.id);
   });
   $('#chosen').textContent = cur ? 'Chosen: ' + label(cur) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
 }
@@ -558,6 +588,7 @@ function againShow(){
   $('#againBox').hidden = !done.length; $('#repost').checked = false;
   $('#againNote').textContent = done.length ? 'Already posted to ' + done.map(k => NAME[k]).join(', ') + '. Those are skipped unless you tick below.' : '';
 }
+function chooseAndNext(id){ choose(id); if (step === 1) setTimeout(() => goStep(2), 250); }
 function choose(id){
   if (![...$('#pickVideo').options].some(o => o.value === id)) $('#pickVideo').add(new Option(id, id));
   $('#pickVideo').value = id;
@@ -598,26 +629,43 @@ const ICON = { youtube:'▶', instagram:'◎', facebook:'f', tiktok:'♪', x:'�
 const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };
 const SRC = { ai:'<span class="tag ai">AI</span>', approved:'<span class="tag mine">your captions</span>', site:'<span class="tag mine">written here</span>', template:'<span class="tag">standard</span>' };
 let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0, hidden = { posted:[], failed:[] }, hiddenSha;
+const removedHere = { posted:new Set(), failed:new Set() };
+// forget that a video was posted to a platform (the post itself stays on the platform: delete it there if you want it gone)
+async function unpost(vid, k){
+  for (let attempt = 0; attempt < 3; attempt++){
+    const f = await readFile('state.json'), st = f.data;
+    if (st.posted && st.posted[vid]){ delete st.posted[vid][k]; if (!Object.keys(st.posted[vid]).length) delete st.posted[vid]; }
+    try { await writeFile('state.json', st, f.sha, 'Removed from Posted: ' + vid + ' on ' + k); state = st; return; }
+    catch(e){ if (!e.message.startsWith('409') || attempt === 2) throw e; await wait(800); }
+  }
+}
 async function hideItem(kind, key){
   for (let attempt = 0; attempt < 2; attempt++){
     try { const f = await readFile('hidden.json'); hidden = f.data; hiddenSha = f.sha; } catch(e){ hidden = { posted:[], failed:[] }; hiddenSha = undefined; }
-    hidden[kind] = [...new Set([...(hidden[kind] || []), key])];
+    removedHere[kind].add(key);
+    for (const k of ['posted', 'failed']) hidden[k] = [...new Set([...(hidden[k] || []), ...removedHere[k]])];
     try { await writeFile('hidden.json', hidden, hiddenSha, 'Removed from Activity'); return; } catch(e){ if (attempt) throw e; }
   }
 }
 async function renderHistory(){
   try { state = (await readFile('state.json')).data; } catch(e){}
   try { hidden = (await readFile('hidden.json')).data; } catch(e){ hidden = { posted:[], failed:[] }; }
-  const hp = new Set(hidden.posted || []), hf = new Set(hidden.failed || []);
-  const rows = []; for (const [id, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) if (!hp.has(id + '|' + k)) rows.push({ id, k, ...v });
+  const hp = new Set([...(hidden.posted || []), ...removedHere.posted]), hf = new Set([...(hidden.failed || []), ...removedHere.failed]);
+  const rows = []; for (const [vid, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) rows.push({ ...v, vid, k });
   rows.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.id))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => p === 'story' ? 'Story' : 'Reels').join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-hide="posted" data-key="${esc(r.id + '|' + r.k)}" title="Remove from this list (it stays recorded as posted, so it won't post again)">Remove</button></span></li>`).join('')
+  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.vid))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => p === 'story' ? 'Story' : 'Reels').join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-unpost="${esc(r.vid)}" data-k="${r.k}" title="Delete this record: the video counts as not posted to this platform, so it can be posted there again">Remove</button></span></li>`).join('')
     : '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>';
   const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) if (!hf.has(id + '|' + k + '|' + v.at)) probs.push({ id, k, ...v });
   probs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
   $('#problems').innerHTML = probs.length ? probs.map(r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button><button type="button" data-hide="failed" data-key="${esc(r.id + '|' + r.k + '|' + r.at)}">Remove</button></span></li>`).join('')
     : '<li><span></span><span class="t">No problems.</span><span></span></li>';
   document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => dispatch({ video:b.dataset.retry, platform:b.dataset.k }));
+  document.querySelectorAll('[data-unpost]').forEach(b => b.onclick = async () => {
+    if (b.dataset.sure !== '1'){ b.dataset.sure = '1'; b.textContent = 'Sure?'; setTimeout(() => { b.dataset.sure = ''; b.textContent = 'Remove'; }, 4000); return; }
+    b.disabled = true; b.textContent = 'Removing…';
+    try { await unpost(b.dataset.unpost, b.dataset.k); b.closest('li').remove(); renderDash(); }
+    catch(e){ b.disabled = false; b.textContent = 'Remove'; say($('#runStatus'), 'Couldn’t remove: ' + e.message, true); }
+  });
   document.querySelectorAll('[data-hide]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Removing…'; try { await hideItem(b.dataset.hide, b.dataset.key); b.closest('li').remove(); } catch(e){ b.disabled = false; b.textContent = 'Remove'; say($('#runStatus'), 'Couldn\'t remove: ' + e.message, true); } });
   try {
     const runs = ((await gh('/actions/workflows/post.yml/runs?per_page=10')) || {}).workflow_runs || [];
@@ -667,26 +715,34 @@ function renderQueue(){
 }
 // drag a row by its handle: it moves between the others as the pointer passes their middle; the list scrolls near its edges
 function dragRow(e, li){
+  if (e.button !== undefined && e.button !== 0) return;
   e.preventDefault();
-  const ul = $('#queue'), grip = e.currentTarget; grip.setPointerCapture(e.pointerId);
-  li.classList.add('dragging');
-  let scroll = 0; const tick = setInterval(() => { if (scroll) ul.scrollTop += scroll; }, 16);
-  const move = ev => {
-    const r = ul.getBoundingClientRect();
-    scroll = ev.clientY < r.top + 40 ? -8 : ev.clientY > r.bottom - 40 ? 8 : 0;
+  const ul = $('#queue');
+  try { e.currentTarget.setPointerCapture(e.pointerId); } catch(err){}
+  li.classList.add('dragging'); document.body.style.userSelect = 'none';
+  let scroll = 0, lastY = e.clientY; const tick = setInterval(() => { if (scroll){ ul.scrollTop += scroll; place(lastY); } }, 16);
+  // put the row before/after whichever row the pointer is over
+  const place = y => {
     for (const other of ul.children){
       if (other === li) continue;
       const b = other.getBoundingClientRect();
-      if (ev.clientY > b.top && ev.clientY < b.bottom){ ul.insertBefore(li, ev.clientY < b.top + b.height / 2 ? other : other.nextSibling); break; }
+      if (y >= b.top && y <= b.bottom){ const before = y < b.top + b.height / 2 ? other : other.nextSibling; if (before !== li && before !== li.nextSibling) ul.insertBefore(li, before); break; }
     }
   };
+  const move = ev => {
+    lastY = ev.clientY;
+    const r = ul.getBoundingClientRect();
+    scroll = ev.clientY < r.top + 40 ? -8 : ev.clientY > r.bottom - 40 ? 8 : 0;
+    place(ev.clientY);
+  };
   const up = () => {
-    clearInterval(tick); grip.removeEventListener('pointermove', move); grip.removeEventListener('pointerup', up); grip.removeEventListener('pointercancel', up);
-    li.classList.remove('dragging');
+    clearInterval(tick); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); window.removeEventListener('pointercancel', up);
+    li.classList.remove('dragging'); document.body.style.userSelect = '';
     const order = [...ul.children].map(x => x.dataset.id);
     if (order.join() !== queue.join()){ queue.splice(0, queue.length, ...order); renderQueue(); say($('#status'), 'Order changed: press Save changes to keep it.'); }
   };
-  grip.addEventListener('pointermove', move); grip.addEventListener('pointerup', up); grip.addEventListener('pointercancel', up);
+  // listened for on the whole window, so the drag keeps working whichever element the pointer is over
+  window.addEventListener('pointermove', move); window.addEventListener('pointerup', up); window.addEventListener('pointercancel', up);
 }
 function render(){
   $('#paused').checked = !!cfg.paused;
@@ -727,7 +783,7 @@ async function load(){
     try { customs = (await readFile('media/custom.json')).data; } catch(e){ customs = {}; }
     try { planned = new Set(((await gh('/contents/captions')) || []).filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''))); } catch(e){ planned = new Set(); }
     try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
-    showTab(location.hash.slice(1) || 'dashboard', false);
+    showTab(location.hash.slice(1) || 'dashboard', false); goStep(1);
     render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker(); metaReset(); renderWhere();
   } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
 }
@@ -779,7 +835,8 @@ const FIELDS = { 'e-yt-title':['youtube', 'title'], 'e-yt-desc':['youtube', 'des
 const xLen = t => t.replace(/https?:\/\/\S+/g, 'x'.repeat(23)).length;
 function counts(){ document.querySelectorAll('.count').forEach(c => { const v = $('#' + c.dataset.for).value, n = c.dataset.x ? xLen(v) : v.length; c.textContent = n + ' / ' + c.dataset.max; c.classList.toggle('over', n > +c.dataset.max); }); }
 document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#capEdit')){ counts(); renderCapTabs(); } });
-function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); renderCapTabs(); }
+function fillDone(){ if (step === 3) $('#stepNext').textContent = 'Next →'; }
+function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); renderCapTabs(); fillDone(); }
 function edited(){
   if ($('#capEdit').hidden) return null; const p = {};
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
@@ -841,8 +898,39 @@ function ttShow(){
   let acct = ''; for (const p of Object.values(state.posted || {})) if (p.tiktok && p.tiktok.account) acct = p.tiktok.account;
   $('#ttWho').textContent = acct ? 'Posting to TikTok account: ' + acct : 'Posting to your connected TikTok account (its name shows here after the first post).';
 }
+// ---------- New post steps ----------
+let step = 1;
+function stepProblem(n){
+  if (n === 2){
+    const on = picked();
+    if (!on.length) return 'Choose at least one platform under "Post to".';
+    if (on.includes('tiktok') && !$('#ttPriv').value) return 'Choose who can see the TikTok video.';
+    if (on.includes('facebook') && !$('#mFbReel').checked && !$('#mFbStory').checked) return 'Choose Reels and/or Story for Facebook.';
+    if (on.includes('instagram') && !$('#mIgReel').checked && !$('#mIgStory').checked) return 'Choose Reels and/or Story for Instagram.';
+  }
+  return '';
+}
+function goStep(n){
+  for (let k = 1; k < n; k++){ const why = stepProblem(k); if (why){ n = k; say($('#stepStatus'), why, true); break; } }
+  if (n === step || !stepProblem(n - 1)) say($('#stepStatus'), '');
+  step = n;
+  document.querySelectorAll('.step').forEach(el => el.hidden = +el.dataset.s !== n);
+  document.querySelectorAll('[data-step]').forEach(b => { const k = +b.dataset.step; b.toggleAttribute('aria-current', k === n); if (k === n) b.setAttribute('aria-current', 'step'); b.classList.toggle('done', k < n); });
+  $('#stepBack').hidden = n === 1; $('#stepNext').hidden = n === 4;
+  $('#stepNext').textContent = n === 3 && $('#capEdit').hidden ? 'Skip: AI writes them →' : 'Next →';
+  if (n === 4){ renderSummary(); renderPreviews(); }
+  $('#compose').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function renderSummary(){
+  const id = $('#pickVideo').value, on = picked(), caps = $('#capEdit').hidden ? 'written by AI when it posts' : 'the ones in step 3';
+  const extra = [on.includes('facebook') ? 'Facebook ' + [$('#mFbReel').checked && 'Reels', $('#mFbStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('instagram') ? 'Instagram ' + [$('#mIgReel').checked && 'Reels', $('#mIgStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('tiktok') ? 'TikTok: ' + $('#ttPriv').selectedOptions[0].textContent : ''].filter(Boolean);
+  $('#summary').innerHTML = `<h3>Ready to post</h3><p><b>Video:</b> ${esc(id ? label(id) : 'next in line' + (nextId ? ' (' + label(nextId) + ')' : ''))}</p><p><b>Where:</b> ${esc(on.map(k => NAME[k]).join(', '))}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</p><p><b>Captions:</b> ${caps}</p>`;
+}
+document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => goStep(+b.dataset.step));
+$('#stepNext').onclick = () => { const why = stepProblem(step); if (why){ say($('#stepStatus'), why, true); if (step === 2 && !picked().length) setTimeout(() => wherePanel(true), 0); return; } goStep(step + 1); };
+$('#stepBack').onclick = () => goStep(step - 1);
 async function compose(id){
-  showTab('new'); ttShow(); $('#ttPriv').value = '';
+  showTab('new'); goStep(id ? 2 : 1); ttShow(); $('#ttPriv').value = '';
   choose(id || ''); metaReset(); renderWhere();
   $('#capEdit').hidden = true; say($('#aiStatus'), '');
   if (id && planned.has(id)){ try { fill((await readFile('captions/' + id + '.json')).data); say($('#aiStatus'), 'These are the captions you saved for this video.'); } catch(e){} }
@@ -862,7 +950,7 @@ async function videoInfo(id){
   return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
 }
 // captions are shown for the chosen platforms only, so choose them first
-const needWhere = () => { if (picked().length) return false; say($('#aiStatus'), 'First choose where to post under "Post to" (opened for you): the captions for those platforms then appear here.', true); wherePanel(true); $('#whereBtn').scrollIntoView({ behavior:'smooth', block:'center' }); return true; };
+const needWhere = () => { if (picked().length) return false; goStep(2); say($('#stepStatus'), 'First choose where to post: the captions for those platforms then appear in step 3.', true); setTimeout(() => wherePanel(true), 0); return true; };
 $('#btnSuggest').onclick = async () => {
   if (needWhere()) return;
   const st = $('#aiStatus'), id = pickedId();
@@ -881,13 +969,16 @@ $('#btnSuggest').onclick = async () => {
   } catch(e){ say(st, 'Couldn\'t write captions: ' + (e.message || e), true); }
   $('#btnSuggest').disabled = false;
 };
+async function stdCaptions(id){
+    const P = await aiModule(), info = await videoInfo(id);
+    const sample = { youtube:{ title:`${label(id)} | Monkey Vine Rush`, description:info.blurb || '', tags:['Monkey Vine Rush', 'mobile game', 'iPhone game'] }, instagram:{ caption:info.blurb + '\n\nFree on the App Store: link in bio 🔗\n\n#MonkeyVineRush #mobilegame' }, facebook:{ description:info.blurb || '' }, tiktok:{ title:info.blurb + ' Free on the App Store, link in bio! #MonkeyVineRush #mobilegame' }, x:{ text:info.blurb || '' } };
+    return P.finish(sample);
+}
 $('#btnStd').onclick = async () => {
   if (needWhere()) return;
   const st = $('#aiStatus'), id = pickedId();
   try {
-    const P = await aiModule(), info = await videoInfo(id);
-    const sample = { youtube:{ title:`${label(id)} | Monkey Vine Rush`, description:info.blurb || '', tags:['Monkey Vine Rush', 'mobile game', 'iPhone game'] }, instagram:{ caption:info.blurb + '\n\nFree on the App Store: link in bio 🔗\n\n#MonkeyVineRush #mobilegame' }, facebook:{ description:info.blurb || '' }, tiktok:{ title:info.blurb + ' Free on the App Store, link in bio! #MonkeyVineRush #mobilegame' }, x:{ text:info.blurb || '' } };
-    fill(P.finish(sample)); say(st, 'A simple starting point for ' + label(id) + ': edit away.');
+    fill(await stdCaptions(id)); say(st, 'A simple starting point for ' + label(id) + ': edit away.');
   } catch(e){ say(st, 'Couldn\'t load: ' + e.message, true); }
 };
 $('#btnPlan').onclick = async () => {
@@ -1005,7 +1096,8 @@ const clip = (t, n) => { t = String(t || ''); return t.length > n ? esc(t.slice(
 async function renderPreviews(){
   const box = $('#previews'), id = pickedId();
   let p = edited();
-  if (!p){ await $('#btnStd').onclick(); p = edited(); say($('#aiStatus'), 'Previewing the standard captions. Suggest captions with AI, or edit them, and preview again.'); }
+  let note = '';
+  if (!p){ try { p = await stdCaptions(id); note = '<p class="hint">Shown with the standard captions as a guide: AI writes the real ones when it posts.</p>'; } catch(e){ box.innerHTML = '<p class="hint">Couldn’t build the preview: ' + esc(e.message) + '</p>'; box.hidden = false; return; } }
   if (!p) return;
   let img = ''; try { img = await poster(id); } catch(e){}
   const bg = img ? `style="background-image:url('${img}')"` : '';
@@ -1020,7 +1112,7 @@ async function renderPreviews(){
     + (on.has('youtube') ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
     + (on.has('facebook') ? card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable') : '')
     + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
-    + '</div><p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
+    + '</div>' + note + '<p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 $('#btnPreview').onclick = renderPreviews;
