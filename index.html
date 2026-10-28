@@ -209,6 +209,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
     <p id="aiStatus" class="status" role="status"></p>
     <div id="capEdit" hidden>
+      <div class="subtabs" id="capTabs" role="tablist" aria-label="Captions for each platform"></div>
       <div class="cap" data-cap="youtube"><h3>YouTube Shorts</h3>
         <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
         <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
@@ -727,7 +728,7 @@ async function load(){
     try { planned = new Set(((await gh('/contents/captions')) || []).filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''))); } catch(e){ planned = new Set(); }
     try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
     showTab(location.hash.slice(1) || 'dashboard', false);
-    render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker(); renderWhere();
+    render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker(); metaReset(); renderWhere();
   } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
 }
 // ---------- coming up: the next scheduled times and which video each will post ----------
@@ -777,8 +778,8 @@ async function renderDash(){
 const FIELDS = { 'e-yt-title':['youtube', 'title'], 'e-yt-desc':['youtube', 'description'], 'e-yt-tags':['youtube', 'tags'], 'e-ig':['instagram', 'caption'], 'e-fb':['facebook', 'description'], 'e-tt':['tiktok', 'title'], 'e-x':['x', 'text'] };
 const xLen = t => t.replace(/https?:\/\/\S+/g, 'x'.repeat(23)).length;
 function counts(){ document.querySelectorAll('.count').forEach(c => { const v = $('#' + c.dataset.for).value, n = c.dataset.x ? xLen(v) : v.length; c.textContent = n + ' / ' + c.dataset.max; c.classList.toggle('over', n > +c.dataset.max); }); }
-document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#capEdit')) counts(); });
-function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); }
+document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#capEdit')){ counts(); renderCapTabs(); } });
+function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); renderCapTabs(); }
 function edited(){
   if ($('#capEdit').hidden) return null; const p = {};
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
@@ -812,7 +813,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#where
 function whereChanged(){
   const on = new Set(picked());
   $('#whereSum').textContent = !on.size ? 'None selected' : on.size === Object.keys(NAME).filter(isReady).length && on.size > 1 ? 'All set-up platforms (' + [...on].map(k => NAME[k]).join(', ') + ')' : [...on].map(k => NAME[k]).join(', ');
-  document.querySelectorAll('[data-cap]').forEach(c => c.hidden = !on.has(c.dataset.cap));
+  renderCapTabs();
   ttShow(); metaShow();
   if (!$('#previews').hidden) renderPreviews();
 }
@@ -823,6 +824,17 @@ function metaShow(){
 function metaReset(){
   const pl = k => ((cfg[k] || {}).places || ['reels']);
   $('#mFbReel').checked = pl('facebook').includes('reels'); $('#mFbStory').checked = pl('facebook').includes('story'); $('#mIgReel').checked = pl('instagram').includes('reels'); $('#mIgStory').checked = pl('instagram').includes('story');
+}
+// captions: one tab per chosen platform, showing one caption at a time
+let capTab = '';
+function renderCapTabs(){
+  const on = Object.keys(NAME).filter(k => picked().includes(k));
+  if (!on.includes(capTab)) capTab = on[0] || '';
+  const over = k => [...document.querySelectorAll(`[data-cap="${k}"] .count`)].some(c => c.classList.contains('over'));
+  $('#capTabs').innerHTML = on.map(k => `<button type="button" role="tab" data-capt="${k}" aria-selected="${k === capTab}">${NAME[k]}${over(k) ? ' <span style="color:var(--warn)">!</span>' : ''}</button>`).join('');
+  $('#capTabs').hidden = on.length < 2;
+  document.querySelectorAll('[data-cap]').forEach(c => c.hidden = c.dataset.cap !== capTab);
+  document.querySelectorAll('[data-capt]').forEach(b => b.onclick = () => { capTab = b.dataset.capt; renderCapTabs(); });
 }
 function ttShow(){
   $('#ttOpts').hidden = !picked().includes('tiktok');
