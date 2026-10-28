@@ -30,6 +30,9 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.foot{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:.8rem}
+.foot img{width:200px;height:40px;object-fit:cover}
+.foot p{margin:0;flex:1 1 320px}.foot a{color:var(--muted)}
 .slot .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;padding-top:6px;border-top:1px dashed var(--line)}
 .slot .grp b{font-size:.82rem;color:var(--muted);font-weight:600;margin-right:2px}
 .pf{border-radius:99px;padding:3px 10px;font-size:.82rem}
@@ -324,6 +327,11 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <div class="bar" data-tab="schedule platforms ai account"><button id="btnSave" class="primary" type="button">Save changes</button></div>
   <p id="status" class="status" role="status" data-tab="schedule platforms ai account"></p>
   </div>
+  <footer class="foot">
+    <a href="https://www.youtube.com/" aria-label="YouTube"><img src="youtube.png" alt="Developed with YouTube" width="200" height="40"></a>
+    <p>Grimmitt Social is a private tool of Grimmitt Games Limited for publishing our own videos, including through YouTube API Services.
+      <a href="https://www.grimmittgames.com/privacy/">Privacy policy</a> · <a href="https://www.grimmittgames.com/terms/">Terms</a> · <a href="https://www.youtube.com/t/terms">YouTube Terms of Service</a> · <a href="https://policies.google.com/privacy">Google Privacy Policy</a> · <a href="https://myaccount.google.com/permissions">Remove access to a Google account</a></p>
+  </footer>
 </main>
 <script type="module">
 const REPO = 'jasongrimm111-sys/monkey-vine-rush-social', SITE_REPO = 'jasongrimm111-sys/grimmittgames-social';
