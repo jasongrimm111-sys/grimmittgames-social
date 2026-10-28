@@ -861,7 +861,10 @@ async function videoInfo(id){
   const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || [], W = worlds.find(w => w.id === m[2]) || {};
   return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
 }
+// captions are shown for the chosen platforms only, so choose them first
+const needWhere = () => { if (picked().length) return false; say($('#aiStatus'), 'First choose where to post under "Post to" (opened for you): the captions for those platforms then appear here.', true); wherePanel(true); $('#whereBtn').scrollIntoView({ behavior:'smooth', block:'center' }); return true; };
 $('#btnSuggest').onclick = async () => {
+  if (needWhere()) return;
   const st = $('#aiStatus'), id = pickedId();
   if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials first (with your sign-in password), then try again.', true); return; }
   say(st, 'Writing captions for ' + label(id) + '…'); $('#btnSuggest').disabled = true;
@@ -879,6 +882,7 @@ $('#btnSuggest').onclick = async () => {
   $('#btnSuggest').disabled = false;
 };
 $('#btnStd').onclick = async () => {
+  if (needWhere()) return;
   const st = $('#aiStatus'), id = pickedId();
   try {
     const P = await aiModule(), info = await videoInfo(id);
