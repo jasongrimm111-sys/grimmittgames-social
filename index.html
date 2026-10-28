@@ -35,6 +35,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.vsort{align-items:center;margin:0 0 12px}.vsort select{min-width:220px}
 .pager{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}.pager .hint{margin-left:auto}
 .olinks{display:flex;flex-direction:column;gap:4px;margin:4px 0 10px}
 .olinks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500;padding:6px 8px;border-radius:8px;background:#0e1118;min-width:0;overflow-wrap:anywhere}
@@ -379,6 +380,10 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <section data-tab="videos">
     <h2>Videos</h2>
     <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
+    <div class="row vsort"><label for="vSort" style="margin:0">Sort by</label><select id="vSort">
+      <option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option>
+      <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
+    </select></div>
     <div id="videos" class="vgrid"></div>
     <div id="vPager" class="pager" hidden></div>
   </section>
@@ -795,6 +800,22 @@ function choose(id){
 }
 // the Videos tab shows a page at a time (posters load only for that page)
 const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set();
+// sorting: remembered on this device
+const KIND_ORDER = { levels:0, rush:1, boss:2 };
+const vParts = id => { const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id); return m ? { w:+m[1], k:KIND_ORDER[m[3]] ?? 3 } : { w:99, k:3 }; };
+const timesPosted = id => Object.keys((state.posted || {})[id] || {}).length;
+function sortVideos(ids, mode){
+  const newest = byNewest(ids);
+  const by = f => [...newest].sort((a, b) => f(a, b) || newest.indexOf(a) - newest.indexOf(b));
+  if (mode === 'oldest') return [...newest].reverse();
+  if (mode === 'world') return by((a, b) => vParts(a).w - vParts(b).w || vParts(a).k - vParts(b).k);
+  if (mode === 'type') return by((a, b) => vParts(a).k - vParts(b).k || vParts(a).w - vParts(b).w);
+  if (mode === 'unposted') return by((a, b) => (timesPosted(a) > 0) - (timesPosted(b) > 0));
+  if (mode === 'posted') return by((a, b) => timesPosted(b) - timesPosted(a));
+  return newest;
+}
+try { const v = localStorage.getItem('gg-social-vsort'); if (v) setTimeout(() => { $('#vSort').value = v; }, 0); } catch(e){}
+$('#vSort').onchange = () => { try { localStorage.setItem('gg-social-vsort', $('#vSort').value); } catch(e){} vPage = 0; renderVideos(true); };
 async function renderVideos(keepPage = false){
   if (!keepPage){
     let files = [], xs = new Set(); try { for (const f of ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name))){ const id = f.name.replace(/\.(mp4|mov)$/i, ''); fileOf[id] = f.name; files.push(id); } } catch(e){}
@@ -802,7 +823,7 @@ async function renderVideos(keepPage = false){
     mediaIds = new Set(files); vFiles = files; vXs = xs;
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
   }
-  const files = vFiles, xs = vXs, all = byNewest(files), pages = Math.max(1, Math.ceil(all.length / VPAGE));
+  const files = vFiles, xs = vXs, all = sortVideos(files, $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
   const order = all.slice(vPage * VPAGE, vPage * VPAGE + VPAGE);
   const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
