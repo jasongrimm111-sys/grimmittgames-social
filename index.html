@@ -30,6 +30,21 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.slot .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;padding-top:6px;border-top:1px dashed var(--line)}
+.slot .grp b{font-size:.82rem;color:var(--muted);font-weight:600;margin-right:2px}
+.pf{border-radius:99px;padding:3px 10px;font-size:.82rem}
+.pf[aria-pressed="true"]{background:var(--chip);border-color:var(--accent);color:var(--fg)}
+.pf[aria-pressed="false"]{opacity:.55}
+input[type=number],input[type=date]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);max-width:100%}
+li.skipslot .t{opacity:.6}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;max-height:430px;overflow:auto;padding:4px;border:1px solid var(--line);border-radius:12px;margin-top:4px}
+.pick{border:2px solid transparent;border-radius:12px;padding:4px;background:var(--chip);text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;font-weight:400}
+.pick[aria-pressed="true"]{border-color:var(--accent)}
+.pick .im{width:100%;aspect-ratio:9/16;border-radius:8px;background:#000 center/cover no-repeat;display:grid;place-items:center;color:var(--muted);font-size:.8rem;text-align:center}
+.pick b{font-size:.78rem;line-height:1.2}.pick small{color:var(--muted);font-size:.7rem;line-height:1.2}
+.subtabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.subtabs button{background:none;color:var(--muted)}.subtabs button[aria-selected="true"]{background:var(--chip);color:var(--fg);border-color:var(--accent)}
+.subtabs .ok{color:var(--accent)}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;margin:0 0 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:thin}
 .tabs button{white-space:nowrap;background:none;border-color:transparent;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--chip);color:var(--fg);border-color:var(--line)}
@@ -130,9 +145,10 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <section id="compose" data-tab="new">
     <h2>New post</h2>
     <div class="row">
-      <div style="flex:1 1 260px"><label for="pickVideo">Video</label><select id="pickVideo" style="width:100%"></select></div>
+      <div style="flex:1 1 260px"><label>Video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div></div>
       <div><label for="pickPlatform">Where</label><select id="pickPlatform"><option value="">Every platform that's set up</option><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="x">X</option></select></div>
     </div>
+    <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
     <label for="aiPrompt">Ask AI (optional)</label>
     <textarea id="aiPrompt" rows="2" placeholder="e.g. Halloween theme, short and funny, challenge people to beat the boss"></textarea>
     <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
@@ -171,10 +187,10 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
   <section data-tab="credentials">
     <h2>Credentials</h2>
-    <p class="hint">Each platform needs its own keys. Open "Where to find this" under any box for step-by-step help. They're encrypted in this browser and saved as GitHub secrets: nobody can read them back, not even here. Leave a box empty to keep what's already saved. A platform starts posting once all of its boxes are saved.</p>
+    <p class="hint">Each platform has its own tab (✓ = everything saved). Open "Where to find this" under any box for step-by-step help. They're encrypted in this browser and saved as GitHub secrets: nobody can read them back, not even here. Leave a box empty to keep what's already saved. A platform starts posting once all of its boxes are saved.</p>
     <div id="creds"></div>
-    <label for="credPass">Your sign-in password <span class="unset">· only needed when you save the Anthropic key, to lock it into your sign-in</span></label>
-    <input id="credPass" type="password" autocomplete="current-password">
+    <div id="credPassWrap" hidden><label for="credPass">Your sign-in password <span class="unset">· needed to save the Anthropic key, so AI suggestions also work on this page</span></label>
+    <input id="credPass" type="password" autocomplete="current-password"></div>
     <div class="row" style="margin-top:12px"><button id="btnCreds" class="primary" type="button">Save credentials</button></div>
     <p id="credStatus" class="status" role="status"></p>
   </section>
@@ -187,6 +203,24 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p class="hint">Each time below posts one video. Research suggests evenings suit gaming videos: about 7 to 9 pm for a UK audience.</p>
     <div id="slots"></div>
     <button id="btnAddSlot" type="button">Add a posting time</button>
+  </section>
+
+  <section data-tab="schedule">
+    <h2>Rules</h2>
+    <label for="rOrder">Which video goes next</label>
+    <select id="rOrder">
+      <option value="queue">In the order below</option>
+      <option value="mix">Mix it up: avoid the same type (level play, rush, boss) twice in a row</option>
+      <option value="random">Random</option>
+    </select>
+    <label class="check"><input id="rWorld" type="checkbox"> Don't post the same world twice in a row</label>
+    <div class="row">
+      <div><label for="rMax">Most posts in a day</label><input id="rMax" type="number" min="0" max="24" step="1" style="width:110px"><p class="hint">0 means no limit.</p></div>
+      <div><label for="rFrom">Pause from</label><input id="rFrom" type="date"></div>
+      <div><label for="rTo">Pause until (inclusive)</label><input id="rTo" type="date"></div>
+      <div><button id="rClear" type="button">Clear pause dates</button></div>
+    </div>
+    <p class="hint">Each posting time above can also be limited to a type of video and to particular platforms. Coming up (on the Dashboard) shows exactly what these rules will post.</p>
   </section>
 
   <section data-tab="platforms">
@@ -351,13 +385,20 @@ const CREDS = [
     ['X_ACCESS_SECRET', 'Access token secret', `<li>Same screen: copy the <b>Access Token Secret</b> into this box.</li>`],
   ]],
 ];
+CREDS.push(...CREDS.splice(CREDS.findIndex(c => c[0] === 'AI (Anthropic)'), 1));   // AI last, after the social sites
 async function renderCreds(){
   let have = new Set(); try { have = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
-  $('#creds').innerHTML = CREDS.map(([group, intro, list]) => `<h3>${group}</h3><p class="hint">${intro}</p>` + list.map(([k, l, how]) =>
+  const done = list => list.every(([k]) => have.has(k));
+  $('#creds').innerHTML = `<div class="subtabs" role="tablist">${CREDS.map(([group, , list], i) => `<button type="button" role="tab" data-ct="${i}" aria-selected="${i === credTab}">${group}${done(list) ? ' <span class="ok">✓</span>' : ''}</button>`).join('')}</div>`
+    + CREDS.map(([group, intro, list], i) => `<div class="credgrp" data-ci="${i}"${i === credTab ? '' : ' hidden'}><h3>${group}</h3><p class="hint">${intro}</p>` + list.map(([k, l, how]) =>
     `<label for="c-${k}">${l} ${have.has(k) ? '<span class="saved">· saved ✓</span>' : '<span class="unset">· not set</span>'}</label>
      <input id="c-${k}" data-k="${k}" type="password" autocomplete="off" placeholder="${have.has(k) ? 'Saved: type here only to replace it' : ''}">
-     <details class="how"><summary>Where to find this</summary><ol>${how}</ol></details>`).join('')).join('');
+     <details class="how"><summary>Where to find this</summary><ol>${how}</ol></details>`).join('') + '</div>').join('');
+  const showCred = i => { credTab = i; document.querySelectorAll('.credgrp').forEach(g => g.hidden = +g.dataset.ci !== i); document.querySelectorAll('[data-ct]').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.ct === i))); $('#credPassWrap').hidden = CREDS[i][0] !== 'AI (Anthropic)'; };
+  document.querySelectorAll('[data-ct]').forEach(b => b.onclick = () => showCred(+b.dataset.ct));
+  showCred(credTab);
 }
+let credTab = 0;
 async function saveCreds(){
   const st = $('#credStatus'), todo = [...document.querySelectorAll('#creds input')].filter(i => i.value.trim());
   if (!todo.length){ say(st, 'Nothing to save: type into a box first.'); return; }
@@ -385,18 +426,40 @@ async function saveCreds(){
 
 // ---------- videos (loaded from the private project with the token) ----------
 const raw = async path => { const res = await fetch(API + '/contents/' + path, { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error(res.status); return URL.createObjectURL(await res.blob()); };
+let created = {};
+const byNewest = ids => [...ids].sort((a, b) => String(created[b] || '').localeCompare(String(created[a] || '')) || queue.indexOf(a) - queue.indexOf(b));
+const posters = {};
+const poster = id => posters[id] = posters[id] || raw('media/posters/' + id + '.jpg');
+const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '';
+function renderPicker(){
+  const cur = $('#pickVideo').value, ids = byNewest([...mediaIds]), box = $('#picker');
+  box.innerHTML = `<button type="button" class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small></button>`
+    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im"></span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
+  box.querySelectorAll('.pick[data-id]').forEach(b => {
+    if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
+    b.onclick = () => choose(b.dataset.id);
+  });
+  $('#chosen').textContent = cur ? 'Chosen: ' + label(cur) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
+}
+function choose(id){
+  if (![...$('#pickVideo').options].some(o => o.value === id)) $('#pickVideo').add(new Option(id, id));
+  $('#pickVideo').value = id;
+  document.querySelectorAll('#picker .pick').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+  $('#chosen').textContent = id ? 'Chosen: ' + label(id) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
+}
 async function renderVideos(){
   let files = [], xs = new Set(); try { files = ((await gh('/contents/media')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', '')); } catch(e){}
   try { xs = new Set(((await gh('/contents/media/x')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', ''))); } catch(e){}
   mediaIds = new Set(files);
-  const order = [...queue.filter(id => files.includes(id)), ...files.filter(id => !queue.includes(id))];
+  try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
+  const order = byNewest(files);
   const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
     const d = document.createElement('div'); d.className = 'vcard';
-    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}"></button><b>${esc(label(id))}</b><small>${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button></div>`;
+    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}"></button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button></div>`;
     box.appendChild(d);
-    raw('media/posters/' + id + '.jpg').then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
+    poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = async e => { const b = e.currentTarget; b.disabled = true; try { const v = document.createElement('video'); v.controls = true; v.playsInline = true; v.src = await raw('media/' + id + '.mp4'); b.replaceWith(v); v.play().catch(() => {}); } catch(err){ b.disabled = false; } };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
     dl('[data-a="dl"]', 'media/' + id + '.mp4', 'monkey-vine-rush-' + id + '-9x16.mp4');
@@ -437,7 +500,12 @@ function renderSlots(){
   const box = $('#slots'); box.innerHTML = '';
   cfg.slots.forEach((s, i) => {
     const d = document.createElement('div'); d.className = 'slot';
-    d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm">Remove</button>`;
+    s.kind = s.kind || 'any'; s.platforms = s.platforms || [];
+    d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm">Remove</button>`
+      + `<div class="grp"><b>Video</b><select class="kind" aria-label="Type of video">${[['any', 'Any type'], ['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight']].map(([v, l]) => `<option value="${v}"${s.kind === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`
+      + `<b style="margin-left:8px">Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`;
+    d.querySelector('.kind').onchange = e => { s.kind = e.target.value; };
+    d.querySelectorAll('.pf').forEach(b => b.onclick = () => { const all = Object.keys(NAME); let on = s.platforms.length ? [...s.platforms] : [...all]; on = on.includes(b.dataset.k) ? on.filter(x => x !== b.dataset.k) : [...on, b.dataset.k]; if (!on.length) return; s.platforms = on.length === all.length ? [] : on; d.querySelectorAll('.pf').forEach(x => x.setAttribute('aria-pressed', String(!s.platforms.length || s.platforms.includes(x.dataset.k)))); });
     d.querySelectorAll('.day').forEach(b => b.onclick = () => { const on = s.days.includes(b.dataset.d); s.days = on ? s.days.filter(x => x !== b.dataset.d) : [...s.days, b.dataset.d]; b.setAttribute('aria-pressed', String(!on)); });
     d.querySelector('input').onchange = e => { s.time = e.target.value.slice(0, 2) + ':00'; e.target.value = s.time; };
     d.querySelector('.rm').onclick = () => { cfg.slots.splice(i, 1); renderSlots(); };
@@ -465,6 +533,7 @@ function render(){
   document.querySelectorAll('[data-p]').forEach(c => c.checked = cfg.platforms[c.dataset.p] !== false);
   $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy;
   $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
+  cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order || 'queue'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
   cfg.ai = cfg.ai || { enabled:true, voice:'' }; $('#aiOn').checked = cfg.ai.enabled !== false; $('#aiVoice').value = cfg.ai.voice || '';
   $('#pickVideo').innerHTML = '<option value="">Next in line</option>' + queue.map(id => `<option value="${id}">${esc(label(id))}${(state.posted || {})[id] ? ' (posted)' : ''}</option>`).join('');
   renderSlots(); renderQueue();
@@ -475,6 +544,8 @@ function collect(){
   cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value;
   cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
   cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
+  cfg.rules = { order:$('#rOrder').value, noSameWorld:$('#rWorld').checked, maxPerDay:Math.max(0, Math.min(24, parseInt($('#rMax').value, 10) || 0)), pauseFrom:$('#rFrom').value, pauseTo:$('#rTo').value };
+  if (cfg.rules.pauseFrom && cfg.rules.pauseTo && cfg.rules.pauseTo < cfg.rules.pauseFrom) [cfg.rules.pauseFrom, cfg.rules.pauseTo] = [cfg.rules.pauseTo, cfg.rules.pauseFrom];
   cfg.slots = cfg.slots.filter(s => s.days.length);
 }
 async function load(){
@@ -486,31 +557,46 @@ async function load(){
     try { planned = new Set(((await gh('/contents/captions')) || []).filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''))); } catch(e){ planned = new Set(); }
     try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
     showTab(location.hash.slice(1) || 'dashboard', false);
-    render(); renderCreds(); renderHistory(); await renderVideos(); renderDash();
+    render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker();
   } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
 }
 // ---------- coming up: the next scheduled times and which video each will post ----------
 const NEED = { youtube:['YT_CLIENT_ID', 'YT_CLIENT_SECRET', 'YT_REFRESH_TOKEN'], instagram:['META_PAGE_TOKEN', 'IG_USER_ID'], facebook:['META_PAGE_ID', 'META_PAGE_TOKEN'], tiktok:['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET', 'TIKTOK_REFRESH_TOKEN'], x:['X_API_KEY', 'X_API_SECRET', 'X_ACCESS_TOKEN', 'X_ACCESS_SECRET'] };
 const readyPlatforms = () => Object.keys(NEED).filter(k => cfg.platforms[k] !== false && NEED[k].every(n => haveSecrets.has(n)));
-function upcoming(count = 10){
-  const tz = cfg.timezone || 'Europe/London', fmt = new Intl.DateTimeFormat('en-GB', { timeZone:tz, weekday:'short', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hourCycle:'h23' });
+let rulesMod = null;
+async function rulesModule(){
+  if (!rulesMod){ const res = await fetch(API + '/contents/src/rules.js', { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error('could not load the rules (' + res.status + ')'); rulesMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
+  return rulesMod;
+}
+async function upcoming(count = 10){
+  const R = await rulesModule(), sim = JSON.parse(JSON.stringify(state)); sim.posted = sim.posted || {};
+  let ready = readyPlatforms(); const setUp = ready.length > 0;
+  if (!setUp) ready = Object.keys(NEED).filter(k => cfg.platforms[k] !== false);   // nothing set up yet: still show what would go out
   const out = [], t = new Date(); t.setUTCMinutes(3, 0, 0); if (t < new Date()) t.setUTCHours(t.getUTCHours() + 1);
   for (let i = 0; i < 24 * 60 && out.length < count; i++, t.setUTCHours(t.getUTCHours() + 1)){
-    const p = Object.fromEntries(fmt.formatToParts(t).map(x => [x.type, x.value]));
-    const slot = (cfg.slots || []).find(sl => sl.days.includes(p.weekday) && +sl.time.split(':')[0] === +p.hour);
-    if (slot && state.lastSlot !== `${p.year}-${p.month}-${p.day} ${slot.time}`) out.push({ at:new Date(t), label:`${p.weekday} ${p.day}/${p.month} · ${slot.time}` });
+    const parts = R.localParts(t, cfg.timezone), slot = R.slotAt(cfg, parts);
+    if (!slot) continue;
+    const key = parts.day + ' ' + slot.time; if (sim.lastSlot === key) continue;
+    const [y, m, d] = parts.day.split('-'), label = `${parts.weekday} ${d}/${m} · ${slot.time}`;
+    const why = R.blocked({ ...cfg, paused:false }, sim, parts);
+    if (why){ out.push({ label, why }); continue; }
+    const plats = R.slotPlatforms(slot, ready);
+    const id = plats.length ? R.pickVideo({ cfg, state:sim, queue, platforms:plats, hasMedia:v => mediaIds.has(v), slot, seed:R.seedOf(key) }) : null;
+    out.push({ label, id, plats });
+    if (id) for (const k of plats) (sim.posted[id] = sim.posted[id] || {})[k] = { at:t.toISOString() };
   }
-  const ready = readyPlatforms(), skip = new Set(cfg.skip || []);
-  const left = queue.filter(id => !skip.has(id) && mediaIds.has(id) && (ready.length ? ready.some(k => !((state.posted || {})[id] || {})[k]) : !(state.posted || {})[id]));
-  return { slots:out.map((o, i) => ({ ...o, id:left[i] })), ready, left:left.length };
+  const skip = new Set(cfg.skip || []);
+  const left = queue.filter(v => !skip.has(v) && mediaIds.has(v) && ready.some(k => !((state.posted || {})[v] || {})[k])).length;
+  return { slots:out, ready:setUp ? ready : [], left };
 }
-function renderDash(){
-  const u = upcoming(), posted = Object.keys(state.posted || {}).length, probs = Object.values(state.failed || {}).reduce((n, p) => n + Object.keys(p).length, 0);
+async function renderDash(){
+  let u; try { u = await upcoming(); } catch(e){ $('#upcoming').innerHTML = '<li><span></span><span class="t prob">' + esc(e.message) + '</span><span></span></li>'; return; }
+  const next = u.slots.find(sl => sl.id); nextId = next ? next.id : ''; const posted = Object.keys(state.posted || {}).length, probs = Object.values(state.failed || {}).reduce((n, p) => n + Object.keys(p).length, 0);
   const days = (cfg.slots || []).reduce((n, sl) => n + sl.days.length, 0);
-  $('#stats').innerHTML = [[cfg.paused ? 'Paused' : u.slots[0] ? u.slots[0].label.split(' · ')[0] : '-', cfg.paused ? 'posting is paused' : 'next post'], [posted, 'videos posted'], [u.left, 'still to post'],
+  $('#stats').innerHTML = [[cfg.paused ? 'Paused' : next ? next.label.split(' · ')[0] + ' ' + next.label.split(' · ')[1] : '-', cfg.paused ? 'posting is paused' : 'next post'], [posted, 'videos posted'], [u.left, 'still to post'],
     [u.ready.length ? u.ready.map(k => NAME[k]).join(', ') : 'None yet', 'platforms ready'], [days + ' a week', 'posting times'], [probs, 'problems']]
     .map(([b, sp]) => `<div><b>${esc(b)}</b><span>${sp}</span></div>`).join('');
-  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => `<li><span class="n">◷</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? u.ready.map(k => NAME[k]).join(', ') : 'no platforms set up yet'}</small></span><span class="b">${sl.id ? `<button type="button" data-edit="${sl.id}">Edit</button>` : ''}</span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
+  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => sl.why ? `<li class="skipslot"><span class="n">–</span><span class="t">No post<small>${sl.label} · ${esc(sl.why)}</small></span><span></span></li>` : `<li><span class="n">◷</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? (sl.plats || []).map(k => NAME[k]).join(', ') || 'no platforms for this time' : 'no platforms set up yet'}</small></span><span class="b">${sl.id ? `<button type="button" data-edit="${sl.id}">Edit</button>` : ''}</span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => compose(b.dataset.edit));
 }
 
@@ -538,11 +624,12 @@ document.addEventListener('click', e => { const b = e.target.closest('[data-go]'
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
 async function compose(id){
   showTab('new');
-  $('#pickVideo').value = id || ''; $('#pickPlatform').value = '';
+  choose(id || ''); $('#pickPlatform').value = '';
   $('#capEdit').hidden = true; say($('#aiStatus'), '');
   if (id && planned.has(id)){ try { fill((await readFile('captions/' + id + '.json')).data); say($('#aiStatus'), 'These are the captions you saved for this video.'); } catch(e){} }
 }
-const pickedId = () => $('#pickVideo').value || upcoming(1).slots[0]?.id || queue[0];
+let nextId = '';
+const pickedId = () => $('#pickVideo').value || nextId || queue[0];
 let promptMod = null;
 async function aiModule(){
   if (!promptMod){ const res = await fetch(API + '/contents/src/ai-prompt.js', { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error('could not load the AI prompt (' + res.status + ')'); promptMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
@@ -632,13 +719,14 @@ $('#acctForm').onsubmit = async e => {
   } catch(err){ say(st, err.name === 'OperationError' ? 'The current password isn\'t right.' : 'Not saved: ' + err.message, true); }
 };
 $('#btnOut').onclick = () => { try { sessionStorage.clear(); } catch(e){} location.reload(); };
-$('#btnAddSlot').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'20:00' }); renderSlots(); };
+$('#btnAddSlot').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'20:00', kind:'any', platforms:[] }); renderSlots(); };
+$('#rClear').onclick = () => { $('#rFrom').value = $('#rTo').value = ''; };
 $('#btnSave').onclick = async () => {
   const st = $('#status'); collect(); say(st, 'Saving…');
   try {
     cfgSha = (await writeFile('config.json', cfg, cfgSha, 'Settings changed')).content.sha;
     queueSha = (await writeFile('queue.json', queue, queueSha, 'Posting order changed')).content.sha;
-    say(st, 'Saved. New settings apply from the next hour.');
+    say(st, 'Saved. New settings apply from the next hour.'); renderDash();
   } catch(e){ say(st, 'Not saved: ' + e.message + (e.message.startsWith('409') ? ' (changed elsewhere: reload the page)' : ''), true); }
 };
 $('#btnNow').onclick = () => dispatch({ video:$('#pickVideo').value, platform:$('#pickPlatform').value, captions:edited() });
