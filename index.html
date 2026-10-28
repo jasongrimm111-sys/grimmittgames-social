@@ -73,6 +73,10 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 .pvnote{font-size:.78rem;color:var(--muted)}
 .promo{display:inline-block;background:rgba(255,255,255,.18);border-radius:4px;padding:0 5px;font-size:10px;margin-top:3px}
 #ttOpts .row{gap:4px 18px}
+.where{display:flex;flex-wrap:wrap;gap:6px 16px;margin:4px 0 0}
+.where label{display:flex;gap:6px;align-items:center;font-weight:600;margin:0}
+.where label.off{opacity:.5;font-weight:400}
+.where small{color:var(--muted);font-weight:400}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:4px 0 12px;margin:0 0 6px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:5;scrollbar-width:thin}
 .tabs button{white-space:nowrap;background:none;border-color:transparent;color:var(--muted)}
 .tabs button[aria-selected="true"]{background:var(--chip);color:var(--fg);border-color:var(--line)}
@@ -174,7 +178,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h2>New post</h2>
     <div class="row">
       <div style="flex:1 1 260px"><label>Video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div></div>
-      <div><label for="pickPlatform">Where</label><select id="pickPlatform"><option value="">Every platform that's set up</option><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="facebook">Facebook</option><option value="tiktok">TikTok</option><option value="x">X</option></select></div>
+      <div><label>Post to</label><div class="where" id="where"></div></div>
     </div>
     <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
     <label for="aiPrompt">Ask AI (optional)</label>
@@ -182,14 +186,14 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="row" style="margin-top:10px"><button id="btnSuggest" class="primary" type="button">Suggest captions with AI</button><button id="btnStd" type="button">Start from the standard captions</button></div>
     <p id="aiStatus" class="status" role="status"></p>
     <div id="capEdit" hidden>
-      <div class="cap"><h3>YouTube Shorts</h3>
+      <div class="cap" data-cap="youtube"><h3>YouTube Shorts</h3>
         <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
         <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
         <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
-      <div class="cap"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
-      <div class="cap"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
-      <div class="cap"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
-      <div class="cap"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
+      <div class="cap" data-cap="instagram"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
+      <div class="cap" data-cap="facebook"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
+      <div class="cap" data-cap="tiktok"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
+      <div class="cap" data-cap="x"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
     </div>
     <div id="ttOpts" class="cap">
       <h3>TikTok settings for this post</h3>
@@ -644,7 +648,7 @@ async function load(){
     try { planned = new Set(((await gh('/contents/captions')) || []).filter(f => f.name.endsWith('.json')).map(f => f.name.replace('.json', ''))); } catch(e){ planned = new Set(); }
     try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
     showTab(location.hash.slice(1) || 'dashboard', false);
-    render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker();
+    render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker(); renderWhere();
   } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
 }
 // ---------- coming up: the next scheduled times and which video each will post ----------
@@ -709,16 +713,28 @@ function showTab(t, push = true){
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
 window.addEventListener('hashchange', () => showTab(location.hash.slice(1), false));
+const isReady = k => NEED[k].every(n => haveSecrets.has(n));
+// one checkbox per platform: set-up ones ticked to start with (unless switched off on the Platforms tab)
+function renderWhere(){
+  $('#where').innerHTML = Object.keys(NAME).map(k => { const ok = isReady(k); return `<label class="${ok ? '' : 'off'}"><input type="checkbox" data-w="${k}"${ok ? '' : ' disabled'}${ok && cfg.platforms[k] !== false ? ' checked' : ''}> ${NAME[k]}${ok ? '' : ' <small>(not set up)</small>'}</label>`; }).join('');
+  document.querySelectorAll('#where input').forEach(c => c.onchange = whereChanged);
+  whereChanged();
+}
+const picked = () => [...document.querySelectorAll('#where input:checked')].map(c => c.dataset.w);
+function whereChanged(){
+  const on = new Set(picked());
+  document.querySelectorAll('[data-cap]').forEach(c => c.hidden = !on.has(c.dataset.cap));
+  ttShow();
+  if (!$('#previews').hidden) renderPreviews();
+}
 function ttShow(){
-  const where = $('#pickPlatform').value, on = where === 'tiktok' || (!where && cfg.platforms.tiktok !== false && NEED.tiktok.every(n => haveSecrets.has(n)));
-  $('#ttOpts').hidden = !on;
+  $('#ttOpts').hidden = !picked().includes('tiktok');
   let acct = ''; for (const p of Object.values(state.posted || {})) if (p.tiktok && p.tiktok.account) acct = p.tiktok.account;
   $('#ttWho').textContent = acct ? 'Posting to TikTok account: ' + acct : 'Posting to your connected TikTok account (its name shows here after the first post).';
 }
-$('#pickPlatform').addEventListener('change', ttShow);
 async function compose(id){
   showTab('new'); ttShow(); $('#ttPriv').value = '';
-  choose(id || ''); $('#pickPlatform').value = '';
+  choose(id || ''); renderWhere();
   $('#capEdit').hidden = true; say($('#aiStatus'), '');
   if (id && planned.has(id)){ try { fill((await readFile('captions/' + id + '.json')).data); say($('#aiStatus'), 'These are the captions you saved for this video.'); } catch(e){} }
 }
@@ -883,13 +899,14 @@ async function renderPreviews(){
   const who = '<span class="u"><i></i>monkeyvinerush</span>';
   const side = '<div class="side"><span>♥</span><span>💬</span><span>↗</span></div>';
   const card = (name, inner, note) => `<div class="pvc"><b>${name}</b>${inner}<span class="pvnote">${note}</span></div>`;
-  const caps = { youtube:p.youtube.title, tiktok:p.tiktok.title, instagram:p.instagram.caption, facebook:p.facebook.description, x:p.x.text };
+  const caps = { youtube:p.youtube.title, tiktok:p.tiktok.title, instagram:p.instagram.caption, facebook:p.facebook.description, x:p.x.text }, on = new Set(picked());
+  if (!on.size){ box.innerHTML = '<p class="hint">Tick a platform to preview it.</p>'; box.hidden = false; return; }
   box.innerHTML = `<div class="pvgrid">`
-    + card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`)
-    + card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"')
-    + card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`)
-    + card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable')
-    + card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`)
+    + (on.has('tiktok') ? card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`) : '')
+    + (on.has('instagram') ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
+    + (on.has('youtube') ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
+    + (on.has('facebook') ? card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable') : '')
+    + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
     + '</div><p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
@@ -949,7 +966,10 @@ $('#btnNow').onclick = () => {
     if (!$('#ttPriv').value){ say($('#runStatus'), 'Choose who can see the TikTok video first.', true); $('#ttPriv').focus(); return; }
     tiktok = { privacy:$('#ttPriv').value, allowComment:$('#ttCom').checked, allowDuet:$('#ttDuet').checked, allowStitch:$('#ttStitch').checked, yourBrand:$('#ttBrand').checked };
   }
-  dispatch({ video:$('#pickVideo').value, platform:$('#pickPlatform').value, captions:edited(), tiktok });
+  const where = picked();
+  if (!where.length){ say($('#runStatus'), 'Tick at least one platform to post to.', true); return; }
+  let caps = edited(); if (caps) caps = Object.fromEntries(Object.entries(caps).filter(([k]) => where.includes(k)));
+  dispatch({ video:$('#pickVideo').value, platform:where.join(','), captions:caps, tiktok });
 };
 $('#btnCreds').onclick = saveCreds;
 $('#btnRefresh').onclick = renderHistory;
