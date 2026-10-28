@@ -130,6 +130,11 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 .xcard .t{white-space:pre-wrap;overflow-wrap:anywhere}.xcard .t a{color:#1d9bf0;text-decoration:none}
 .xcard .m{margin-top:8px;aspect-ratio:4/5;border-radius:12px;background:#000 center/cover no-repeat;border:1px solid #cfd9de}
 .pvnote{font-size:.78rem;color:var(--muted)}
+.wide{position:relative;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;box-shadow:0 0 0 1px var(--line)}
+.wide .wbg{position:absolute;inset:-10%;background-size:cover;background-position:center;filter:blur(14px) brightness(.75)}
+.wide .wfg{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;background-position:center}
+.wide .wt{position:absolute;left:0;right:0;bottom:0;padding:16px 10px 8px;font-size:11px;font-weight:600;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.8));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pvc:has(.wide){grid-column:span 2}
 .promo{display:inline-block;background:rgba(255,255,255,.18);border-radius:4px;padding:0 5px;font-size:10px;margin-top:3px}
 #ttOpts .row{gap:4px 18px}
 .ms{position:relative;min-width:260px}
@@ -273,10 +278,11 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
         </div>
       </div>
       <div id="metaOpts" class="cap">
-        <h3>Facebook and Instagram: where it appears</h3>
+        <h3>Where it appears</h3>
+      <div class="row" id="metaYt"><span style="width:110px;font-weight:600">YouTube</span><label class="check"><input id="mYtShorts" type="checkbox"> Shorts</label><label class="check"><input id="mYtVideo" type="checkbox"> Video (landscape)</label></div>
         <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
         <div class="row" id="metaIg"><span style="width:110px;font-weight:600">Instagram</span><label class="check"><input id="mIgReel" type="checkbox"> Reels</label><label class="check"><input id="mIgStory" type="checkbox"> Story</label></div>
-        <p class="hint">Stories last 24 hours and show without a caption on Instagram; Reels stay on your profile and in feeds. Tick both to post to each.</p>
+        <p class="hint">Tick both to post each one. YouTube videos use a landscape version; Stories last 24 hours (and have no caption on Instagram).</p>
       </div>
       <div id="ttOpts" class="cap">
         <h3>TikTok settings for this post</h3>
@@ -297,7 +303,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <p id="aiStatus" class="status" role="status"></p>
       <div id="capEdit" hidden>
         <div class="subtabs" id="capTabs" role="tablist" aria-label="Captions for each platform"></div>
-        <div class="cap" data-cap="youtube"><h3>YouTube Shorts</h3>
+        <div class="cap" data-cap="youtube"><h3>YouTube</h3><p class="hint">Normal videos use the same title without #Shorts.</p>
           <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
           <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
           <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
@@ -399,7 +405,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="shead"><h2>Platforms</h2><p class="sub">Which platforms scheduled posts go to, and how each one posts. New posts start from these too.</p></div>
     <div class="pcards">
       <div class="pcard">
-        <div class="phd"><span class="pi pyt">▶</span><b>YouTube Shorts</b><input class="switch" type="checkbox" data-p="youtube" aria-label="Post to YouTube"></div>
+        <div class="phd"><span class="pi pyt">▶</span><b>YouTube</b><input class="switch" type="checkbox" data-p="youtube" aria-label="Post to YouTube"></div>
+        <div class="setting"><div><b>Shorts</b><small>The vertical video, in the Shorts feed.</small></div><input class="switch" id="dYtShorts" type="checkbox" aria-label="YouTube Shorts"></div>
+        <div class="setting"><div><b>Video</b><small>A landscape 16:9 version, shown as a normal YouTube video.</small></div><input class="switch" id="dYtVideo" type="checkbox" aria-label="YouTube video"></div>
         <div class="setting"><div><b>Visibility</b></div><select id="ytPrivacy"><option value="public">Public</option><option value="unlisted">Unlisted</option><option value="private">Private</option></select></div>
         <div class="setting"><div><b>Made for kids</b><small>Leave off unless the videos are aimed mainly at children: it turns off comments.</small></div><input class="switch" id="ytKids" type="checkbox" aria-label="Made for kids"></div>
       </div>
@@ -737,7 +745,7 @@ document.addEventListener('play', e => { for (const v of document.querySelectorA
 
 // ---------- posted and recent runs ----------
 const ICON = { youtube:'▶', instagram:'◎', facebook:'f', tiktok:'♪', x:'𝕏' };
-const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };
+const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };   // YouTube covers Shorts and normal videos
 const SRC = { ai:'<span class="tag ai">AI</span>', approved:'<span class="tag mine">your captions</span>', site:'<span class="tag mine">written here</span>', template:'<span class="tag">standard</span>' };
 let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0, hidden = { posted:[], failed:[] }, hiddenSha;
 const removedHere = { posted:new Set(), failed:new Set() };
@@ -765,7 +773,7 @@ async function renderHistory(){
   const hp = new Set([...(hidden.posted || []), ...removedHere.posted]), hf = new Set([...(hidden.failed || []), ...removedHere.failed]);
   const rows = []; for (const [vid, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) rows.push({ ...v, vid, k });
   rows.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.vid))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => p === 'story' ? 'Story' : 'Reels').join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-unpost="${esc(r.vid)}" data-k="${r.k}" title="Delete this record: the video counts as not posted to this platform, so it can be posted there again">Remove</button></span></li>`).join('')
+  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.vid))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => ({ story:'Story', reels:'Reels', shorts:'Shorts', video:'Video' })[p] || p).join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-unpost="${esc(r.vid)}" data-k="${r.k}" title="Delete this record: the video counts as not posted to this platform, so it can be posted there again">Remove</button></span></li>`).join('')
     : '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>';
   const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) if (!hf.has(id + '|' + k + '|' + v.at)) probs.push({ id, k, ...v });
   probs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
@@ -863,6 +871,7 @@ function render(){
   $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy;
   $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
   const pl = k => ((cfg[k] || {}).places || ['reels']);
+  const yp = (cfg.youtube || {}).places || ['shorts']; $('#dYtShorts').checked = yp.includes('shorts'); $('#dYtVideo').checked = yp.includes('video');
   $('#dFbReel').checked = pl('facebook').includes('reels'); $('#dFbStory').checked = pl('facebook').includes('story'); $('#dIgReel').checked = pl('instagram').includes('reels'); $('#dIgStory').checked = pl('instagram').includes('story');
   const td = cfg.tiktok || {}; $('#tdCom').checked = td.allowComment !== false; $('#tdDuet').checked = td.allowDuet !== false; $('#tdStitch').checked = td.allowStitch !== false; $('#tdBrand').checked = td.yourBrand !== false;
   cfg.notify = cfg.notify || { enabled:true, email:OWNER }; $('#nOn').checked = cfg.notify.enabled !== false; $('#nEmail').value = cfg.notify.email || '';
@@ -874,6 +883,7 @@ function render(){
 function collect(){
   cfg.paused = $('#paused').checked; cfg.timezone = $('#tz').value;
   document.querySelectorAll('[data-p]').forEach(c => cfg.platforms[c.dataset.p] = c.checked);
+  cfg.youtube.places = [...($('#dYtShorts').checked ? ['shorts'] : []), ...($('#dYtVideo').checked ? ['video'] : [])]; if (!cfg.youtube.places.length) cfg.youtube.places = ['shorts'];
   cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value;
   cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
   cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
@@ -988,10 +998,11 @@ function whereChanged(){
 }
 function metaShow(){
   const on = new Set(picked());
-  $('#metaOpts').hidden = !on.has('facebook') && !on.has('instagram'); $('#metaFb').hidden = !on.has('facebook'); $('#metaIg').hidden = !on.has('instagram');
+  $('#metaOpts').hidden = !on.has('facebook') && !on.has('instagram') && !on.has('youtube'); $('#metaFb').hidden = !on.has('facebook'); $('#metaIg').hidden = !on.has('instagram'); $('#metaYt').hidden = !on.has('youtube');
 }
 function metaReset(){
   const pl = k => ((cfg[k] || {}).places || ['reels']);
+  const yp = (cfg.youtube || {}).places || ['shorts']; $('#mYtShorts').checked = yp.includes('shorts'); $('#mYtVideo').checked = yp.includes('video');
   $('#mFbReel').checked = pl('facebook').includes('reels'); $('#mFbStory').checked = pl('facebook').includes('story'); $('#mIgReel').checked = pl('instagram').includes('reels'); $('#mIgStory').checked = pl('instagram').includes('story');
 }
 // captions: one tab per chosen platform, showing one caption at a time
@@ -1019,6 +1030,7 @@ function stepProblem(n){
     if (on.includes('tiktok') && !$('#ttPriv').value) return 'Choose who can see the TikTok video.';
     if (on.includes('facebook') && !$('#mFbReel').checked && !$('#mFbStory').checked) return 'Choose Reels and/or Story for Facebook.';
     if (on.includes('instagram') && !$('#mIgReel').checked && !$('#mIgStory').checked) return 'Choose Reels and/or Story for Instagram.';
+    if (on.includes('youtube') && !$('#mYtShorts').checked && !$('#mYtVideo').checked) return 'Choose Shorts and/or Video for YouTube.';
   }
   return '';
 }
@@ -1035,7 +1047,7 @@ function goStep(n){
 }
 function renderSummary(){
   const id = $('#pickVideo').value, on = picked(), caps = $('#capEdit').hidden ? 'written by AI when it posts' : 'the ones in step 3';
-  const extra = [on.includes('facebook') ? 'Facebook ' + [$('#mFbReel').checked && 'Reels', $('#mFbStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('instagram') ? 'Instagram ' + [$('#mIgReel').checked && 'Reels', $('#mIgStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('tiktok') ? 'TikTok: ' + $('#ttPriv').selectedOptions[0].textContent : ''].filter(Boolean);
+  const extra = [on.includes('youtube') ? 'YouTube ' + [$('#mYtShorts').checked && 'Shorts', $('#mYtVideo').checked && 'Video'].filter(Boolean).join(' + ') : '', on.includes('facebook') ? 'Facebook ' + [$('#mFbReel').checked && 'Reels', $('#mFbStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('instagram') ? 'Instagram ' + [$('#mIgReel').checked && 'Reels', $('#mIgStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('tiktok') ? 'TikTok: ' + $('#ttPriv').selectedOptions[0].textContent : ''].filter(Boolean);
   $('#summary').innerHTML = `<h3>Ready to post</h3><p><b>Video:</b> ${esc(id ? label(id) : 'next in line' + (nextId ? ' (' + label(nextId) + ')' : ''))}</p><p><b>Where:</b> ${esc(on.map(k => NAME[k]).join(', '))}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</p><p><b>Captions:</b> ${caps}</p>`;
 }
 document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => goStep(+b.dataset.step));
@@ -1222,6 +1234,7 @@ async function renderPreviews(){
     + (on.has('tiktok') ? card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`) : '')
     + (on.has('instagram') ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
     + (on.has('youtube') ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
+    + (on.has('youtube') && $('#mYtVideo').checked ? card('YouTube video', `<div class="wide" ${bg.replace('style="', 'data-x="')}><div class="wbg" ${bg}></div><div class="wfg" ${bg}></div><div class="wt">${esc(caps.youtube.replace(/\s*#shorts\b/ig, ''))}</div></div>`, 'Landscape 16:9 version, title without #Shorts') : '')
     + (on.has('facebook') ? card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable') : '')
     + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
     + '</div>' + note + '<p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
@@ -1288,6 +1301,7 @@ $('#btnNow').onclick = () => {
   if (!where.length){ say($('#runStatus'), 'Choose at least one platform under "Post to".', true); wherePanel(true); return; }
   let caps = edited(); if (caps) caps = Object.fromEntries(Object.entries(caps).filter(([k]) => where.includes(k)));
   const meta = {}, pick2 = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
+  if (where.includes('youtube')){ meta.youtube = [...($('#mYtShorts').checked ? ['shorts'] : []), ...($('#mYtVideo').checked ? ['video'] : [])]; if (!meta.youtube.length){ say($('#runStatus'), 'Choose Shorts and/or Video for YouTube.', true); return; } }
   if (where.includes('facebook')){ meta.facebook = pick2('#mFbReel', '#mFbStory'); if (!meta.facebook.length){ say($('#runStatus'), 'Choose Reels and/or Story for Facebook.', true); return; } }
   if (where.includes('instagram')){ meta.instagram = pick2('#mIgReel', '#mIgStory'); if (!meta.instagram.length){ say($('#runStatus'), 'Choose Reels and/or Story for Instagram.', true); return; } }
   const vid = $('#pickVideo').value, done = vid ? Object.keys((state.posted || {})[vid] || {}) : [];
