@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Grimmitt Games Social</title>
-<meta name="robots" content="noindex">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <link rel="icon" href="icon.png" type="image/png">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="referrer" content="no-referrer">
 <style>
 @font-face{font-family:'Space Grotesk';font-weight:300 700;font-display:swap;src:url(https://www.grimmittgames.com/fonts/SpaceGrotesk.woff2) format('woff2')}
 @font-face{font-family:'Inter';font-weight:100 900;font-display:swap;src:url(https://www.grimmittgames.com/fonts/Inter.woff2) format('woff2')}
@@ -33,6 +35,12 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.human{position:relative;overflow:hidden;width:100%;margin-top:14px;padding:12px;border-radius:12px;background:#0e1118;border:1px dashed var(--line);color:var(--fg);font-weight:600;user-select:none;touch-action:none}
+.human .fill{position:absolute;inset:0;width:0;background:rgba(198,244,50,.18);transition:width .05s linear}
+.human .txt{position:relative}
+.human[aria-pressed="true"]{border-style:solid;border-color:var(--accent);color:var(--accent)}
+.human[aria-pressed="true"] .fill{width:100%}
 /* ---- design pass ---- */
 body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:15px}
 h1,h2,h3,.brand b,.stats b,.steps button,.tabs button{font-family:'Space Grotesk',Inter,system-ui,sans-serif}
@@ -208,6 +216,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <form id="loginForm">
       <label for="lEmail">Email</label><input id="lEmail" type="text" inputmode="email" autocomplete="username" required>
       <label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password" required>
+      <!-- trap for bots: people never see or fill this -->
+      <div class="trap" aria-hidden="true"><label for="lSite">Website</label><input id="lSite" type="text" tabindex="-1" autocomplete="off"></div>
+      <button type="button" id="human" class="human" aria-pressed="false"><span class="fill"></span><span class="txt">Hold to confirm you're human</span></button>
       <div class="row" style="margin-top:14px"><button class="primary" type="submit">Sign in</button></div>
     </form>
     <p id="loginStatus" class="status" role="status"></p>
@@ -1247,12 +1258,37 @@ async function dispatch({ video = '', platform = '', captions = null, tiktok = n
     say(st, 'Posting now: follow it under Activity (it updates by itself).'); setTimeout(renderHistory, 6000); }
   catch(e){ say(st, 'Could not start: ' + e.message + '. The GitHub key needs Actions: Read and write.', true); }
 }
+// ---------- robot check on sign-in ----------
+// There's no server to verify a CAPTCHA, and the real protection is the encryption (each guess costs 600,000 rounds), so
+// this stops automated attempts: a press-and-hold check, a hidden field only bots fill, a minimum time on the page, and a
+// lockout that grows after wrong passwords.
+const shownAt = Date.now();
+let human = false;
+(() => {
+  const b = $('#human'), fill = b.querySelector('.fill'), txt = b.querySelector('.txt');
+  let t0 = 0, raf = 0;
+  const tick = () => { const p = Math.min(1, (Date.now() - t0) / 1100); fill.style.width = (p * 100) + '%'; if (p >= 1){ human = true; b.setAttribute('aria-pressed', 'true'); txt.textContent = '✓ Thanks, you\u2019re human'; return; } raf = requestAnimationFrame(tick); };
+  const down = e => { if (human) return; e.preventDefault(); t0 = Date.now(); raf = requestAnimationFrame(tick); };
+  const up = () => { if (human) return; cancelAnimationFrame(raf); fill.style.width = '0'; };
+  b.addEventListener('pointerdown', down); b.addEventListener('pointerup', up); b.addEventListener('pointerleave', up); b.addEventListener('pointercancel', up);
+  // keyboard: hold Space or Enter
+  b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat && !human){ e.preventDefault(); t0 = Date.now(); raf = requestAnimationFrame(tick); } });
+  b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') up(); });
+})();
+const LOCK = 'gg-social-lock';
+const lockState = () => { try { return JSON.parse(localStorage.getItem(LOCK)) || { fails:0, until:0 }; } catch(e){ return { fails:0, until:0 }; } };
+const setLock = v => { try { localStorage.setItem(LOCK, JSON.stringify(v)); } catch(e){} };
 $('#loginForm').onsubmit = async e => {
   e.preventDefault(); const st = $('#loginStatus'), email = $('#lEmail').value, pass = $('#lPass').value;
-  if (norm(email) !== OWNER){ await wait(600); say(st, 'That email or password isn\'t right.', true); return; }
+  const L = lockState();
+  if (Date.now() < L.until){ say(st, `Too many wrong attempts: try again in ${Math.ceil((L.until - Date.now()) / 1000)} seconds.`, true); return; }
+  if ($('#lSite').value || Date.now() - shownAt < 1500){ await wait(1200); say(st, 'That email or password isn\'t right.', true); return; }   // bot
+  if (!human){ say(st, 'Hold the "confirm you\u2019re human" button first.', true); $('#human').focus(); return; }
+  const failed = () => { const f = L.fails + 1; setLock({ fails:f, until:f >= 3 ? Date.now() + Math.min(15 * 60, 30 * 2 ** (f - 3)) * 1000 : 0 }); say(st, 'That email or password isn\'t right.' + (f >= 3 ? ' Please wait a moment before trying again.' : ''), true); };
+  if (norm(email) !== OWNER){ await wait(600); failed(); return; }
   say(st, 'Signing in…');
-  try { const sec = await unlock(email, pass, vault); signedIn(sec.token, email, sec.anthropic); $('#lPass').value = ''; say(st, ''); showSignedIn(); }
-  catch(err){ say(st, 'That email or password isn\'t right.', true); }
+  try { const sec = await unlock(email, pass, vault); setLock({ fails:0, until:0 }); signedIn(sec.token, email, sec.anthropic); $('#lPass').value = ''; say(st, ''); showSignedIn(); }
+  catch(err){ failed(); }
 };
 $('#setupForm').onsubmit = async e => {
   e.preventDefault(); const st = $('#setupStatus'), email = $('#sEmail').value, pass = $('#sPass').value, key = $('#sTok').value.trim();
