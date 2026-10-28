@@ -35,6 +35,11 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
+.olinks{display:flex;flex-direction:column;gap:4px;margin:4px 0 10px}
+.olinks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500;padding:6px 8px;border-radius:8px;background:#0e1118;min-width:0;overflow-wrap:anywhere}
+.olinks small{color:var(--muted);font-weight:400}
+.oprev{background:#fff;color:#1d1f24;border-radius:12px;padding:18px;max-height:520px;overflow:auto}
+.oprev .meta{font:13px system-ui;color:#6b7080;border-bottom:1px solid #e3e5ea;padding-bottom:8px;margin-bottom:12px}
 .trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
 .human{position:relative;overflow:hidden;width:100%;margin-top:14px;padding:12px;border-radius:12px;background:#0e1118;border:1px dashed var(--line);color:var(--fg);font-weight:600;user-select:none;touch-action:none}
 .human .fill{position:absolute;inset:0;width:0;background:rgba(198,244,50,.18);transition:width .05s linear}
@@ -255,6 +260,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <button type="button" role="tab" data-go="platforms">Platforms</button>
     <button type="button" role="tab" data-go="credentials">Credentials</button>
     <button type="button" role="tab" data-go="ai">AI &amp; captions</button>
+    <button type="button" role="tab" data-go="outreach">Outreach</button>
     <button type="button" role="tab" data-go="account">Account</button>
   </nav>
   <section id="dash" data-tab="dashboard">
@@ -488,6 +494,45 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p id="acctStatus" class="status" role="status"></p>
   </section>
 
+  <section data-tab="outreach" id="outreach">
+    <div class="shead"><h2>Review requests</h2><p class="sub">Email reviewers, journalists and creators about Monkey Vine Rush, one personal email each, from jason@grimmittgames.com.</p></div>
+    <div class="setting"><div><b>Who to send to</b><small>Paste addresses: one per line, or "Name &lt;email&gt;", or "email, Name". Names make the greeting personal.</small></div></div>
+    <textarea id="oList" rows="6" placeholder="Alex Smith <alex@pocketgamer.example>&#10;reviews@appadvice.example&#10;sam@creator.example, Sam"></textarea>
+    <p class="hint" id="oCount"></p>
+
+    <div class="setting"><div><b>Links to include</b><small>Shown as buttons under the email.</small></div></div>
+    <div id="oLinks" class="olinks"></div>
+    <div class="row"><input id="oLinkLabel" type="text" placeholder="Button text, e.g. Press kit" style="flex:1 1 160px"><input id="oLinkUrl" type="text" placeholder="https://…" style="flex:2 1 240px"><button id="oLinkAdd" type="button" class="ghost">Add link</button></div>
+
+    <div class="setting"><div><b>Write it</b><small>AI proposes an email; change anything you like.</small></div></div>
+    <textarea id="oPrompt" rows="2" placeholder="Optional notes for AI, e.g. these are YouTubers who cover casual iPhone games; mention the Halloween boss"></textarea>
+    <div class="row" style="margin-top:8px"><button id="oSuggest" type="button" class="primary">Suggest an email with AI</button></div>
+    <p id="oAiStatus" class="status" role="status"></p>
+    <label for="oSubject">Subject <span class="count" id="oSubCount"></span></label><input id="oSubject" type="text" maxlength="140">
+    <label for="oBody">Email</label><textarea id="oBody" rows="12" placeholder="Hi {{name}},&#10;&#10;…"></textarea>
+    <p class="hint">{{name}} becomes each person's first name (or "there"). Your company details and an "unsubscribe" line are added to every email automatically.</p>
+
+    <div class="row" style="margin-top:10px"><button id="oPreview" type="button" class="ghost">Preview</button><button id="oTest" type="button">Send a test to me</button><button id="oSend" type="button" class="primary">Send to everyone</button></div>
+    <div id="oPreviewBox" class="cap" hidden></div>
+    <p id="oStatus" class="status" role="status"></p>
+  </section>
+
+  <section data-tab="outreach">
+    <div class="shead"><h2>Sent requests</h2><p class="sub">Each send is saved as a campaign. Anyone over the daily limit waits for "Send the rest".</p></div>
+    <ul id="oCampaigns" class="q"></ul>
+  </section>
+
+  <section data-tab="outreach">
+    <div class="shead"><h2>Sending settings</h2></div>
+    <div class="setting"><div><b>From</b><small>Replies come back to this address.</small></div><div class="row"><input id="oFromName" type="text" style="width:170px" aria-label="From name"><input id="oFromEmail" type="text" style="width:230px" aria-label="From address"></div></div>
+    <div class="setting"><div><b>Test emails go to</b></div><input id="oTestEmail" type="text" style="width:260px" aria-label="Test address"></div>
+    <div class="setting"><div><b>Most emails a day</b><small>Resend's free plan allows 100 a day.</small></div><input id="oLimit" type="number" min="1" max="1000" class="num"></div>
+    <div class="setting"><div><b>Unsubscribed</b><small>Never emailed again. Add anyone who replies "unsubscribe", one per line.</small></div></div>
+    <textarea id="oUnsub" rows="3" placeholder="name@example.com"></textarea>
+    <div class="row" style="margin-top:8px"><button id="oSaveSettings" type="button">Save sending settings</button></div>
+    <p id="oSetStatus" class="status" role="status"></p>
+  </section>
+
   <div class="bar" data-tab="schedule platforms ai account"><button id="btnSave" class="primary" type="button">Save changes</button></div>
   <p id="status" class="status" role="status" data-tab="schedule platforms ai account"></p>
   </div>
@@ -588,6 +633,11 @@ const CREDS = [
     ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,video.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
       <li>Sign in and allow it. You land on monkeyvinerush.com with <code>?code=…</code> in the address bar: copy that code.</li>
       <li>Ask Claude to swap the code for a refresh token (it needs your client key and secret), or use the token endpoint in TikTok's docs. Paste the <b>refresh token</b> here. It lasts about a year; you'll see a warning in the runs when it needs renewing.</li>`],
+  ]],
+  ['Email sending (Resend)', 'Sends review-request emails from your grimmittgames.com address (Outreach tab). The domain needs a few DNS records first: Resend shows them when you add the domain.', [
+    ['RESEND_API_KEY', 'Resend API key', `<li>Go to <a href="https://resend.com/" target="_blank" rel="noopener">resend.com</a> and sign up (the free plan sends 100 emails a day).</li>
+      <li><b>Domains</b> → <b>Add domain</b> → <code>grimmittgames.com</code>, region <b>Ireland (eu-west-1)</b>. Add the DNS records it shows in GoDaddy, then click <b>Verify</b>.</li>
+      <li><b>API keys</b> → <b>Create API key</b>, name "Grimmitt Social", permission <b>Sending access</b>, domain <code>grimmittgames.com</code>. Copy the key (it starts <code>re_</code>) into this box.</li>`],
   ]],
   ['AI (Anthropic)', 'Lets AI write your captions. Saved for scheduled posts, and also locked into your sign-in so "Suggest captions" works on this page.', [
     ['ANTHROPIC_API_KEY', 'Anthropic API key', `<li>Go to <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a> and sign in (or sign up) with your email.</li>
@@ -974,13 +1024,14 @@ function edited(){
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
   return p;
 }
-const TABS = ['dashboard', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'account', 'new'];
+const TABS = ['dashboard', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
 function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
   document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('on', el.dataset.tab.split(' ').includes(t)));
   document.querySelectorAll('.tabs [data-go]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === t)));
   if (push && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
   if (t === 'activity') renderHistory();
+  if (t === 'outreach') loadOutreach();
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
@@ -1251,6 +1302,114 @@ async function renderPreviews(){
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
 $('#btnPreview').onclick = renderPreviews;
+// ---------- Outreach: review requests ----------
+const EMAIL_RE = /[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
+let outreachCfg = null, outreachSha, unsubList = [], unsubSha, outreachLinks = [];
+function parseList(text){
+  const out = [], seen = new Set(), bad = [];
+  for (const raw of text.split(/[\n;]+/)){
+    const line = raw.trim(); if (!line) continue;
+    const m = line.match(EMAIL_RE); if (!m){ bad.push(line); continue; }
+    const email = m[0].toLowerCase(); if (seen.has(email)) continue; seen.add(email);
+    let name = line.replace(m[0], '').replace(/[<>,"]/g, ' ').replace(/\s+/g, ' ').trim();
+    out.push({ email, ...(name ? { name } : {}) });
+  }
+  return { people:out, bad };
+}
+const contactedBefore = () => { const set = new Set(); for (const c of oCampaigns) for (const [e, r] of Object.entries(c.results || {})) if (r.status === 'sent') set.add(e); return set; };
+function oCount(){
+  const { people, bad } = parseList($('#oList').value), un = new Set(unsubList.map(e => e.toLowerCase())), before = contactedBefore();
+  const blocked = people.filter(p => un.has(p.email)).length, again = people.filter(p => before.has(p.email)).length;
+  $('#oCount').innerHTML = people.length ? `<b>${people.length}</b> address${people.length === 1 ? '' : 'es'}${blocked ? ` · <span class="prob">${blocked} unsubscribed (skipped)</span>` : ''}${again ? ` · ${again} emailed before` : ''}${bad.length ? ` · <span class="prob">${bad.length} line${bad.length === 1 ? '' : 's'} without an address</span>` : ''}` : '';
+}
+$('#oList').addEventListener('input', oCount);
+$('#oSubject').addEventListener('input', () => { const n = $('#oSubject').value.length; $('#oSubCount').textContent = n + ' characters' + (n > 60 ? ' (shorter subjects get opened more)' : ''); });
+function renderLinks(){
+  // the website, the App Store, posted YouTube videos, and any added here
+  const yt = []; for (const [vid, p] of Object.entries(state.posted || {})){ const y = p.youtube; if (y && y.url) yt.push({ label:'Watch: ' + label(vid), url:y.url }); if (y && y.video && y.video.url) yt.push({ label:'Watch: ' + label(vid) + ' (video)', url:y.video.url }); }
+  const base = [{ label:'Download on the App Store', url:'https://apps.apple.com/app/id6825472830', on:true }, { label:'Visit the website', url:'https://monkeyvinerush.com/', on:true }, ...yt.slice(0, 12), ...outreachLinks];
+  const was = new Map([...document.querySelectorAll('#oLinks input')].map(c => [c.dataset.url, c.checked]));
+  $('#oLinks').innerHTML = base.map((l, i) => `<label><input type="checkbox" data-url="${esc(l.url)}" data-label="${esc(l.label)}"${(was.has(l.url) ? was.get(l.url) : l.on) ? ' checked' : ''}> ${esc(l.label)} <small>${esc(l.url)}</small></label>`).join('');
+}
+$('#oLinkAdd').onclick = () => { const url = $('#oLinkUrl').value.trim(), lbl = $('#oLinkLabel').value.trim() || 'Have a look'; if (!/^https?:\/\//.test(url)) { say($('#oStatus'), 'Links need to start with https://', true); return; } outreachLinks.push({ label:lbl, url, on:true }); $('#oLinkUrl').value = $('#oLinkLabel').value = ''; renderLinks(); };
+const pickedLinks = () => [...document.querySelectorAll('#oLinks input:checked')].map(c => ({ label:c.dataset.label, url:c.dataset.url }));
+let oCampaigns = [];
+async function loadOutreach(){
+  try { const f = await readFile('outreach/settings.json'); outreachCfg = f.data; outreachSha = f.sha; } catch(e){ outreachCfg = { fromName:'Jason Grimmitt', fromEmail:'jason@grimmittgames.com', testEmail:OWNER, dailyLimit:95 }; outreachSha = undefined; }
+  try { const f = await readFile('outreach/unsubscribed.json'); unsubList = f.data; unsubSha = f.sha; } catch(e){ unsubList = []; unsubSha = undefined; }
+  $('#oFromName').value = outreachCfg.fromName; $('#oFromEmail').value = outreachCfg.fromEmail; $('#oTestEmail').value = outreachCfg.testEmail; $('#oLimit').value = outreachCfg.dailyLimit; $('#oUnsub').value = unsubList.join('\n');
+  oCampaigns = [];
+  try { const files = ((await gh('/contents/outreach')) || []).filter(f => /^c-.*\.json$/.test(f.name)); oCampaigns = (await Promise.all(files.map(f => readFile('outreach/' + f.name).then(x => x.data).catch(() => null)))).filter(Boolean); } catch(e){}
+  oCampaigns.sort((a, b) => String(b.created).localeCompare(String(a.created)));
+  $('#oCampaigns').innerHTML = oCampaigns.length ? oCampaigns.map(c => {
+    const r = Object.values(c.results || {}), n = st => r.filter(x => x.status === st).length, waiting = c.recipients.length - n('sent') - n('failed') - n('unsubscribed');
+    return `<li><span class="n">✉</span><span class="t">${esc(c.subject)}<small>${new Date(c.created).toLocaleString()} · ${c.recipients.length} people · ${n('sent')} sent${n('failed') ? ' · <span class="prob">' + n('failed') + ' failed</span>' : ''}${n('unsubscribed') ? ' · ' + n('unsubscribed') + ' unsubscribed' : ''}${waiting > 0 ? ' · ' + waiting + ' waiting' : ''}</small></span><span class="b">${waiting > 0 || n('failed') ? `<button type="button" data-rest="${c.id}">Send the rest</button>` : ''}<button type="button" data-reuse="${c.id}" class="ghost">Reuse</button></span></li>`;
+  }).join('') : '<li><span></span><span class="t">No requests sent yet.</span><span></span></li>';
+  document.querySelectorAll('[data-rest]').forEach(b => b.onclick = () => runCampaign(b.dataset.rest, false));
+  document.querySelectorAll('[data-reuse]').forEach(b => b.onclick = () => { const c = oCampaigns.find(x => x.id === b.dataset.reuse); $('#oSubject').value = c.subject; $('#oBody').value = c.body; outreachLinks = (c.links || []).map(l => ({ ...l, on:true })); renderLinks(); window.scrollTo({ top:0, behavior:'smooth' }); });
+  renderLinks(); oCount();
+}
+let outreachMod = null;
+$('#oSuggest').onclick = async () => {
+  const st = $('#oAiStatus');
+  if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials → AI first.', true); return; }
+  say(st, 'Writing a draft…'); $('#oSuggest').disabled = true;
+  try {
+    if (!outreachMod){ const res = await fetch(API + '/contents/src/outreach-prompt.js', { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); outreachMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
+    const P = outreachMod, { default:Anthropic } = await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm');
+    const client = new Anthropic({ apiKey:aiKey, dangerouslyAllowBrowser:true });
+    const res = await client.beta.messages.create({ model:P.MODEL, max_tokens:16000, output_config:{ effort:'low', format:{ type:'json_schema', schema:P.SCHEMA } },
+      betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:P.SYSTEM,
+      messages:[{ role:'user', content:P.userPrompt({ prompt:$('#oPrompt').value.trim(), links:pickedLinks() }) }] });
+    if (res.stop_reason === 'refusal') throw new Error('the AI declined this one; try rewording your notes');
+    const d = JSON.parse(res.content.filter(b => b.type === 'text').map(b => b.text).join(''));
+    $('#oSubject').value = d.subject; $('#oBody').value = d.body; $('#oSubject').dispatchEvent(new Event('input'));
+    say(st, 'Here\u2019s a draft: edit anything, then preview and send a test.');
+  } catch(e){ say(st, 'Couldn\u2019t write a draft: ' + (e.message || e), true); }
+  $('#oSuggest').disabled = false;
+};
+function emailPreviewHtml(person){
+  const name = ((person && person.name) || '').split(/\s+/)[0] || 'there', links = pickedLinks();
+  const body = $('#oBody').value.replace(/\{\{\s*name\s*\}\}/gi, name);
+  return `<div class="oprev"><div class="meta"><b>From:</b> ${esc($('#oFromName').value)} &lt;${esc($('#oFromEmail').value)}&gt;<br><b>To:</b> ${esc(person ? person.email : $('#oTestEmail').value)}<br><b>Subject:</b> ${esc($('#oSubject').value.replace(/\{\{\s*name\s*\}\}/gi, name))}</div>`
+    + body.split(/\n{2,}/).map(p => `<p style="margin:0 0 12px">${esc(p).replace(/\n/g, '<br>').replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#4f7a00">$1</a>')}</p>`).join('')
+    + (links.length ? '<p>' + links.map(l => `<span style="display:inline-block;margin:0 8px 8px 0;padding:9px 14px;border-radius:10px;background:#c6f432;color:#11160a;font-weight:600">${esc(l.label)}</span>`).join('') + '</p>' : '')
+    + `<p style="margin-top:20px;padding-top:12px;border-top:1px solid #e3e5ea;font-size:12px;color:#6b7080">${esc($('#oFromName').value)}, Grimmitt Games Limited (registered in England and Wales, no. 17531910) · www.grimmittgames.com<br>You're receiving this because we thought Monkey Vine Rush might interest you. If you'd rather not hear from us again, just reply "unsubscribe".</p></div>`;
+}
+$('#oPreview').onclick = () => { const first = parseList($('#oList').value).people[0]; $('#oPreviewBox').innerHTML = '<h3>Preview' + (first ? ' for ' + esc(first.email) : '') + '</h3>' + emailPreviewHtml(first); $('#oPreviewBox').hidden = false; };
+async function saveCampaign(test){
+  const { people } = parseList($('#oList').value), subject = $('#oSubject').value.trim(), body = $('#oBody').value.trim();
+  if (!subject || !body) throw new Error('Write a subject and an email first (or use Suggest).');
+  if (!test && !people.length) throw new Error('Paste at least one email address.');
+  const idc = 'c-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
+  const camp = { id:idc, created:new Date().toISOString(), subject, body, links:pickedLinks(), recipients:test ? [] : people, testEmail:$('#oTestEmail').value.trim() || OWNER,
+    fromName:$('#oFromName').value.trim() || 'Jason Grimmitt', fromEmail:$('#oFromEmail').value.trim() || 'jason@grimmittgames.com', dailyLimit:+$('#oLimit').value || 95, results:{} };
+  await writeFile('outreach/' + idc + '.json', camp, undefined, (test ? 'Outreach test: ' : 'Outreach: ') + subject);
+  return idc;
+}
+async function runCampaign(idc, test){
+  const st = $('#oStatus');
+  try { await gh('/actions/workflows/outreach.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ campaign:idc, test_only:String(test) } }) });
+    say(st, test ? 'Sending a test to ' + ($('#oTestEmail').value || OWNER) + ': it arrives in a minute or two.' : 'Sending now: follow it under Sent requests (Refresh in a minute) and on the Activity tab.'); setTimeout(loadOutreach, 20000); }
+  catch(e){ say(st, 'Couldn\u2019t start sending: ' + e.message + (e.message.startsWith('404') ? ' (the outreach workflow isn\u2019t in the project yet)' : ''), true); }
+}
+$('#oTest').onclick = async () => { const st = $('#oStatus'); try { say(st, 'Preparing the test…'); await runCampaign(await saveCampaign(true), true); } catch(e){ say(st, e.message, true); } };
+$('#oSend').onclick = async () => {
+  const st = $('#oStatus'), b = $('#oSend'), { people } = parseList($('#oList').value), un = new Set(unsubList.map(e => e.toLowerCase())), n = people.filter(p => !un.has(p.email)).length;
+  if (b.dataset.sure !== '1'){ if (!n){ say(st, 'There\u2019s nobody to send to yet.', true); return; } b.dataset.sure = '1'; b.textContent = `Send to ${n} ${n === 1 ? 'person' : 'people'}?`; setTimeout(() => { b.dataset.sure = ''; b.textContent = 'Send to everyone'; }, 5000); return; }
+  b.dataset.sure = ''; b.textContent = 'Send to everyone';
+  try { say(st, 'Saving the campaign…'); await runCampaign(await saveCampaign(false), false); } catch(e){ say(st, e.message, true); }
+};
+$('#oSaveSettings').onclick = async () => {
+  const st = $('#oSetStatus');
+  try {
+    outreachCfg = { fromName:$('#oFromName').value.trim(), fromEmail:$('#oFromEmail').value.trim(), testEmail:$('#oTestEmail').value.trim(), dailyLimit:+$('#oLimit').value || 95 };
+    outreachSha = (await writeFile('outreach/settings.json', outreachCfg, outreachSha, 'Outreach settings')).content.sha;
+    unsubList = [...new Set($('#oUnsub').value.split(/[\s,;]+/).map(x => x.trim().toLowerCase()).filter(x => EMAIL_RE.test(x)))];
+    unsubSha = (await writeFile('outreach/unsubscribed.json', unsubList, unsubSha, 'Unsubscribe list')).content.sha;
+    $('#oUnsub').value = unsubList.join('\n'); oCount(); say(st, 'Saved.');
+  } catch(e){ say(st, 'Not saved: ' + e.message, true); }
+};
 async function dispatch({ video = '', platform = '', captions = null, tiktok = null, meta = null, repost = false } = {}){
   const st = $('#runStatus'); say(st, 'Starting the post…');
   try { await gh('/actions/workflows/post.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ dry_run:'false', platform, video, captions:captions ? b64(JSON.stringify(captions)) : '', tiktok:tiktok ? b64(JSON.stringify(tiktok)) : '', meta:meta && Object.keys(meta).length ? b64(JSON.stringify(meta)) : '', repost:String(!!repost) } }) });
