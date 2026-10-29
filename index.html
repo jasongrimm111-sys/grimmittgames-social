@@ -1186,7 +1186,7 @@ function songUI(card, id){
     dlg.innerHTML = '<div class="dlghead"><b>♪ Audio · ' + esc(label(id)) + '</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="dlgbody"><div class="dlgpv" aria-label="Preview"></div></div>';
     dlg.querySelector('.dlgbody').appendChild(box); document.body.appendChild(dlg); dlg.showModal();
     poster(id).then(u => { dlg.querySelector('.dlgpv').style.backgroundImage = 'url(' + u + ')'; }).catch(() => {});
-    const close = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
+    const close = () => { stopPv(); if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
     dlg.querySelector('[data-x]').onclick = close; dlg.addEventListener('cancel', e => { e.preventDefault(); close(); }); dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
     const st = box.querySelector('[data-pane="i"] .status'), ul = box.querySelector('.ig-list'), inp = box.querySelector('[data-pane="i"] input');
     // two tabs: the track for TikTok, YouTube, Facebook and X, and Instagram's own choice
@@ -1201,7 +1201,7 @@ function songUI(card, id){
       try { await saveMusic((t ? 'Music: ' + t.title : 'Original music') + ' for ' + id); line.textContent = songLine(id); showNow(); listTracks(); renderLibrary(); say(tst, msg); } catch(e){ say(tst, "Couldn't save: " + e.message, true); } };
     // the chosen track: which part of it plays (no longer than the video) and how loud the game sounds are
     const showNow = () => { const t = m.track;
-      if (!(t && t.file)){ now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>The original video audio</b>'; return; }
+      if (!(t && t.file)){ curT = null; stopPv(); now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>The original video audio</b>'; return; }
       const vlen = Math.max(1, Math.round(lenOf(id) || 30)), lib = (tracks || []).find(x => x.file === t.file) || {}, dur = Math.max(1, Math.round(lib.secs || t.secs || 180));
       let st = Math.min(Math.max(0, +t.start || 0), Math.max(0, dur - 1)), en = t.end != null ? +t.end : Math.min(dur, st + vlen), fx = t.sfx != null ? +t.sfx : 1, mv = t.vol != null ? +t.vol : 1;
       now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>♪ ' + esc(t.title || t.file) + '</b>'
@@ -1211,13 +1211,13 @@ function songUI(card, id){
           <p class="hint tnote"></p>
           <div class="trow"><label>Music <b class="tmv"></b></label><input type="range" class="r-mv" min="0" max="150" step="5" aria-label="Music volume"></div>
           <div class="trow"><label>Game sounds <b class="tfx"></b></label><input type="range" class="r-fx" min="0" max="150" step="5" aria-label="Game sounds volume"></div></div>`
-        + '<div class="tbtns"><button type="button" class="sm" data-s="pv">▶ Play with the video</button><button type="button" class="sm primary" data-s="savetrim" disabled>Save</button><button type="button" class="sm ghost" data-s="orig">Use the original</button></div>';
+        + '<div class="tbtns"><button type="button" class="sm primary" data-s="savetrim" disabled>Save</button><button type="button" class="sm ghost" data-s="orig">Use the original</button></div>';
       const rf = now.querySelector('.r-fx'), rm = now.querySelector('.r-mv'), bar = now.querySelector('.tbar'), win = now.querySelector('.twin'), sv = now.querySelector('[data-s="savetrim"]');
       const draw = () => { now.querySelector('.tst').textContent = fmtMs(st*1000) || '0:00'; now.querySelector('.ten').textContent = fmtMs(en*1000); now.querySelector('.tfx').textContent = Math.round(fx*100) + '%'; now.querySelector('.tmv').textContent = Math.round(mv*100) + '%';
         Object.assign(now.querySelector('.twin').style, { left:(st/dur*100) + '%', width:((en - st)/dur*100) + '%' });
         now.querySelector('.tnote').textContent = (en - st >= vlen ? 'Plays ' : 'Plays ' + fmtMs((en - st)*1000) + ' of music, then just the game sounds · ') + (en - st >= vlen ? 'for the whole ' + fmtMs(vlen*1000) + ' video' : 'the video is ' + fmtMs(vlen*1000));
-        rf.value = Math.round(fx*100); rm.value = Math.round(mv*100); };
-      // the part can't be longer than the video or run past the end of the track
+        rf.value = Math.round(fx*100); rm.value = Math.round(mv*100);
+        const nt = { ...t, start:st, end:en, sfx:fx, vol:mv }; if (curT && JSON.stringify(nt) !== JSON.stringify(curT)) stopPv(); curT = nt; };
       // the part can't be longer than the video or run past either end of the track
       const setPart = (a, b) => { a = Math.round(a); b = Math.round(b); if (b - a > vlen) b = a + vlen; if (b - a < 1) b = a + 1; if (a < 0){ b -= a; a = 0; } if (b > dur){ a -= b - dur; b = dur; } st = Math.max(0, a); en = Math.min(dur, b); sv.disabled = false; draw(); };
       let drag = null;
@@ -1232,15 +1232,17 @@ function songUI(card, id){
       rf.oninput = () => { fx = +rf.value/100; sv.disabled = false; draw(); };
       rm.oninput = () => { mv = +rm.value/100; sv.disabled = false; draw(); };
       draw();
-      const b = now.querySelector('[data-s="pv"]'); b.onclick = () => previewIn(b, { ...t, start:st, end:en, sfx:fx, vol:mv });
       sv.onclick = () => setTrack({ ...t, start:st, end:en, sfx:fx, vol:mv }, 'Saved: ' + (t.title || 'the track') + ' from ' + (fmtMs(st*1000) || '0:00') + ' to ' + fmtMs(en*1000) + ', music at ' + Math.round(mv*100) + '%, game sounds at ' + Math.round(fx*100) + '%.');
       const o = now.querySelector('[data-s="orig"]'); o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
-    // plays the video in the dialog's preview with this track setting (saved or not)
-    let pvv = null;
-    const previewIn = (btn, t) => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; if (btn.dataset.on){ delete btn.dataset.on; btn.textContent = '▶ Play with the video'; return; } }
-      const dp = dlg.querySelector('.dlgpv'); btn.dataset.on = '1'; btn.textContent = '■ Stop';
-      pvv = playVideo(id, v => { if (!v){ delete btn.dataset.on; btn.textContent = '▶ Play with the video'; return; } dp.querySelectorAll('video').forEach(x => x.remove()); v.className = 'pvvid'; v.controls = false; dp.style.position = 'relative'; dp.appendChild(v);
-        v.addEventListener('ended', () => { delete btn.dataset.on; btn.textContent = '▶ Play with the video'; }); }, false, t); };
+    // the video on the left plays with the audio settings as they are now (saved or not); tap again to pause
+    let pvv = null, curT = null;
+    const dp = dlg.querySelector('.dlgpv'); dp.insertAdjacentHTML('beforeend', '<span class="tapplay">▶</span>'); dp.style.position = 'relative'; dp.style.cursor = 'pointer';
+    const stopPv = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } dp.classList.remove('playing'); };
+    dp.onclick = () => {
+      if (pvv && pvv.isConnected){ if (pvv.paused) pvv.play().catch(() => {}); else pvv.pause(); return; }
+      stopPv(); const v = playVideo(id, x => { if (!x || pvv !== x) return; dp.querySelectorAll('video').forEach(y => y !== x && y.remove()); x.className = 'pvvid'; x.controls = false; dp.appendChild(x); dp.classList.add('playing');
+        x.addEventListener('ended', () => { stopPv(); }); }, !curT, curT || undefined);
+      pvv = v; };
     const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
     const listTracks = async () => { const lib = await loadTracks(), q = tq.value.trim().toLowerCase(), vs = lenOf(id);
       let list = lib.slice().reverse().filter(t => !(m.track && m.track.file === t.file))
