@@ -220,8 +220,8 @@ button:disabled{opacity:.5;cursor:default}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 .pvsong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:6px;font-size:13px}.pvsong small{color:var(--muted,#8a9)}
 .when input[type=datetime-local]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--chip);color:var(--fg)}.schedit{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}.schedit input{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--chip);color:var(--fg)}.schedh{margin-top:14px}
-body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-index:40;margin:0;border:0;border-radius:0;overflow:auto;padding:0 max(16px,calc((100vw - 1180px)/2)) max(24px,env(safe-area-inset-bottom));background:var(--bg)}.composehead{display:none}body.fullnew .composehead{display:flex;position:sticky;top:0;z-index:5;justify-content:space-between;align-items:center;gap:8px;padding:max(12px,env(safe-area-inset-top)) 0 12px;margin-bottom:8px;background:var(--bg);border-bottom:1px solid var(--line)}body.fullnew .composehead h2{margin:0}#compose>h2{display:none}
-.pp{display:grid;grid-template-columns:330px minmax(0,1fr);gap:24px;align-items:start}
+body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-index:40;margin:0;border:0;border-radius:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-x:none;touch-action:pan-y pinch-zoom;padding:0 max(16px,calc((100vw - 1180px)/2)) max(24px,env(safe-area-inset-bottom));background:var(--bg)}.composehead{display:none}body.fullnew .composehead{display:flex;position:sticky;top:0;z-index:5;justify-content:space-between;align-items:center;gap:8px;padding:max(12px,env(safe-area-inset-top)) 0 12px;margin-bottom:8px;background:var(--bg);border-bottom:1px solid var(--line)}body.fullnew .composehead h2{margin:0}#compose>h2{display:none}
+.pp{display:grid;grid-template-columns:330px minmax(0,1fr);gap:24px;align-items:start}.pp>*{min-width:0}.wide{isolation:isolate;contain:paint}#compose .step{min-width:0;max-width:100%}
 .ppside{position:sticky;top:76px;display:flex;flex-direction:column;gap:14px;padding:16px;border:1px solid var(--line);border-radius:16px;background:var(--card)}
 .ppside .hint,.ppside .status{margin:0}
 #summary{display:flex;flex-direction:column;gap:12px}
@@ -249,6 +249,9 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
 .taptoplay{position:absolute;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-weight:700;font-size:13px;padding:8px;text-align:center}.taptoplay span{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentfg);font-size:20px}
 .dashtop{display:flex;justify-content:flex-end;margin:0 0 12px}.dashtop button{padding:11px 18px;font-size:1rem}
 .phone-only{display:none}@media (max-width:640px){.wide-only{display:none}.phone-only{display:inline}.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:0;justify-content:space-between}.tabs::-webkit-scrollbar{display:none}.tabs button{padding:7px 4px;font-size:13px;min-width:0}.tabs .navmore{margin-left:0}#moreBtn{font-size:0;padding:7px 8px}#moreBtn::before{content:'⚙';font-size:18px;line-height:1}#moreBtn::after{display:none}.dashtop button{width:100%}}
+.trim{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:6px}.tbar{position:relative;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.twin{position:absolute;top:0;bottom:0;background:var(--accent);border-radius:99px}.trow{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center}.trow label{margin:0;font-size:13px;color:var(--muted)}.trow label b{color:var(--fg);font-weight:600;margin-left:4px}
+.trow input[type=range]{width:100%;accent-color:var(--accent)}.tnote{margin:0!important;font-size:12px}.tbtns{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:6px}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
@@ -460,7 +463,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div class="f fbtn"><button type="button" id="alClear" class="ghost">Clear filters</button></div></div>
   </section>
   <section data-tab="videos" data-vpart="a" class="audiolib" id="audioLib">
-    <p class="hint">Music for your videos. Press ▶ to listen, and choose one for a video under its ♪ Songs.</p>
+    <p class="hint">Music for your videos. Press ▶ to listen, and choose one for a video under its ♪ Audio.</p>
       <p class="status" id="alLibStatus" role="status"></p>
       <ul class="songs" id="alList"></ul><div class="pager" id="alPager" hidden></div>
   </section>
@@ -482,7 +485,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p id="upStatus" class="status" role="status"></p>
   </div></div></dialog>
   <dialog id="alDlg" class="songdlg updlg"><div class="dlghead"><b>⬆ Upload audio</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="updbody">
-      <p class="hint">Music for your videos: tracks from Pixabay (free for commercial use, no credit needed) or your own. Add as many as you like, then choose one for a video under its ♪ Songs. Videos use their original music unless you choose a track; a longer track is cut to the video and faded out, a shorter one loops, and the game's sound effects stay.</p>
+      <p class="hint">Music for your videos: tracks from Pixabay (free for commercial use, no credit needed) or your own. Add as many as you like, then choose one for a video under its ♪ Audio. Videos use their original music unless you choose a track; a longer track is cut to the video and faded out, a shorter one loops, and the game's sound effects stay.</p>
       <div class="row"><a class="btn sm" href="https://pixabay.com/music/" target="_blank" rel="noopener">Find music on Pixabay ↗</a><input type="file" id="alFiles" accept="audio/*" multiple aria-label="Music files"><button type="button" id="alAdd" class="primary sm">Add to library</button></div>
       <p class="status" id="alStatus" role="status"></p>
   </div></dialog>
@@ -985,7 +988,7 @@ async function saveMusic(msg){ let sha; try { sha = (await gh('/contents/music.j
 const fmtMs = ms => ms ? Math.floor(ms/60000) + ':' + String(Math.round(ms/1000) % 60).padStart(2, '0') : '';
 function songLine(id){
   const m = music[id] || {}, ig = m.instagram;
-  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && (ig.useTrack || ig.track) ? 'Instagram: same as the other platforms' : ig && ig.none ? 'Instagram: the original video audio' : ig && ig.ai ? 'Instagram: AI picks a song when posting' : 'Instagram: same as the other platforms';
+  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && (ig.useTrack || ig.track) ? 'Instagram: same as the other platforms' : ig && ig.none ? 'Instagram: the original video audio' : ig && ig.ai ? 'Instagram: AI picks the audio when posting' : 'Instagram: same as the other platforms';
   return '♪ Music: ' + (m.track && m.track.file ? (m.track.title || 'your track') : 'the original') + ' · ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
 }
 async function findSongs(q, extra = {}){
@@ -1103,19 +1106,24 @@ async function mixInto(v, id, t){
   const dec = async path => { const r = await fetch(API + '/contents/' + path, { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!r.ok) throw new Error(r.status);
     const ab = await r.arrayBuffer(); return new Promise((ok, bad) => { const pr = ctx.decodeAudioData(ab, ok, bad); if (pr && pr.catch) pr.catch(() => {}); }); };
   const trk = await dec(t.file); let sfx = null; try { sfx = await dec('media/sfx/' + id + '.m4a'); } catch(e){}
-  const out = ctx.createGain(), tg = ctx.createGain(); out.connect(ctx.destination); tg.connect(out);
+  const out = ctx.createGain(), tg = ctx.createGain(), sg = ctx.createGain(); out.connect(ctx.destination); tg.connect(out); sg.connect(out);
+  sg.gain.value = t.sfx != null && isFinite(+t.sfx) ? +t.sfx : 1;
+  // the part of the track: from start, for at most the video's length (then silence); without one it loops from 0
+  const segSt = Math.max(0, +t.start || 0), seg = () => t.end != null && +t.end > segSt ? Math.min(+t.end - segSt, v.duration || Infinity) : null;
   // the video's own soundtrack goes silent: on a computer through Web Audio (its volume and mute controls still work), on iPhone by muting it
   let own = 'graph';
   if (IOS){ own = 'muted'; v.muted = true; }
   else try { const g = ctx.createGain(); g.gain.value = 0; ctx.createMediaElementSource(v).connect(g).connect(ctx.destination); } catch(e){ own = 'muted'; v.muted = true; }
   let srcs = [], t0 = 0;
   const stop = () => { for (const x of srcs) try { x.stop(); } catch(e){} srcs = []; };
-  const vol = () => { const left = v.duration - v.currentTime; out.gain.value = own === 'graph' ? (v.muted ? 0 : v.volume) : 1; tg.gain.value = left < 1.5 ? Math.max(0, left/1.5) : 1; };
+  const vol = () => { const left = (seg() ?? v.duration) - v.currentTime; out.gain.value = own === 'graph' ? (v.muted ? 0 : v.volume) : 1; tg.gain.value = (left < 1.5 ? Math.max(0, left/1.5) : 1)*(t.vol != null && isFinite(+t.vol) ? +t.vol : 1); };
   const go = () => { stop(); if (v.paused || v.ended) return; ctx.resume().catch(() => {}); const off = v.currentTime, r = v.playbackRate || 1;
-    const a = ctx.createBufferSource(); a.buffer = trk; a.loop = true; a.playbackRate.value = r; a.connect(tg); a.start(0, off % trk.duration); srcs.push(a);
-    if (sfx && off < sfx.duration){ const b = ctx.createBufferSource(); b.buffer = sfx; b.playbackRate.value = r; b.connect(out); b.start(0, off); srcs.push(b); }
+    const L = seg();
+    if (L == null){ const a = ctx.createBufferSource(); a.buffer = trk; a.loop = true; a.playbackRate.value = r; a.connect(tg); a.start(0, off % trk.duration); srcs.push(a); }
+    else if (off < L && segSt + off < trk.duration){ const a = ctx.createBufferSource(); a.buffer = trk; a.playbackRate.value = r; a.connect(tg); a.start(0, segSt + off, L - off); srcs.push(a); }
+    if (sfx && off < sfx.duration){ const b = ctx.createBufferSource(); b.buffer = sfx; b.playbackRate.value = r; b.connect(sg); b.start(0, off); srcs.push(b); }
     t0 = ctx.currentTime - off/r; vol(); };
-  const check = () => { vol(); if (!v.paused && srcs.length && Math.abs((ctx.currentTime - t0)*(v.playbackRate || 1) - v.currentTime) > .3) go(); };
+  const check = () => { vol(); if (!v.paused && srcs.length && srcs[0].buffer === trk && seg() == null && Math.abs((ctx.currentTime - t0)*(v.playbackRate || 1) - v.currentTime) > .3) go(); };
   for (const e of ['play', 'playing', 'seeked', 'ratechange']) v.addEventListener(e, go);
   for (const e of ['pause', 'ended', 'emptied', 'waiting']) v.addEventListener(e, stop);
   v.addEventListener('timeupdate', check); v.addEventListener('volumechange', vol);
@@ -1123,8 +1131,8 @@ async function mixInto(v, id, t){
 }
 // Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
 // Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
-function playVideo(id, put, plain){
-  const mt = plain ? null : (music[id] || {}).track, v = tapVideo();
+function playVideo(id, put, plain, over){
+  const mt = plain ? null : over || (music[id] || {}).track, v = tapVideo();
   if (mt && mt.file){ try { mixStart(); } catch(err){} }
   (async () => {
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
@@ -1146,7 +1154,7 @@ function tapToPlay(v, start){
 function songUI(card, id){
   const line = document.createElement('small'); line.className = 'songline'; line.dataset.id = id; line.textContent = songLine(id);
   card.querySelector('.vb').before(line);
-  const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '♪ Songs'; btn.title = 'Choose the music for each platform'; card.querySelector('.vb').prepend(btn);
+  const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '♪ Audio'; btn.title = 'Choose the music for each platform'; card.querySelector('.vb').prepend(btn);
   let box = null;
   btn.onclick = () => {
     if (box){ box.remove(); box = null; return; }
@@ -1163,8 +1171,8 @@ function songUI(card, id){
       <div data-pane="i" hidden>
         <div class="ig-now cur"></div>
         <h5>Choose what the Reel plays</h5>
-        <div class="optrow"><button type="button" class="opt" data-s="igtrk"><b>Same as the other platforms</b><small class="sub-same"></small></button><button type="button" class="opt" data-s="ai"><b>AI picks a song</b><small>a trending Instagram song, chosen when posting</small></button><button type="button" class="opt" data-s="none"><b>Original video audio</b><small>the game's own music</small></button></div>
-        <h5>Or pick a song from Instagram's music library</h5>
+        <div class="optrow"><button type="button" class="opt" data-s="igtrk"><b>Same as the other platforms</b><small class="sub-same"></small></button><button type="button" class="opt" data-s="ai"><b>AI picks the audio</b><small>trending Instagram audio, chosen when posting</small></button><button type="button" class="opt" data-s="none"><b>Original video audio</b><small>the game's own music</small></button></div>
+        <h5>Or pick audio from Instagram's library</h5>
         <div class="igfind"><input type="text" enterkeyhint="search" placeholder="Search Instagram music, e.g. upbeat tropical" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
         <p class="status" role="status"></p><ul class="songs ig-list"></ul><div class="pager ig-pg" hidden></div>
       </div>`;
@@ -1172,7 +1180,7 @@ function songUI(card, id){
     dlg.innerHTML = '<div class="dlghead"><b>♪ Music · ' + esc(label(id)) + '</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="dlgbody"><div class="dlgpv" aria-label="Preview"></div></div>';
     dlg.querySelector('.dlgbody').appendChild(box); document.body.appendChild(dlg); dlg.showModal();
     poster(id).then(u => { dlg.querySelector('.dlgpv').style.backgroundImage = 'url(' + u + ')'; }).catch(() => {});
-    const close = () => { if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
+    const close = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
     dlg.querySelector('[data-x]').onclick = close; dlg.addEventListener('cancel', e => { e.preventDefault(); close(); }); dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
     const st = box.querySelector('[data-pane="i"] .status'), ul = box.querySelector('.ig-list'), inp = box.querySelector('[data-pane="i"] input');
     // two tabs: the track for TikTok, YouTube, Facebook and X, and Instagram's own choice
@@ -1183,11 +1191,41 @@ function songUI(card, id){
       pg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => go(at + +b.dataset.d)); };
     const m = music[id] = music[id] || {};
     const tst = box.querySelector('.trk-st'), tl = box.querySelector('.trk-list'), now = box.querySelector('.trk-now');
-    const setTrack = async (t, msg) => { if (t) m.track = { file:t.file, title:t.title }; else delete m.track;
+    const setTrack = async (t, msg) => { if (t) m.track = { file:t.file, title:t.title, ...(t.start != null ? { start:t.start, end:t.end, sfx:t.sfx, vol:t.vol } : {}) }; else delete m.track;
       try { await saveMusic((t ? 'Music: ' + t.title : 'Original music') + ' for ' + id); line.textContent = songLine(id); showNow(); listTracks(); renderLibrary(); say(tst, msg); } catch(e){ say(tst, "Couldn't save: " + e.message, true); } };
-    const showNow = () => { const t = m.track; now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>' + (t && t.file ? '♪ ' + esc(t.title || t.file) : 'The original video audio') + '</b>' + (t && t.file ? ' <button type="button" class="sm" data-s="pv">▶ Play with the video</button> <button type="button" class="sm ghost" data-s="orig">Use the original</button>' : '');
-      const b = now.querySelector('[data-s="pv"]'); if (b) b.onclick = () => playTrack(card, id, t, b);
-      const o = now.querySelector('[data-s="orig"]'); if (o) o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
+    // the chosen track: which part of it plays (no longer than the video) and how loud the game sounds are
+    const showNow = () => { const t = m.track;
+      if (!(t && t.file)){ now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>The original video audio</b>'; return; }
+      const vlen = Math.max(1, Math.round(lenOf(id) || 30)), lib = (tracks || []).find(x => x.file === t.file) || {}, dur = Math.max(1, Math.round(lib.secs || t.secs || 180));
+      let st = Math.min(Math.max(0, +t.start || 0), Math.max(0, dur - 1)), en = t.end != null ? +t.end : Math.min(dur, st + vlen), fx = t.sfx != null ? +t.sfx : 1, mv = t.vol != null ? +t.vol : 1;
+      now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>♪ ' + esc(t.title || t.file) + '</b>'
+        + `<div class="trim"><div class="tbar"><span class="twin"></span></div>
+          <div class="trow"><label>Start <b class="tst"></b></label><input type="range" class="r-st" min="0" max="${dur}" step="1" aria-label="Start"></div>
+          <div class="trow"><label>End <b class="ten"></b></label><input type="range" class="r-en" min="0" max="${dur}" step="1" aria-label="End"></div>
+          <p class="hint tnote"></p>
+          <div class="trow"><label>Music <b class="tmv"></b></label><input type="range" class="r-mv" min="0" max="150" step="5" aria-label="Music volume"></div>
+          <div class="trow"><label>Game sounds <b class="tfx"></b></label><input type="range" class="r-fx" min="0" max="150" step="5" aria-label="Game sounds volume"></div></div>`
+        + '<div class="tbtns"><button type="button" class="sm" data-s="pv">▶ Play with the video</button><button type="button" class="sm primary" data-s="savetrim" disabled>Save</button><button type="button" class="sm ghost" data-s="orig">Use the original</button></div>';
+      const rs = now.querySelector('.r-st'), re = now.querySelector('.r-en'), rf = now.querySelector('.r-fx'), rm = now.querySelector('.r-mv'), sv = now.querySelector('[data-s="savetrim"]');
+      const draw = () => { now.querySelector('.tst').textContent = fmtMs(st*1000) || '0:00'; now.querySelector('.ten').textContent = fmtMs(en*1000); now.querySelector('.tfx').textContent = Math.round(fx*100) + '%'; now.querySelector('.tmv').textContent = Math.round(mv*100) + '%';
+        Object.assign(now.querySelector('.twin').style, { left:(st/dur*100) + '%', width:((en - st)/dur*100) + '%' });
+        now.querySelector('.tnote').textContent = (en - st >= vlen ? 'Plays ' : 'Plays ' + fmtMs((en - st)*1000) + ' of music, then just the game sounds · ') + (en - st >= vlen ? 'for the whole ' + fmtMs(vlen*1000) + ' video' : 'the video is ' + fmtMs(vlen*1000));
+        rs.value = st; re.value = en; rf.value = Math.round(fx*100); rm.value = Math.round(mv*100); };
+      // the part can't be longer than the video or run past the end of the track
+      rs.oninput = () => { const len = en - st; st = Math.min(+rs.value, dur - 1); en = Math.min(dur, st + Math.max(1, len)); sv.disabled = false; draw(); };
+      re.oninput = () => { en = Math.max(st + 1, Math.min(+re.value, dur, st + vlen)); sv.disabled = false; draw(); };
+      rf.oninput = () => { fx = +rf.value/100; sv.disabled = false; draw(); };
+      rm.oninput = () => { mv = +rm.value/100; sv.disabled = false; draw(); };
+      draw();
+      const b = now.querySelector('[data-s="pv"]'); b.onclick = () => previewIn(b, { ...t, start:st, end:en, sfx:fx, vol:mv });
+      sv.onclick = () => setTrack({ ...t, start:st, end:en, sfx:fx, vol:mv }, 'Saved: ' + (t.title || 'the track') + ' from ' + (fmtMs(st*1000) || '0:00') + ' to ' + fmtMs(en*1000) + ', music at ' + Math.round(mv*100) + '%, game sounds at ' + Math.round(fx*100) + '%.');
+      const o = now.querySelector('[data-s="orig"]'); o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
+    // plays the video in the dialog's preview with this track setting (saved or not)
+    let pvv = null;
+    const previewIn = (btn, t) => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; if (btn.dataset.on){ delete btn.dataset.on; btn.textContent = '▶ Play with the video'; return; } }
+      const dp = dlg.querySelector('.dlgpv'); btn.dataset.on = '1'; btn.textContent = '■ Stop';
+      pvv = playVideo(id, v => { if (!v){ delete btn.dataset.on; btn.textContent = '▶ Play with the video'; return; } dp.querySelectorAll('video').forEach(x => x.remove()); v.className = 'pvvid'; v.controls = false; dp.style.position = 'relative'; dp.appendChild(v);
+        v.addEventListener('ended', () => { delete btn.dataset.on; btn.textContent = '▶ Play with the video'; }); }, false, t); };
     const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
     const listTracks = async () => { const lib = await loadTracks(), q = tq.value.trim().toLowerCase(), vs = lenOf(id);
       let list = lib.slice().reverse().filter(t => !(m.track && m.track.file === t.file))
@@ -1207,7 +1245,7 @@ function songUI(card, id){
     // what Instagram will play, shown at the top of its tab
     const igNow = box.querySelector('.ig-now'), showIg = () => { const g = m.instagram || {}, t = m.track && m.track.file ? m.track.title : '';
       const same = !m.instagram || g.useTrack || g.track, sel = g.none ? 'none' : g.ai ? 'ai' : g.audio_id ? 'song' : 'igtrk';
-      igNow.innerHTML = '<span class="lbl">Now playing on Instagram</span><b>' + (g.none ? 'The original video audio' : g.ai ? 'A song the AI picks when posting' : g.audio_id ? '♪ ' + esc(g.title) + (g.artist ? ' · ' + esc(g.artist) : '') + ' <small>(Instagram song)</small>' : 'Same as the other platforms: ' + (t ? esc(t) : 'the original video audio')) + '</b>';
+      igNow.innerHTML = '<span class="lbl">Now playing on Instagram</span><b>' + (g.none ? 'The original video audio' : g.ai ? 'Audio the AI picks when posting' : g.audio_id ? '♪ ' + esc(g.title) + (g.artist ? ' · ' + esc(g.artist) : '') + ' <small>(Instagram audio)</small>' : 'Same as the other platforms: ' + (t ? esc(t) : 'the original video audio')) + '</b>';
       box.querySelector('.sub-same').textContent = t ? t : 'the original video audio';
       box.querySelectorAll('.optrow .opt').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === sel));
       ul.querySelectorAll('li[data-aid]').forEach(li => { const on = g.audio_id && li.dataset.aid === g.audio_id; li.classList.toggle('chosen', !!on); li.querySelector('button').textContent = on ? '✓ Chosen' : 'Choose'; }); };
@@ -1227,15 +1265,15 @@ function songUI(card, id){
       try {
         const r = await findSongs(q);
         if (r.error){ say(st, 'Instagram said: ' + r.error, true); return; }
-        if (!r.songs.length){ say(st, 'No songs found. Try other words.'); return; }
-        say(st, r.songs.length + ' songs. Play one to hear it, then choose it.');
+        if (!r.songs.length){ say(st, 'No audio found. Try other words.'); return; }
+        say(st, r.songs.length + ' tracks. Play one to hear it, then choose it.');
         igSongs = r.songs; showSongs();
       } catch(e){ say(st, "Couldn't search: " + e.message, true); }
     };
     box.querySelector('[data-s="find"]').onclick = () => run(inp.value.trim());
     inp.onkeydown = e => { if (e.key === 'Enter') run(inp.value.trim()); };
     box.querySelector('[data-s="trend"]').onclick = () => run('');
-    box.querySelector('[data-s="ai"]').onclick = () => { m.instagram = { ai:true }; save('AI picks the song', "The AI will pick a trending song that suits the video when it's posted."); };
+    box.querySelector('[data-s="ai"]').onclick = () => { m.instagram = { ai:true }; save('AI picks the song', "The AI will pick trending audio that suits the video when it's posted."); };
     box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save('Original audio on Instagram', 'The Reel will use the original video audio.'); };
     // Instagram can use the same uploaded track as the other platforms
     box.querySelector('[data-s="igtrk"]').onclick = () => { delete m.instagram; save('Same audio as the other platforms on Instagram', 'The Reel will use the same audio as the other platforms.'); };
@@ -1669,7 +1707,7 @@ function renderSummary(){
   const where = { youtube:[ck('#mYtShorts') && 'Shorts', ck('#mYtVideo') && 'Video'], instagram:[ck('#mIgReel') && 'Reels', ck('#mIgStory') && 'Story'],
     facebook:[ck('#mFbReel') && 'Reels', ck('#mFbVideo') && 'Video', ck('#mFbStory') && 'Story'], tiktok:[$('#ttPriv') && $('#ttPriv').selectedIndex > 0 ? $('#ttPriv').selectedOptions[0].text : ''], x:[] };
   const m = music[vid] || {}, t = m.track && m.track.file ? m.track.title : '', ig = m.instagram || {};
-  const igMusic = ig.none ? 'original video audio' : ig.ai ? 'a song the AI picks' : ig.audio_id ? ig.title : '';
+  const igMusic = ig.none ? 'original video audio' : ig.ai ? 'audio the AI picks' : ig.audio_id ? ig.title : '';
   $('#summary').innerHTML = `<div class="sumvid"><span class="thumb"></span><span><small>Video</small><b>${esc(id ? label(id) : 'Next in line')}</b><small>${esc(!id && nextId ? label(nextId) + ' · ' : '')}${lenOf(vid) ? fmtLen(lenOf(vid)) + ' long' : ''}</small></span></div>
     <div class="sumrow"><small>Posting to</small><div class="chips">${on.map(k => `<span class="chip"><span class="lg">${LOGO[k] || ''}</span><b>${NAME[k]}</b>${where[k].filter(Boolean).length ? `<small>${esc(where[k].filter(Boolean).join(' + '))}</small>` : ''}</span>`).join('') || '<small>No platforms chosen</small>'}</div></div>
     <div class="sumrow"><small>Captions</small><b>${$('#capEdit').hidden ? 'Written by AI when it posts' : 'Yours, from step 3'}</b></div>
@@ -1897,13 +1935,13 @@ async function previewSong(id, p){
     el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>same track as the other platforms · tap a video to hear it</small></span>'; return; }
   if (m && m.audio_id){ show(m, 'chosen on the Media tab'); return; }
   if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
-  el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
+  el.textContent = '♪ The AI is choosing trending audio for this video… (about 30 seconds)';
   try {
     const r = await findSongs('', { pick:id, phrase });
-    if (!r.song){ el.textContent = '♪ No song found right now' + (r.error ? ' (' + r.error + ')' : '') + ': the AI will try again when it posts.'; return; }
+    if (!r.song){ el.textContent = '♪ No audio found right now' + (r.error ? ' (' + r.error + ')' : '') + ': the AI will try again when it posts.'; return; }
     pvSong = { id, phrase, song:r.song };
     if ($('#pvSong') === el) show(r.song, r.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick');
-  } catch(e){ el.textContent = "♪ Couldn't choose a song now (" + e.message + '): the AI will choose when it posts.'; }
+  } catch(e){ el.textContent = "♪ Couldn't choose audio now (" + e.message + '): the AI will choose when it posts.'; }
 }
 // plays the video (silent) in the Instagram card with the song over it, as the Reel will sound
 async function playWithSong(id, sg, ph){
