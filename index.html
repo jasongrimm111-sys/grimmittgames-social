@@ -246,6 +246,9 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
 #okToast{position:fixed;left:50%;bottom:24px;z-index:100;display:flex;gap:10px;align-items:center;max-width:min(560px,calc(100vw - 32px));padding:12px 18px;border-radius:14px;background:var(--card);color:var(--fg);border:1px solid var(--accent);box-shadow:0 14px 40px rgba(0,0,0,.5);font-weight:600;transform:translate(-50%,40px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s}
 #okToast.show{transform:translate(-50%,0);opacity:1}#okToast .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentfg)}
 #upcoming{max-height:none;overflow:visible;border:0;background:none;display:flex;flex-direction:column;gap:10px}#upcoming li.ugrp{display:grid;grid-template-columns:92px minmax(0,1fr);gap:0;padding:0;border:1px solid var(--line);border-radius:14px;background:var(--chip);overflow:hidden;align-items:stretch}#upcoming li.ugrp:hover{background:var(--chip)}.ud{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:12px 6px;background:rgba(198,244,50,.07);border-right:1px solid var(--line);text-align:center}.ud small{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}.ud b{font-size:15px}.ud span{margin-top:4px;padding:2px 8px;border-radius:99px;background:var(--accent);color:var(--accentfg);font-weight:700;font-size:12px}.uvs{display:flex;flex-direction:column;min-width:0}.uv{display:flex;align-items:center;gap:10px;padding:8px 12px;min-width:0}.uv+.uv{border-top:1px solid var(--line)}.uth{flex:none;width:26px;aspect-ratio:9/16;border-radius:5px;background:#000 center/cover no-repeat;box-shadow:0 0 0 1px var(--line)}.ut{min-width:0;flex:1;display:flex;flex-direction:column}.ut b{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ut small{color:var(--muted);font-size:12px}.uv .lgs{display:inline-flex;gap:4px;flex:none}.uv .lg{width:22px;height:22px}.uv.skipped{opacity:.6}#upcoming li.skipslot .ud span{background:var(--line);color:var(--muted)}@media (max-width:640px){#upcoming li.ugrp{grid-template-columns:62px minmax(0,1fr)}.ud b{font-size:13px}.uv{padding:7px 8px;gap:8px}.uv .lg{width:18px;height:18px}.ut b{white-space:normal;font-size:13px;line-height:1.25}.ut small{font-size:11px}.uth{width:20px}}
+.taptoplay{position:absolute;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;background:rgba(0,0,0,.55);color:#fff;font-weight:700;font-size:13px;padding:8px;text-align:center}.taptoplay span{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentfg);font-size:20px}
+.dashtop{display:flex;justify-content:flex-end;margin:0 0 12px}.dashtop button{padding:11px 18px;font-size:1rem}
+.phone-only{display:none}@media (max-width:640px){.wide-only{display:none}.phone-only{display:inline}.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:0;justify-content:space-between}.tabs::-webkit-scrollbar{display:none}.tabs button{padding:7px 4px;font-size:13px;min-width:0}.tabs .navmore{margin-left:0}#moreBtn{font-size:0;padding:7px 8px}#moreBtn::before{content:'⚙';font-size:18px;line-height:1}#moreBtn::after{display:none}.dashtop button{width:100%}}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
@@ -328,7 +331,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
   <div id="app" hidden>
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" data-go="dashboard">Dashboard</button>
+    <button type="button" role="tab" data-go="dashboard"><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
     <button type="button" role="tab" data-go="activity">Activity</button>
     <button type="button" role="tab" data-go="videos">Media</button>
     <button type="button" role="tab" data-go="schedule">Schedule</button>
@@ -343,8 +346,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       </div>
     </div>
   </nav>
+  <div class="dashtop" data-tab="dashboard"><button type="button" class="primary" data-go="new">+ Create new post</button></div>
   <section id="dash" data-tab="dashboard">
-    <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary" data-go="new">+ Create new post</button></div>
+    <div class="dashhead"><h2>Coming up</h2></div>
     <div class="stats" id="stats"></div>
     <ul id="upcoming" class="q"></ul><div class="pager" id="upPager" hidden></div>
     <h3 class="schedh" hidden>Set for a time by you</h3><ul class="q schedlist" hidden></ul>
@@ -1088,39 +1092,56 @@ async function playTrack(card, id, t, btn, audioOnly){
     await a.play(); btn.textContent = '■'; trkPlayer = { stop, btn };
   } catch(e){ btn.textContent = label0; }
 }
-// Plays a video with its chosen music track and its game sound effects in place of its own soundtrack, kept in step with
-// the video's controls (play, pause, seek, volume, mute). The track loops if it's shorter and fades out over the last 1.5 s.
+// The chosen music track and the game sound effects, mixed into one sound (Web Audio) and kept in step with the video's
+// controls (play, pause, seek, speed, volume, mute). One sound matters on iPhones, which only play one sound player at a
+// time. The track loops if it's shorter than the video and fades out over the last 1.5 s.
 let mixCtx = null;
-async function mixInto(v, id, t, a, s){
-  a.src = await raw(t.file); let sOk = false; try { s.src = await raw('media/sfx/' + id + '.m4a'); sOk = true; } catch(e){}
-  // silence the video's own soundtrack: on a computer through Web Audio, so its volume and mute controls still work; on
-  // iPhone (where Web Audio can stall a video and the volume is the phone's own) by muting the video itself
+const mixStart = () => { try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}   // sound even with the silent switch on
+  mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); return mixCtx; };
+async function mixInto(v, id, t){
+  const ctx = mixCtx || mixStart();
+  const dec = async path => { const r = await fetch(API + '/contents/' + path, { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!r.ok) throw new Error(r.status);
+    const ab = await r.arrayBuffer(); return new Promise((ok, bad) => { const pr = ctx.decodeAudioData(ab, ok, bad); if (pr && pr.catch) pr.catch(() => {}); }); };
+  const trk = await dec(t.file); let sfx = null; try { sfx = await dec('media/sfx/' + id + '.m4a'); } catch(e){}
+  const out = ctx.createGain(), tg = ctx.createGain(); out.connect(ctx.destination); tg.connect(out);
+  // the video's own soundtrack goes silent: on a computer through Web Audio (its volume and mute controls still work), on iPhone by muting it
   let own = 'graph';
   if (IOS){ own = 'muted'; v.muted = true; }
-  else try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); const g = mixCtx.createGain(); g.gain.value = 0; mixCtx.createMediaElementSource(v).connect(g).connect(mixCtx.destination); mixCtx.resume().catch(() => {}); }
-  catch(e){ own = 'muted'; v.muted = true; }
-  const at = () => a.duration ? v.currentTime % a.duration : v.currentTime;
-  const vol = () => { const left = v.duration - v.currentTime, f = left < 1.5 ? Math.max(0, left/1.5) : 1, off = own === 'graph' && v.muted;
-    a.volume = Math.min(1, v.volume*f); a.muted = off; if (sOk){ s.volume = v.volume; s.muted = off; } };
-  const sync = () => { if (Math.abs(a.currentTime - at()) > .25) a.currentTime = at(); if (sOk && Math.abs(s.currentTime - v.currentTime) > .15) s.currentTime = v.currentTime; vol(); };
-  const stop = () => { a.pause(); if (sOk) s.pause(); };
-  v.addEventListener('play', () => { if (mixCtx) mixCtx.resume().catch(() => {}); sync(); a.play().catch(() => {}); if (sOk) s.play().catch(() => {}); });
-  v.addEventListener('pause', stop); v.addEventListener('ended', stop); v.addEventListener('emptied', stop);
-  v.addEventListener('seeked', sync); v.addEventListener('timeupdate', sync); v.addEventListener('volumechange', vol);
-  v.addEventListener('ratechange', () => { a.playbackRate = v.playbackRate; if (sOk) s.playbackRate = v.playbackRate; });
+  else try { const g = ctx.createGain(); g.gain.value = 0; ctx.createMediaElementSource(v).connect(g).connect(ctx.destination); } catch(e){ own = 'muted'; v.muted = true; }
+  let srcs = [], t0 = 0;
+  const stop = () => { for (const x of srcs) try { x.stop(); } catch(e){} srcs = []; };
+  const vol = () => { const left = v.duration - v.currentTime; out.gain.value = own === 'graph' ? (v.muted ? 0 : v.volume) : 1; tg.gain.value = left < 1.5 ? Math.max(0, left/1.5) : 1; };
+  const go = () => { stop(); if (v.paused || v.ended) return; ctx.resume().catch(() => {}); const off = v.currentTime, r = v.playbackRate || 1;
+    const a = ctx.createBufferSource(); a.buffer = trk; a.loop = true; a.playbackRate.value = r; a.connect(tg); a.start(0, off % trk.duration); srcs.push(a);
+    if (sfx && off < sfx.duration){ const b = ctx.createBufferSource(); b.buffer = sfx; b.playbackRate.value = r; b.connect(out); b.start(0, off); srcs.push(b); }
+    t0 = ctx.currentTime - off/r; vol(); };
+  const check = () => { vol(); if (!v.paused && srcs.length && Math.abs((ctx.currentTime - t0)*(v.playbackRate || 1) - v.currentTime) > .3) go(); };
+  for (const e of ['play', 'playing', 'seeked', 'ratechange']) v.addEventListener(e, go);
+  for (const e of ['pause', 'ended', 'emptied', 'waiting']) v.addEventListener(e, stop);
+  v.addEventListener('timeupdate', check); v.addEventListener('volumechange', vol);
+  return { ctx };
 }
 // Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
 // Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
 function playVideo(id, put, plain){
-  const mt = plain ? null : (music[id] || {}).track, ma = mt && mt.file ? tapAudio() : null, ms = ma ? tapAudio() : null, v = tapVideo();
-  if (ma && !IOS){ try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); } catch(err){} }
+  const mt = plain ? null : (music[id] || {}).track, v = tapVideo();
+  if (mt && mt.file){ try { mixStart(); } catch(err){} }
   (async () => {
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
-      if (ma){ try { await mixInto(v, id, mt, ma, ms); } catch(err){ /* a track that won't load: its own sound */ } }
-      put(v); v.play().catch(() => {}); }
+      let mix = null; if (mt && mt.file){ try { mix = await mixInto(v, id, mt); } catch(err){ v.muted = false; /* a track that won't load: its own sound */ } }
+      put(v);
+      // if the phone blocks it (iPhones can, once the tap is a few seconds old), it waits for one more tap, which always works
+      const start = () => { if (mix) mix.ctx.resume().catch(() => {}); return v.play(); };
+      start().catch(() => { v.pause(); tapToPlay(v, start); }); }
     catch(err){ put(null); }
   })();
   return v;
+}
+function tapToPlay(v, start){
+  const box = v.parentNode; if (!box) return; if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'taptoplay'; b.innerHTML = '<span>▶</span>Tap to play with sound';
+  Object.assign(b.style, { left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:v.offsetWidth + 'px', height:v.offsetHeight + 'px' });
+  b.onclick = e => { e.stopPropagation(); b.remove(); start().catch(() => {}); }; v.after(b);
 }
 function songUI(card, id){
   const line = document.createElement('small'); line.className = 'songline'; line.dataset.id = id; line.textContent = songLine(id);
@@ -1552,7 +1573,8 @@ function showTab(t, push = true){
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
-const moreMenu = open => { $('#moreMenu').hidden = !open; $('#moreBtn').setAttribute('aria-expanded', String(open)); };
+const moreMenu = open => { const m = $('#moreMenu'); m.hidden = !open; $('#moreBtn').setAttribute('aria-expanded', String(open));
+  if (open && innerWidth <= 640){ const r = $('#moreBtn').getBoundingClientRect(); Object.assign(m.style, { position:'fixed', top:(r.bottom + 6) + 'px', right:'12px', left:'auto' }); } else if (open) m.style.position = m.style.top = m.style.right = m.style.left = ''; };
 $('#moreBtn').onclick = e => { e.stopPropagation(); moreMenu($('#moreMenu').hidden); };
 document.addEventListener('click', e => { if (!e.target.closest('#moreBox')) moreMenu(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#moreMenu').hidden){ moreMenu(false); $('#moreBtn').focus(); } });
@@ -1658,6 +1680,7 @@ document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => goStep(+
 $('#stepNext').onclick = () => { const why = stepProblem(step); if (why){ say($('#stepStatus'), why, true); if (step === 2 && !picked().length) setTimeout(() => wherePanel(true), 0); return; } goStep(step + 1); };
 $('#stepBack').onclick = () => goStep(step - 1);
 async function compose(id){
+  readFile('music.json').then(r => { music = r.data; }).catch(() => {});   // the latest music choices, so previews play what will post
   showTab('new'); goStep(id ? 2 : 1); ttShow(); $('#ttPriv').value = '';
   choose(id || ''); metaReset(); renderWhere();
   $('#capEdit').hidden = true; say($('#aiStatus'), '');
@@ -1891,7 +1914,8 @@ async function playWithSong(id, sg, ph){
     ph.prepend(v); ph.classList.add('playing');
     v.onended = () => { a.pause(); ph.classList.remove('playing'); v.remove(); pvPlayer = null; };
     v.onpause = () => a.pause(); v.onplay = () => a.play().catch(() => {});
-    await Promise.all([v.play(), a.play()]);
+    const start = () => Promise.all([v.play(), a.play()]);
+    await start().catch(() => { v.pause(); a.pause(); tapToPlay(v, start); });
   } catch(e){ say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
 }
 // a tap on a preview phone: play it there with the audio that platform will get (tap again to pause or carry on)
