@@ -245,6 +245,7 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
   body.fullnew .step[data-s="4"]:not([hidden]){padding-bottom:76px}.pvpane{grid-template-columns:repeat(2,minmax(0,1fr))}.pvpane .pvc:has(.wide){grid-column:1/-1}}
 #okToast{position:fixed;left:50%;bottom:24px;z-index:100;display:flex;gap:10px;align-items:center;max-width:min(560px,calc(100vw - 32px));padding:12px 18px;border-radius:14px;background:var(--card);color:var(--fg);border:1px solid var(--accent);box-shadow:0 14px 40px rgba(0,0,0,.5);font-weight:600;transform:translate(-50%,40px);opacity:0;pointer-events:none;transition:transform .25s,opacity .25s}
 #okToast.show{transform:translate(-50%,0);opacity:1}#okToast .ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accentfg)}
+#upcoming{max-height:none;overflow:visible}#upcoming .when{display:block;font-weight:700;margin-bottom:2px}#upcoming .ul{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;padding:3px 0}#upcoming .ul.skipped{color:var(--muted)}#upcoming .ul b{font-weight:600}#upcoming .lgs{display:inline-flex;gap:4px;margin-left:auto}#upcoming .lg{width:20px;height:20px}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
@@ -345,9 +346,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <section id="dash" data-tab="dashboard">
     <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary" data-go="new">+ Create new post</button></div>
     <div class="stats" id="stats"></div>
-    <ul id="upcoming" class="q"></ul>
+    <ul id="upcoming" class="q"></ul><div class="pager" id="upPager" hidden></div>
     <h3 class="schedh" hidden>Set for a time by you</h3><ul class="q schedlist" hidden></ul>
-    <p class="hint">Times are in your schedule's time zone. Captions for scheduled posts are written by AI just before each one goes out.</p>
+    <p class="hint">The next 10 posting times from your Schedule, in its time zone. Captions are written by AI just before each one goes out.</p>
   </section>
   <section id="compose" data-tab="new">
     <div class="composehead"><h2>New post</h2><button type="button" class="dlgx" data-go="dashboard" aria-label="Close">✕</button></div>
@@ -1465,7 +1466,8 @@ async function upcoming(count = 10){
   let ready = readyPlatforms(); const setUp = ready.length > 0;
   if (!setUp) ready = Object.keys(NEED).filter(k => cfg.platforms[k] !== false);   // nothing set up yet: still show what would go out
   const out = [], t = new Date(); t.setUTCMinutes(3, 0, 0); if (t < new Date()) t.setUTCHours(t.getUTCHours() + 1);
-  for (let i = 0; i < 24 * 60 && out.length < count; i++, t.setUTCHours(t.getUTCHours() + 1)){
+  const times = () => new Set(out.map(o => o.label)).size;   // the next `count` posting times (up to 60 days ahead)
+  for (let i = 0; i < 24 * 60 && times() < count; i++, t.setUTCHours(t.getUTCHours() + 1)){
     const parts = R.localParts(t, cfg.timezone), slot = R.slotAt(cfg, parts);
     if (!slot) continue;
     const key = parts.day + ' ' + slot.time; if (sim.lastSlot === key) continue;
@@ -1484,6 +1486,7 @@ async function upcoming(count = 10){
   const left = queue.filter(v => !skip.has(v) && mediaIds.has(v) && ready.some(k => !((state.posted || {})[v] || {})[k])).length;
   return { slots:out, ready:setUp ? ready : [], left };
 }
+let upPage = 0;
 async function renderDash(){
   renderSched().catch(() => {});
   let u; try { u = await upcoming(); } catch(e){ $('#upcoming').innerHTML = '<li><span></span><span class="t prob">' + esc(e.message) + '</span><span></span></li>'; return; }
@@ -1491,7 +1494,15 @@ async function renderDash(){
   const days = (cfg.slots || []).reduce((n, sl) => n + sl.days.length, 0);
   $('#stats').innerHTML = [[cfg.paused ? 'Paused' : next ? next.label.split(' · ')[0] + ' ' + next.label.split(' · ')[1] : 'None', cfg.paused ? 'posting is paused' : next ? 'next post' : 'no posting times'], [posted, 'videos posted'], [u.ready.length + ' of 5', 'platforms ready'], [days + ' a week', 'posting times'], [probs, 'problems']]
     .map(([b, sp]) => `<div><b>${esc(b)}</b><span>${sp}</span></div>`).join('');
-  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => sl.why ? `<li class="skipslot"><span class="n">–</span><span class="t">No post<small>${sl.label} · ${esc(sl.why)}</small></span><span></span></li>` : `<li><span class="n">◷</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? (sl.plats || []).map(k => NAME[k]).join(', ') || 'no platforms for this time' : 'no platforms set up yet'}</small></span><span></span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
+  const byTime = []; for (const sl of u.slots){ let g = byTime.find(x => x.label === sl.label); if (!g) byTime.push(g = { label:sl.label, rows:[] }); g.rows.push(sl); }
+  const line = sl => sl.why ? `<span class="ul skipped">No post · ${esc(sl.why)}</span>`
+    : `<span class="ul"><b>${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}</b>${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<span class="lgs">${u.ready.length ? (sl.plats || []).map(k => `<span class="lg" title="${NAME[k]}">${LOGO[k] || NAME[k]}</span>`).join('') || '<small>no platforms for this time</small>' : '<small>no platforms set up yet</small>'}</span></span>`;
+  const upPages = Math.max(1, Math.ceil(byTime.length/5)); upPage = Math.min(upPage, upPages - 1);
+  const upg = $('#upPager'); upg.hidden = cfg.paused || upPages < 2;
+  upg.innerHTML = `<button type="button" class="ghost sm" data-d="-1"${upPage === 0 ? ' disabled' : ''}>← Sooner</button><span class="hint">Page ${upPage + 1} of ${upPages}</span><button type="button" class="ghost sm" data-d="1"${upPage >= upPages - 1 ? ' disabled' : ''}>Later →</button>`;
+  upg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { upPage += +b.dataset.d; renderDash(); });
+  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>'
+    : byTime.slice(upPage*5, upPage*5 + 5).map(g => `<li class="${g.rows.every(r => r.why) ? 'skipslot' : ''}"><span class="n">◷</span><span class="t"><span class="when">${esc(g.label)}</span>${g.rows.map(line).join('')}</span><span></span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => compose(b.dataset.edit));
 }
 
