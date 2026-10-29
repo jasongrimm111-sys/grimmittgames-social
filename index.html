@@ -250,13 +250,16 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
 .dashtop{display:flex;justify-content:flex-end;margin:0 0 12px}.dashtop button{padding:11px 18px;font-size:1rem}
 .phone-only{display:none}@media (max-width:640px){.wide-only{display:none}.phone-only{display:inline}.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:0;justify-content:space-between}.tabs::-webkit-scrollbar{display:none}.tabs button{padding:7px 4px;font-size:13px;min-width:0}.tabs .navmore{margin-left:0}#moreBtn{font-size:0;padding:7px 8px}#moreBtn::before{content:'⚙';font-size:18px;line-height:1}#moreBtn::after{display:none}.dashtop button{width:100%}}
 .trim{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:6px}.trimhead{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}.trimhead b{color:var(--fg)}.tbar{position:relative;height:34px;border-radius:10px;background:repeating-linear-gradient(90deg,var(--line) 0 2px,transparent 2px 6px),var(--bg);border:1px solid var(--line);touch-action:none;cursor:pointer;user-select:none}
-.twin{position:absolute;top:2px;bottom:2px;min-width:14px;background:rgba(198,244,50,.35);border:2px solid var(--accent);border-radius:8px;cursor:grab;touch-action:none}.twin:active{cursor:grabbing}.th{position:absolute;top:-2px;bottom:-2px;width:14px;background:var(--accent);cursor:ew-resize}.th.l{left:-2px;border-radius:8px 0 0 8px}.th.r{right:-2px;border-radius:0 8px 8px 0}.th::after{content:'';position:absolute;left:5px;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--accentfg);opacity:.6}.th:focus-visible,.twin:focus-visible{outline:2px solid #fff;outline-offset:1px}.tticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:-2px}.trow{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center}.trow label{margin:0;font-size:13px;color:var(--muted)}.trow label b{color:var(--fg);font-weight:600;margin-left:4px}
+.twin{position:absolute;top:2px;bottom:2px;min-width:14px;background:rgba(198,244,50,.35);border:2px solid var(--accent);border-radius:8px;cursor:grab;touch-action:none}.twin:active{cursor:grabbing}.th{position:absolute;top:-2px;bottom:-2px;width:14px;background:var(--accent);cursor:ew-resize}.th.l{left:-2px;border-radius:8px 0 0 8px}.th.r{right:-2px;border-radius:0 8px 8px 0}.th::after{content:'';position:absolute;left:5px;top:9px;bottom:9px;width:2px;border-radius:2px;background:var(--accentfg);opacity:.6}.th:focus-visible,.twin:focus-visible{outline:2px solid #fff;outline-offset:1px}.tph{position:absolute;top:-4px;bottom:-4px;width:2px;margin-left:-1px;background:#fff;border-radius:2px;box-shadow:0 0 6px rgba(0,0,0,.6);z-index:3;pointer-events:none}
+.tticks{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:-2px}.trow{display:grid;grid-template-columns:130px 1fr;gap:10px;align-items:center}.trow label{margin:0;font-size:13px;color:var(--muted)}.trow label b{color:var(--fg);font-weight:600;margin-left:4px}
 .trow input[type=range]{width:100%;accent-color:var(--accent)}.tnote{margin:0!important;font-size:12px}.tbtns{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:6px}
 .loadrow{display:flex;align-items:center;justify-content:center;gap:10px;padding:22px 12px;color:var(--muted);font-size:14px;grid-column:1/-1;list-style:none}
 .spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite;flex:none}@keyframes spin{to{transform:rotate(360deg)}}
 .skel{border-radius:12px;background:linear-gradient(90deg,var(--chip) 0%,rgba(255,255,255,.07) 50%,var(--chip) 100%);background-size:200% 100%;animation:shimmer 1.2s ease-in-out infinite}@keyframes shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
 .skgrid{display:contents}.skgrid .skel{aspect-ratio:9/16}
 @media (prefers-reduced-motion:reduce){.spin,.skel{animation:none}}
+.loadingv{position:relative}.loadingv::after{content:'';position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:4px solid rgba(255,255,255,.25);border-top-color:var(--accent);animation:spin .8s linear infinite;z-index:7;pointer-events:none}
+.loadingv::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:inherit;z-index:6;pointer-events:none}.loadingv>.tapplay,.loadingv>.tapplay+*{visibility:hidden}.vcard .pv.loadingv{cursor:progress}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
@@ -921,7 +924,7 @@ function renderPicker(){
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
     b.querySelector('.sel').onclick = () => chooseAndNext(b.dataset.id);
-    const im = b.querySelector('button.im'); if (im) im.onclick = () => { im.disabled = true; playVideo(b.dataset.id, v => { if (v){ v.controls = true; v.className = 'pickvid'; im.replaceWith(v); } else im.disabled = false; }); };
+    const im = b.querySelector('button.im'); if (im) im.onclick = () => { im.disabled = true; playVideo(b.dataset.id, v => { if (v){ v.controls = true; v.className = 'pickvid'; im.replaceWith(v); } else im.disabled = false; }, false, undefined, im); };
   });
   $('#chosen').textContent = cur ? 'Chosen: ' + label(cur) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
 }
@@ -1137,17 +1140,19 @@ async function mixInto(v, id, t){
 }
 // Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
 // Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
-function playVideo(id, put, plain, over){
+function playVideo(id, put, plain, over, spinEl){
   const mt = plain ? null : over || (music[id] || {}).track, v = tapVideo();
+  const spin = on => { if (spinEl) spinEl.classList.toggle('loadingv', on); }; spin(true); setTimeout(() => spin(false), 30000);
   if (mt && mt.file){ try { mixStart(); } catch(err){} }
   (async () => {
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
       let mix = null; if (mt && mt.file){ try { mix = await mixInto(v, id, mt); } catch(err){ v.muted = false; /* a track that won't load: its own sound */ } }
+      v.addEventListener('playing', () => spin(false), { once:true });
       put(v);
       // if the phone blocks it (iPhones can, once the tap is a few seconds old), it waits for one more tap, which always works
       const start = () => { if (mix) mix.ctx.resume().catch(() => {}); return v.play(); };
-      start().catch(() => { v.pause(); tapToPlay(v, start); }); }
-    catch(err){ put(null); }
+      start().catch(() => { spin(false); v.pause(); tapToPlay(v, start); }); }
+    catch(err){ spin(false); put(null); }
   })();
   return v;
 }
@@ -1186,7 +1191,7 @@ function songUI(card, id){
     dlg.innerHTML = '<div class="dlghead"><b>♪ Audio · ' + esc(label(id)) + '</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="dlgbody"><div class="dlgpv" aria-label="Preview"></div></div>';
     dlg.querySelector('.dlgbody').appendChild(box); document.body.appendChild(dlg); dlg.showModal();
     poster(id).then(u => { dlg.querySelector('.dlgpv').style.backgroundImage = 'url(' + u + ')'; }).catch(() => {});
-    const close = () => { stopPv(); if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
+    const close = () => { stopPv(); stopPart(); if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
     dlg.querySelector('[data-x]').onclick = close; dlg.addEventListener('cancel', e => { e.preventDefault(); close(); }); dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
     const st = box.querySelector('[data-pane="i"] .status'), ul = box.querySelector('.ig-list'), inp = box.querySelector('[data-pane="i"] input');
     // two tabs: the track for TikTok, YouTube, Facebook and X, and Instagram's own choice
@@ -1206,18 +1211,18 @@ function songUI(card, id){
       let st = Math.min(Math.max(0, +t.start || 0), Math.max(0, dur - 1)), en = t.end != null ? +t.end : Math.min(dur, st + vlen), fx = t.sfx != null ? +t.sfx : 1, mv = t.vol != null ? +t.vol : 1;
       now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>♪ ' + esc(t.title || t.file) + '</b>'
         + `<div class="trim"><div class="trimhead"><span>Part of the track</span><b><span class="tst"></span> – <span class="ten"></span></b></div>
-          <div class="tbar" title="Drag the green part to move it, or its ends to change it"><span class="twin" tabindex="0" role="slider" aria-label="Part of the track (arrow keys move it)"><i class="th l" tabindex="0" role="slider" aria-label="Start"></i><i class="th r" tabindex="0" role="slider" aria-label="End"></i></span></div>
+          <div class="tbar" title="Drag the green part to move it, or its ends to change it"><span class="tph" hidden></span><span class="twin" tabindex="0" role="slider" aria-label="Part of the track (arrow keys move it)"><i class="th l" tabindex="0" role="slider" aria-label="Start"></i><i class="th r" tabindex="0" role="slider" aria-label="End"></i></span></div>
           <div class="tticks"><span>0:00</span><span>${fmtMs(dur*1000)}</span></div>
           <p class="hint tnote"></p>
           <div class="trow"><label>Music <b class="tmv"></b></label><input type="range" class="r-mv" min="0" max="150" step="5" aria-label="Music volume"></div>
           <div class="trow"><label>Game sounds <b class="tfx"></b></label><input type="range" class="r-fx" min="0" max="150" step="5" aria-label="Game sounds volume"></div></div>`
-        + '<div class="tbtns"><button type="button" class="sm primary" data-s="savetrim" disabled>Save</button><button type="button" class="sm ghost" data-s="orig">Use the original</button></div>';
+        + '<div class="tbtns"><button type="button" class="sm" data-s="part">▶ Play this part</button><button type="button" class="sm primary" data-s="savetrim" disabled>Save</button><button type="button" class="sm ghost" data-s="orig">Use the original</button></div>';
       const rf = now.querySelector('.r-fx'), rm = now.querySelector('.r-mv'), bar = now.querySelector('.tbar'), win = now.querySelector('.twin'), sv = now.querySelector('[data-s="savetrim"]');
       const draw = () => { now.querySelector('.tst').textContent = fmtMs(st*1000) || '0:00'; now.querySelector('.ten').textContent = fmtMs(en*1000); now.querySelector('.tfx').textContent = Math.round(fx*100) + '%'; now.querySelector('.tmv').textContent = Math.round(mv*100) + '%';
         Object.assign(now.querySelector('.twin').style, { left:(st/dur*100) + '%', width:((en - st)/dur*100) + '%' });
         now.querySelector('.tnote').textContent = (en - st >= vlen ? 'Plays ' : 'Plays ' + fmtMs((en - st)*1000) + ' of music, then just the game sounds · ') + (en - st >= vlen ? 'for the whole ' + fmtMs(vlen*1000) + ' video' : 'the video is ' + fmtMs(vlen*1000));
         rf.value = Math.round(fx*100); rm.value = Math.round(mv*100);
-        const nt = { ...t, start:st, end:en, sfx:fx, vol:mv }; if (curT && JSON.stringify(nt) !== JSON.stringify(curT)) stopPv(); curT = nt; };
+        const nt = { ...t, start:st, end:en, sfx:fx, vol:mv }; if (curT && JSON.stringify(nt) !== JSON.stringify(curT)){ stopPv(); if (partA && (nt.start !== curT.start || nt.end !== curT.end)) stopPart(); else if (partA) partA.volume = Math.min(1, mv); } curT = nt; };
       // the part can't be longer than the video or run past either end of the track
       const setPart = (a, b) => { a = Math.round(a); b = Math.round(b); if (b - a > vlen) b = a + vlen; if (b - a < 1) b = a + 1; if (a < 0){ b -= a; a = 0; } if (b > dur){ a -= b - dur; b = dur; } st = Math.max(0, a); en = Math.min(dur, b); sv.disabled = false; draw(); };
       let drag = null;
@@ -1233,15 +1238,27 @@ function songUI(card, id){
       rm.oninput = () => { mv = +rm.value/100; sv.disabled = false; draw(); };
       draw();
       sv.onclick = () => setTrack({ ...t, start:st, end:en, sfx:fx, vol:mv }, 'Saved: ' + (t.title || 'the track') + ' from ' + (fmtMs(st*1000) || '0:00') + ' to ' + fmtMs(en*1000) + ', music at ' + Math.round(mv*100) + '%, game sounds at ' + Math.round(fx*100) + '%.');
-      const o = now.querySelector('[data-s="orig"]'); o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
+      const o = now.querySelector('[data-s="orig"]'); o.onclick = () => { stopPart(); setTrack(null, 'This video uses its original music again.'); };
+      const pb = now.querySelector('[data-s="part"]'), ph = now.querySelector('.tph');
+      pb.onclick = () => {
+        if (partA){ stopPart(); return; }
+        stopPv(); const a = tapAudio(); partA = a; pb.textContent = '■ Stop';
+        let iv = 0; partStop = () => { a.pause(); clearInterval(iv); ph.hidden = true; pb.textContent = '▶ Play this part'; partA = null; };
+        raw(t.file).then(u => { if (partA !== a) return; a.src = u; a.currentTime = st; a.volume = Math.min(1, mv);
+          // stops at the end of the part, fading out over its last 1.5 s as it will on the video (checked once the track is playing)
+          a.play().then(() => { if (partA !== a) return; a.onended = () => stopPart();
+            iv = setInterval(() => { if (a.currentTime >= en){ stopPart(); return; } const left = en - a.currentTime; a.volume = Math.min(1, mv)*(left < 1.5 ? Math.max(0, left/1.5) : 1);
+              ph.hidden = false; ph.style.left = (a.currentTime/dur*100) + '%'; }, 50); }).catch(() => stopPart()); }).catch(() => stopPart()); }; };
+    let partA = null, partStop = null;
+    const stopPart = () => { if (partStop) partStop(); partStop = null; partA = null; };
     // the video on the left plays with the audio settings as they are now (saved or not); tap again to pause
     let pvv = null, curT = null;
     const dp = dlg.querySelector('.dlgpv'); dp.insertAdjacentHTML('beforeend', '<span class="tapplay">▶</span>'); dp.style.position = 'relative'; dp.style.cursor = 'pointer';
-    const stopPv = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } dp.classList.remove('playing'); };
+    const stopPv = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } dp.classList.remove('playing', 'loadingv'); };
     dp.onclick = () => {
       if (pvv && pvv.isConnected){ if (pvv.paused) pvv.play().catch(() => {}); else pvv.pause(); return; }
-      stopPv(); const v = playVideo(id, x => { if (!x || pvv !== x) return; dp.querySelectorAll('video').forEach(y => y !== x && y.remove()); x.className = 'pvvid'; x.controls = false; dp.appendChild(x); dp.classList.add('playing');
-        x.addEventListener('ended', () => { stopPv(); }); }, !curT, curT || undefined);
+      stopPart(); stopPv(); const v = playVideo(id, x => { if (!x || pvv !== x) return; dp.querySelectorAll('video').forEach(y => y !== x && y.remove()); x.className = 'pvvid'; x.controls = false; dp.appendChild(x); dp.classList.add('playing');
+        x.addEventListener('ended', () => { stopPv(); }); }, !curT, curT || undefined, dp);
       pvv = v; };
     const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
     const listTracks = async () => { const lib = await loadTracks(), q = tq.value.trim().toLowerCase(), vs = lenOf(id);
@@ -1326,7 +1343,7 @@ async function renderVideos(keepPage = false){
     d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
-    d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }); };
+    d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }, false, undefined, b); };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
     dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
     const rm = d.querySelector('[data-a="rm"]');
@@ -1963,7 +1980,7 @@ async function previewSong(id, p){
 }
 // plays the video (silent) in the Instagram card with the song over it, as the Reel will sound
 async function playWithSong(id, sg, ph){
-  const a = tapAudio(), v = tapVideo(); v.muted = true; v.className = 'pvvid'; pvPlayer = { v, a, ph };
+  const a = tapAudio(), v = tapVideo(); v.muted = true; v.className = 'pvvid'; pvPlayer = { v, a, ph }; ph.classList.add('loadingv'); v.addEventListener('playing', () => ph.classList.remove('loadingv'), { once:true });
   try {
     v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); a.src = sg.preview;
     if (!pvPlayer || pvPlayer.v !== v) return;
@@ -1972,7 +1989,7 @@ async function playWithSong(id, sg, ph){
     v.onpause = () => a.pause(); v.onplay = () => a.play().catch(() => {});
     const start = () => Promise.all([v.play(), a.play()]);
     await start().catch(() => { v.pause(); a.pause(); tapToPlay(v, start); });
-  } catch(e){ say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
+  } catch(e){ ph.classList.remove('loadingv'); say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
 }
 // a tap on a preview phone: play it there with the audio that platform will get (tap again to pause or carry on)
 function tapPreview(ph, id, ig){
@@ -1980,7 +1997,7 @@ function tapPreview(ph, id, ig){
   if (pvPlayer){ pvPlayer.v.pause(); if (pvPlayer.a) pvPlayer.a.pause(); pvPlayer.v.remove(); pvPlayer.ph.classList.remove('playing'); pvPlayer = null; }
   const m = (music[id] || {}).instagram, sg = ig && m && (m.audio_id ? m : m.ai && pvSong.id === id ? pvSong.song : null);
   if (sg && sg.preview){ playWithSong(id, sg, ph); return; }
-  const v = playVideo(id, x => { if (!x || !pvPlayer || pvPlayer.v !== x) return; x.className = 'pvvid'; ph.prepend(x); ph.classList.add('playing'); x.onended = () => { ph.classList.remove('playing'); x.remove(); pvPlayer = null; }; }, ig && m && m.none);
+  const v = playVideo(id, x => { if (!x || !pvPlayer || pvPlayer.v !== x) return; x.className = 'pvvid'; ph.prepend(x); ph.classList.add('playing'); x.onended = () => { ph.classList.remove('playing'); x.remove(); pvPlayer = null; }; }, ig && m && m.none, undefined, ph);
   pvPlayer = { v, a:null, ph };
 }
 // ---------- Outreach: review requests ----------
