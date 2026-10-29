@@ -1041,7 +1041,7 @@ async function renderLibrary(){
       + '<button type="button" class="sm ghost" data-a="play">▶</button>' + (used.length
         ? '<button type="button" class="sm ghost" data-a="rm" disabled title="Used by ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ': choose other music for ' + (used.length === 1 ? 'it' : 'them') + ' before removing this track">In use</button>'
         : '<button type="button" class="sm ghost" data-a="rm">Remove</button>');
-    li.querySelector('[data-a="play"]').onclick = e => playTrack(null, null, t, e.currentTarget, true);
+    li.querySelector('[data-a="play"]').onclick = e => playTrack(null, null, t, e.currentTarget);
     const rm = li.querySelector('[data-a="rm"]');
     // a track a video uses can't be removed: choose other music for those videos first
     if (!used.length) rm.onclick = async () => {
@@ -1090,19 +1090,16 @@ const tapVideo = () => { const v = document.createElement('video'); v.playsInlin
 const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const tapAudio = () => { const a = new Audio(); a.playsInline = true; a.src = SILENT; a.play().catch(() => {}); return a; };
 let trkPlayer = null;
-async function playTrack(card, id, t, btn, audioOnly){
+// ▶ on a track: plays it (Web Audio, so iPhones and iPads allow it: the sound starts up during the tap); tap again to stop
+function playTrack(card, id, t, btn){
   if (trkPlayer){ trkPlayer.stop(); const was = trkPlayer.btn; trkPlayer = null; if (was === btn) return; }
-  const label0 = btn.textContent; btn.textContent = '…';
-  try {
-    // s: the video's game sound effects, played over the music the way the post will have them
-    const a = tapAudio(), s = audioOnly ? null : tapAudio(); document.querySelectorAll('video.trkvid').forEach(x => x.remove()); a.src = await raw(t.file); let v = null, iv = null, sOk = false;
-    if (s){ try { s.src = await raw('media/sfx/' + id + '.m4a'); sOk = true; } catch(e){} }
-    const stop = () => { a.pause(); if (s) s.pause(); clearInterval(iv); if (v){ v.pause(); v.remove(); } btn.textContent = label0; };
-    if (!audioOnly){ v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'trkvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); const dp = document.querySelector('dialog.songdlg[open] .dlgpv'); if (dp){ dp.querySelectorAll('video').forEach(x => x.remove()); dp.appendChild(v); } else { const pv = card.querySelector('.pv'), ph = card.querySelector('.ph'); if (pv) pv.before(v); else if (ph){ v.className = 'pvvid'; ph.querySelectorAll('video').forEach(x => x.remove()); ph.prepend(v); } }
-      v.onended = () => { stop(); trkPlayer = null; }; iv = setInterval(() => { const left = v.duration - v.currentTime; a.volume = left < 1.5 ? Math.max(0, left/1.5) : 1; if (sOk && !s.paused && Math.abs(s.currentTime - v.currentTime) > .15) s.currentTime = v.currentTime; }, 50); await v.play(); if (sOk){ s.currentTime = v.currentTime; s.play().catch(() => {}); } }
-    else a.onended = () => { stop(); trkPlayer = null; };
-    await a.play(); btn.textContent = '■'; trkPlayer = { stop, btn };
-  } catch(e){ btn.textContent = label0; }
+  const ctx = mixStart(), label0 = btn.textContent; btn.textContent = '…';
+  let src = null, done = false; const g = ctx.createGain(); g.connect(ctx.destination);
+  const stop = () => { done = true; try { if (src) src.stop(); } catch(e){} g.disconnect(); btn.textContent = label0; };
+  const me = trkPlayer = { stop, btn };
+  decodeAudio(t.file).then(buf => { if (done) return; src = ctx.createBufferSource(); src.buffer = buf; src.connect(g);
+    src.onended = () => { if (trkPlayer === me) trkPlayer = null; if (!done) stop(); }; ctx.resume().catch(() => {}); src.start(); btn.textContent = '■'; })
+    .catch(() => { if (trkPlayer === me) trkPlayer = null; stop(); });
 }
 // The chosen music track and the game sound effects, mixed into one sound (Web Audio) and kept in step with the video's
 // controls (play, pause, seek, speed, volume, mute). One sound matters on iPhones, which only play one sound player at a
@@ -1110,10 +1107,17 @@ async function playTrack(card, id, t, btn, audioOnly){
 let mixCtx = null;
 const mixStart = () => { try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch(e){}   // sound even with the silent switch on
   mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); return mixCtx; };
+// a sound file from the project, decoded for Web Audio (kept, so playing it again is instant)
+const decoded = new Map();
+function decodeAudio(path){
+  if (!decoded.has(path)) decoded.set(path, (async () => { const ctx = mixCtx || mixStart();
+    const r = await fetch(API + '/contents/' + path, { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!r.ok) throw new Error(r.status);
+    const ab = await r.arrayBuffer(); return new Promise((ok, bad) => { const pr = ctx.decodeAudioData(ab, ok, bad); if (pr && pr.catch) pr.catch(() => {}); }); })().catch(e => { decoded.delete(path); throw e; }));
+  return decoded.get(path);
+}
 async function mixInto(v, id, t){
   const ctx = mixCtx || mixStart();
-  const dec = async path => { const r = await fetch(API + '/contents/' + path, { cache:'no-store', headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!r.ok) throw new Error(r.status);
-    const ab = await r.arrayBuffer(); return new Promise((ok, bad) => { const pr = ctx.decodeAudioData(ab, ok, bad); if (pr && pr.catch) pr.catch(() => {}); }); };
+  const dec = decodeAudio;
   const trk = await dec(t.file); let sfx = null; try { sfx = await dec('media/sfx/' + id + '.m4a'); } catch(e){}
   const out = ctx.createGain(), tg = ctx.createGain(), sg = ctx.createGain(); out.connect(ctx.destination); tg.connect(out); sg.connect(out);
   sg.gain.value = t.sfx != null && isFinite(+t.sfx) ? +t.sfx : 1;
@@ -1222,7 +1226,7 @@ function songUI(card, id){
         Object.assign(now.querySelector('.twin').style, { left:(st/dur*100) + '%', width:((en - st)/dur*100) + '%' });
         now.querySelector('.tnote').textContent = (en - st >= vlen ? 'Plays ' : 'Plays ' + fmtMs((en - st)*1000) + ' of music, then just the game sounds · ') + (en - st >= vlen ? 'for the whole ' + fmtMs(vlen*1000) + ' video' : 'the video is ' + fmtMs(vlen*1000));
         rf.value = Math.round(fx*100); rm.value = Math.round(mv*100);
-        const nt = { ...t, start:st, end:en, sfx:fx, vol:mv }; if (curT && JSON.stringify(nt) !== JSON.stringify(curT)){ stopPv(); if (partA && (nt.start !== curT.start || nt.end !== curT.end)) stopPart(); else if (partA) partA.volume = Math.min(1, mv); } curT = nt; };
+        const nt = { ...t, start:st, end:en, sfx:fx, vol:mv }; if (curT && JSON.stringify(nt) !== JSON.stringify(curT)){ stopPv(); if (partA) stopPart(); } curT = nt; };
       // the part can't be longer than the video or run past either end of the track
       const setPart = (a, b) => { a = Math.round(a); b = Math.round(b); if (b - a > vlen) b = a + vlen; if (b - a < 1) b = a + 1; if (a < 0){ b -= a; a = 0; } if (b > dur){ a -= b - dur; b = dur; } st = Math.max(0, a); en = Math.min(dur, b); sv.disabled = false; draw(); };
       let drag = null;
@@ -1242,13 +1246,15 @@ function songUI(card, id){
       const pb = now.querySelector('[data-s="part"]'), ph = now.querySelector('.tph');
       pb.onclick = () => {
         if (partA){ stopPart(); return; }
-        stopPv(); const a = tapAudio(); partA = a; pb.textContent = '■ Stop';
-        let iv = 0; partStop = () => { a.pause(); clearInterval(iv); ph.hidden = true; pb.textContent = '▶ Play this part'; partA = null; };
-        raw(t.file).then(u => { if (partA !== a) return; a.src = u; a.currentTime = st; a.volume = Math.min(1, mv);
-          // stops at the end of the part, fading out over its last 1.5 s as it will on the video (checked once the track is playing)
-          a.play().then(() => { if (partA !== a) return; a.onended = () => stopPart();
-            iv = setInterval(() => { if (a.currentTime >= en){ stopPart(); return; } const left = en - a.currentTime; a.volume = Math.min(1, mv)*(left < 1.5 ? Math.max(0, left/1.5) : 1);
-              ph.hidden = false; ph.style.left = (a.currentTime/dur*100) + '%'; }, 50); }).catch(() => stopPart()); }).catch(() => stopPart()); }; };
+        stopPv(); const ctx = mixStart(), g = ctx.createGain(); g.connect(ctx.destination); let src = null, iv = 0, t0 = 0; const me = partA = {}; pb.textContent = '■ Stop';
+        partStop = () => { try { if (src) src.stop(); } catch(e){} clearInterval(iv); g.disconnect(); ph.hidden = true; pb.textContent = '▶ Play this part'; };
+        decodeAudio(t.file).then(buf => { if (partA !== me) return; const a0 = st, a1 = Math.min(en, buf.duration), len = Math.max(0.1, a1 - a0);
+          src = buf && ctx.createBufferSource(); src.buffer = buf; src.connect(g); ctx.resume().catch(() => {});
+          // the music volume, fading out over the part's last 1.5 s as it will on the video
+          const now0 = ctx.currentTime; g.gain.setValueAtTime(Math.min(1.5, mv), now0); if (len > 1.5) g.gain.setValueAtTime(Math.min(1.5, mv), now0 + len - 1.5); g.gain.linearRampToValueAtTime(0, now0 + len);
+          src.start(now0, a0, len); t0 = now0; src.onended = () => { if (partA === me) stopPart(); };
+          iv = setInterval(() => { const at = a0 + (ctx.currentTime - t0); ph.hidden = false; ph.style.left = (Math.min(at, a1)/dur*100) + '%'; }, 50); })
+          .catch(() => { if (partA === me) stopPart(); }); }; };
     let partA = null, partStop = null;
     const stopPart = () => { if (partStop) partStop(); partStop = null; partA = null; };
     // the video on the left plays with the audio settings as they are now (saved or not); tap again to pause
