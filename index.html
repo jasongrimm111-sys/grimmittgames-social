@@ -138,7 +138,7 @@ li.skipslot .t{opacity:.6}
 .pick{border:2px solid transparent;border-radius:12px;padding:4px;background:var(--chip);text-align:left;display:flex;flex-direction:column;gap:4px;min-width:0;font-weight:400}
 .pick[aria-pressed="true"]{border-color:var(--accent)}
 .pick .im{width:100%;aspect-ratio:9/16;border-radius:8px;background:#000 center/cover no-repeat;display:grid;place-items:center;color:var(--muted);font-size:.8rem;text-align:center}
-.pick b{font-size:.78rem;line-height:1.2}.pick small{color:var(--muted);font-size:.7rem;line-height:1.2}
+.pick b{font-size:.78rem;line-height:1.2}.pick button.im{border:0;padding:0;cursor:pointer;font:inherit}.pick .sel{margin-top:auto;width:100%}.pickvid{width:100%;aspect-ratio:9/16;border-radius:8px;background:#000;object-fit:cover;display:block}.tapplay{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:grid;place-items:center;font-size:18px;pointer-events:none}.ph,.xcard .m{cursor:pointer}.ph>.tapplay,.xcard .m>.tapplay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2}.xcard .m{position:relative}.pick small{color:var(--muted);font-size:.7rem;line-height:1.2}
 .subtabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
 .subtabs button{background:none;color:var(--muted)}.subtabs button[aria-selected="true"]{background:var(--chip);color:var(--fg);border-color:var(--accent)}
 .subtabs .ok{color:var(--accent)}
@@ -219,7 +219,7 @@ button:disabled{opacity:.5;cursor:default}
 .q li.done .t small{color:var(--accent)}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 .pvsong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:6px;font-size:13px}.pvsong small{color:var(--muted,#8a9)}
-.pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}
+.pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
 .songbox li{grid-template-columns:40px 1fr auto auto}.trkvid{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;object-fit:cover}a.btn{display:inline-flex;align-items:center;text-decoration:none}
@@ -860,12 +860,13 @@ const poster = id => posters[id] = posters[id] || raw('media/posters/' + id + '.
 const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '';
 function renderPicker(){
   const cur = $('#pickVideo').value, ids = sortVideos([...mediaIds].filter(id => passes(id, 'p')), $('#pSort').value), box = $('#picker');
-  box.innerHTML = `<button type="button" class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small></button>`
+  box.innerHTML = `<div class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small><button type="button" class="sm sel">Select</button></div>`
     + (ids.length ? '' : '<p class="hint" style="grid-column:1 / -1">No videos match these filters.</p>')
-    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
+    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<div class="pick" data-id="${id}" aria-pressed="${cur === id}"><button type="button" class="im" aria-label="Play ${esc(label(id))}"><span class="tapplay">▶</span>${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small><button type="button" class="sm sel">Select</button></div>`; }).join('');
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
-    b.onclick = () => chooseAndNext(b.dataset.id);
+    b.querySelector('.sel').onclick = () => chooseAndNext(b.dataset.id);
+    const im = b.querySelector('button.im'); if (im) im.onclick = () => { im.disabled = true; playVideo(b.dataset.id, v => { if (v){ v.controls = true; v.className = 'pickvid'; im.replaceWith(v); } else im.disabled = false; }); };
   });
   $('#chosen').textContent = cur ? 'Chosen: ' + label(cur) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
 }
@@ -878,7 +879,7 @@ function chooseAndNext(id){ choose(id); if (step === 1) setTimeout(() => goStep(
 function choose(id){
   if (![...$('#pickVideo').options].some(o => o.value === id)) $('#pickVideo').add(new Option(id, id));
   $('#pickVideo').value = id;
-  document.querySelectorAll('#picker .pick').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
+  document.querySelectorAll('#picker .pick').forEach(b => { const on = b.dataset.id === id; b.setAttribute('aria-pressed', String(on)); const sb = b.querySelector('.sel'); if (sb){ sb.textContent = on ? '✓ Selected' : 'Select'; sb.classList.toggle('primary', on); } });
   $('#chosen').textContent = id ? 'Chosen: ' + label(id) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
   againShow(); if ($('#where').children.length) applyLengths();
 }
@@ -1065,6 +1066,19 @@ async function mixInto(v, id, t, a, s){
   v.addEventListener('seeked', sync); v.addEventListener('timeupdate', sync); v.addEventListener('volumechange', vol);
   v.addEventListener('ratechange', () => { a.playbackRate = v.playbackRate; if (sOk) s.playbackRate = v.playbackRate; });
 }
+// Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
+// Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
+function playVideo(id, put, plain){
+  const mt = plain ? null : (music[id] || {}).track, ma = mt && mt.file ? tapAudio() : null, ms = ma ? tapAudio() : null, v = tapVideo();
+  if (ma && !IOS){ try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); } catch(err){} }
+  (async () => {
+    try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
+      if (ma){ try { await mixInto(v, id, mt, ma, ms); } catch(err){ /* a track that won't load: its own sound */ } }
+      put(v); v.play().catch(() => {}); }
+    catch(err){ put(null); }
+  })();
+  return v;
+}
 function songUI(card, id){
   const line = document.createElement('small'); line.className = 'songline'; line.dataset.id = id; line.textContent = songLine(id);
   card.querySelector('.vb').before(line);
@@ -1193,11 +1207,7 @@ async function renderVideos(keepPage = false){
     d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
-    d.querySelector('.pv').onclick = async e => { const b = e.currentTarget; b.disabled = true;
-      // the video's chosen music (with its game sounds on top) plays in place of its own soundtrack; the sound players are made during the tap for iPhone
-      const mt = (music[id] || {}).track, ma = mt && mt.file ? tapAudio() : null, ms = ma ? tapAudio() : null, v = tapVideo();
-      if (ma && !IOS){ try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); } catch(err){} }
-      try { v.controls = true; v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); if (ma){ try { await mixInto(v, id, mt, ma, ms); } catch(err){ /* a track that won't load: the video plays with its own sound */ } } b.replaceWith(v); v.play().catch(() => {}); v.addEventListener('volumechange', () => { if (v.muted && !v.dataset.userMuted) { v.dataset.userMuted = '1'; } }); } catch(err){ b.disabled = false; } };
+    d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }); };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
     dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
     const rm = d.querySelector('[data-a="rm"]');
@@ -1773,6 +1783,8 @@ async function renderPreviews(){
     + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
     + '</div>' + note + '<p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  box.querySelectorAll('.pvc').forEach(c => { const ph = c.querySelector('.ph, .xcard .m'); if (!ph) return; ph.insertAdjacentHTML('beforeend', '<span class="tapplay">▶</span>');
+    ph.onclick = () => tapPreview(ph, id, /^Instagram/.test(c.querySelector('b').textContent)); });
   previewSong(id, p);
 }
 $('#btnPreview').onclick = renderPreviews;
@@ -1782,14 +1794,13 @@ async function previewSong(id, p){
   const el = $('#pvSong'); if (!el) return;
   const m = (music[id] || {}).instagram, phrase = (p && p.instagram && p.instagram.song) || '';
   const show = (sg, how) => {
-    el.innerHTML = '<span>♪ <b>' + esc(sg.title) + '</b>' + (sg.artist ? ' · ' + esc(sg.artist) : '') + ' <small>' + esc(how) + '</small></span>' + (sg.preview ? '<button type="button" class="sm primary">▶ Play with the video</button>' : '<small>(no preview available)</small>');
-    const b = el.querySelector('button'); if (b) b.onclick = () => playWithSong(id, sg, b);
+    el.innerHTML = '<span>♪ <b>' + esc(sg.title) + '</b>' + (sg.artist ? ' · ' + esc(sg.artist) : '') + ' <small>' + esc(how) + '</small></span>' + (sg.preview ? ' <small>· tap the Instagram video to hear it</small>' : ' <small>(no preview available)</small>');
   };
   if (m && m.none){ el.textContent = '♪ The Reel uses the original video audio (set on the Media tab)'; return; }
   const vt = (music[id] || {}).track;
   // nothing chosen, or "same as the other platforms": the Reel has the video's own audio or its chosen track
   if (!m || m.useTrack || m.track){ if (!(vt && vt.file)){ el.textContent = '♪ The Reel uses the same audio as the other platforms: the original video audio'; return; }
-    el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>same track as the other platforms</small></span><button type="button" class="sm primary">▶ Play with the video</button>'; el.querySelector('button').onclick = e => playTrack(e.currentTarget.closest('.pvc'), id, vt, e.currentTarget); return; }
+    el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>same track as the other platforms · tap a video to hear it</small></span>'; return; }
   if (m && m.audio_id){ show(m, 'chosen on the Media tab'); return; }
   if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
   el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
@@ -1801,15 +1812,25 @@ async function previewSong(id, p){
   } catch(e){ el.textContent = "♪ Couldn't choose a song now (" + e.message + '): the AI will choose when it posts.'; }
 }
 // plays the video (silent) in the Instagram card with the song over it, as the Reel will sound
-async function playWithSong(id, sg, btn){
-  if (pvPlayer){ pvPlayer.v.pause(); pvPlayer.a.pause(); pvPlayer.v.remove(); const was = pvPlayer.btn; pvPlayer = null; if (was === btn){ btn.textContent = '▶ Play with the video'; return; } }
-  const ph = btn.closest('.pvc').querySelector('.ph'), a = tapAudio(); ph.querySelectorAll('video').forEach(x => x.remove()); btn.textContent = 'Loading…';
+async function playWithSong(id, sg, ph){
+  const a = tapAudio(), v = tapVideo(); v.muted = true; v.className = 'pvvid'; pvPlayer = { v, a, ph };
   try {
-    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'pvvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
-    a.src = sg.preview; ph.prepend(v); pvPlayer = { v, a, btn };
-    v.onended = () => { a.pause(); btn.textContent = '▶ Play with the video'; v.remove(); pvPlayer = null; };
-    await Promise.all([v.play(), a.play()]); btn.textContent = '■ Stop';
-  } catch(e){ btn.textContent = '▶ Play with the video'; say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
+    v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); a.src = sg.preview;
+    if (!pvPlayer || pvPlayer.v !== v) return;
+    ph.prepend(v); ph.classList.add('playing');
+    v.onended = () => { a.pause(); ph.classList.remove('playing'); v.remove(); pvPlayer = null; };
+    v.onpause = () => a.pause(); v.onplay = () => a.play().catch(() => {});
+    await Promise.all([v.play(), a.play()]);
+  } catch(e){ say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
+}
+// a tap on a preview phone: play it there with the audio that platform will get (tap again to pause or carry on)
+function tapPreview(ph, id, ig){
+  if (pvPlayer && pvPlayer.ph === ph){ const v = pvPlayer.v; if (v.paused) v.play().catch(() => {}); else v.pause(); return; }
+  if (pvPlayer){ pvPlayer.v.pause(); if (pvPlayer.a) pvPlayer.a.pause(); pvPlayer.v.remove(); pvPlayer.ph.classList.remove('playing'); pvPlayer = null; }
+  const m = (music[id] || {}).instagram, sg = ig && m && (m.audio_id ? m : m.ai && pvSong.id === id ? pvSong.song : null);
+  if (sg && sg.preview){ playWithSong(id, sg, ph); return; }
+  const v = playVideo(id, x => { if (!x || !pvPlayer || pvPlayer.v !== x) return; x.className = 'pvvid'; ph.prepend(x); ph.classList.add('playing'); x.onended = () => { ph.classList.remove('playing'); x.remove(); pvPlayer = null; }; }, ig && m && m.none);
+  pvPlayer = { v, a:null, ph };
 }
 // ---------- Outreach: review requests ----------
 const EMAIL_RE = /[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
