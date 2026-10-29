@@ -219,6 +219,9 @@ button:disabled{opacity:.5;cursor:default}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 .pvsong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:6px;font-size:13px}.pvsong small{color:var(--muted,#8a9)}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}
+body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding-bottom:0}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
+.audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
+.songbox li{grid-template-columns:40px 1fr auto auto}.trkvid{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;object-fit:cover}a.btn{display:inline-flex;align-items:center;text-decoration:none}
 .songline{color:var(--muted,#8a9);font-size:12px;line-height:1.3}
 .songbox{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
 .songbox h4{margin:6px 0 0;font-size:14px}.songbox .row{display:flex;gap:6px;flex-wrap:wrap}.songbox .row input{flex:1;min-width:0}
@@ -392,7 +395,15 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p id="stepStatus" class="status" role="status"></p>
   </section>
 
-  <section data-tab="videos" id="upload">
+  <section data-tab="videos" class="vsubbar"><div class="subtabs" role="tablist" aria-label="Videos or audio"><button type="button" role="tab" data-vsub="v" aria-selected="true">Videos</button><button type="button" role="tab" data-vsub="a" aria-selected="false">Audio</button></div></section>
+  <section data-tab="videos" data-vpart="a" class="audiolib" id="audioLib">
+    <h2>Audio library <span class="unset" id="alCount"></span></h2>
+      <p class="hint">Music for your videos: tracks from Pixabay (free for commercial use, no credit needed) or your own. Add as many as you like, then choose one for a video under its ♪ Songs. Videos use their original music unless you choose a track; a longer track is cut to the video and faded out, a shorter one loops, and the game's sound effects stay.</p>
+      <div class="row"><a class="btn sm" href="https://pixabay.com/music/" target="_blank" rel="noopener">Find music on Pixabay ↗</a><input type="file" id="alFiles" accept="audio/*" multiple aria-label="Music files"><button type="button" id="alAdd" class="primary sm">Add to library</button></div>
+      <p class="status" id="alStatus" role="status"></p>
+      <ul class="songs" id="alList"></ul>
+  </section>
+  <section data-tab="videos" data-vpart="v" id="upload">
     <h2>Upload your own video</h2>
     <label for="upFile">Video file</label>
     <input id="upFile" type="file" accept="video/mp4,video/quicktime,.mp4,.mov,.m4v">
@@ -411,7 +422,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p id="upStatus" class="status" role="status"></p>
   </section>
 
-  <section data-tab="videos">
+  <section data-tab="videos" data-vpart="v">
     <div class="shead"><h2>Find videos</h2></div>
     <div class="vfilters">
       <div class="f"><label for="vSort">Sort by</label><select id="vSort">
@@ -425,7 +436,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     </div>
   </section>
 
-  <section data-tab="videos">
+  <section data-tab="videos" data-vpart="v">
     <h2>Videos</h2>
     <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
     <div id="videos" class="vgrid"></div>
@@ -901,7 +912,7 @@ const fmtMs = ms => ms ? Math.floor(ms/60000) + ':' + String(Math.round(ms/1000)
 function songLine(id){
   const m = music[id] || {}, ig = m.instagram;
   const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && ig.none ? "Instagram: the video's own music" : 'Instagram: AI picks a song when posting';
-  return '♪ ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
+  return '♪ Music: ' + (m.track && m.track.file ? (m.track.title || 'your track') : 'the original') + ' · ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
 }
 async function findSongs(q, extra = {}){
   const req = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
@@ -909,15 +920,85 @@ async function findSongs(q, extra = {}){
   for (let i = 0; i < 60; i++){ await wait(3000); try { const j = await gh('/contents/results/' + req + '.json?ref=songs'); return JSON.parse(unb64(j.content)); } catch(e){} }
   throw new Error('no answer from the search after 3 minutes');
 }
+document.querySelectorAll('[data-vsub]').forEach(b => b.onclick = () => { const au = b.dataset.vsub === 'a'; document.body.classList.toggle('vsub-a', au);
+  document.querySelectorAll('[data-vsub]').forEach(x => x.setAttribute('aria-selected', String(x === b))); try { localStorage.setItem('gg-social-vsub', b.dataset.vsub); } catch(e){} if (au) renderLibrary(); });
+try { if (localStorage.getItem('gg-social-vsub') === 'a') document.body.classList.add('vsub-a'), document.querySelectorAll('[data-vsub]').forEach(x => x.setAttribute('aria-selected', String(x.dataset.vsub === 'a'))); } catch(e){}
+let tracks = null, tracksSha;
+async function loadTracks(force){ if (tracks && !force) return tracks; try { const r = await readFile('music/tracks/index.json'); tracks = r.data; tracksSha = r.sha; } catch(e){ tracks = []; tracksSha = undefined; } return tracks; }
+const slug = t => String(t).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'track';
+const fileB64 = file => new Promise((ok, bad) => { const r = new FileReader(); r.onload = () => ok(String(r.result).split(',')[1]); r.onerror = () => bad(r.error); r.readAsDataURL(file); });
+const audioSecs = file => new Promise(ok => { const a = new Audio(); a.preload = 'metadata'; a.onloadedmetadata = () => { ok(a.duration || 0); URL.revokeObjectURL(a.src); }; a.onerror = () => ok(0); a.src = URL.createObjectURL(file); });
+// a Pixabay download's name ("upbeat-summer-tropical-12345.mp3") makes a good title
+const nameOf = file => file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').replace(/\s*\d{4,}\s*$/, '').replace(/\s+/g, ' ').trim().replace(/^./, c => c.toUpperCase()) || 'Track';
+const usersOf = file => Object.entries(music).filter(([, m]) => m && m.track && m.track.file === file).map(([vid]) => vid);
+async function renderLibrary(){
+  const lib = await loadTracks(), ul = $('#alList'); if (!ul) return;
+  $('#alCount').textContent = '· ' + lib.length + ' track' + (lib.length === 1 ? '' : 's');
+  ul.innerHTML = lib.length ? '' : '<li class="hint">No tracks yet. Download some from Pixabay (or use your own) and add them here.</li>';
+  for (const t of lib.slice().reverse()){
+    const used = usersOf(t.file), li = document.createElement('li');
+    li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + ' · ' + (used.length ? 'used by ' + used.map(v => esc(label(v))).join(', ') : 'not used yet') + '</small></span>'
+      + '<button type="button" class="sm ghost" data-a="play">▶</button><button type="button" class="sm ghost" data-a="rm">Remove</button>';
+    li.querySelector('[data-a="play"]').onclick = e => playTrack(null, null, t, e.currentTarget, true);
+    const rm = li.querySelector('[data-a="rm"]');
+    rm.onclick = async () => {
+      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = used.length ? 'Sure? ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ' go back to the original' : 'Sure? Remove'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Remove'; }, 4000); return; }
+      rm.disabled = true;
+      try {
+        await loadTracks(true); tracks = tracks.filter(x => x.file !== t.file); await writeFile('music/tracks/index.json', tracks, tracksSha, 'Music library: removed ' + t.title);
+        if (used.length){ for (const v of used) delete music[v].track; await saveMusic('Original music again for ' + used.join(', ')); }
+        try { const g = await gh('/contents/' + t.file); await gh('/contents/' + t.file, { method:'DELETE', body:JSON.stringify({ message:'Remove music track ' + t.title, sha:g.sha }) }); } catch(e){}
+        say($('#alStatus'), 'Removed ' + t.title + '.'); await loadTracks(true); renderLibrary(); document.querySelectorAll('.songline').forEach(l => { if (l.dataset.id) l.textContent = songLine(l.dataset.id); });
+      } catch(e){ rm.disabled = false; say($('#alStatus'), "Couldn't remove it: " + e.message, true); }
+    };
+    ul.appendChild(li);
+  }
+}
+$('#alAdd').onclick = async () => {
+  const files = [...$('#alFiles').files], st = $('#alStatus'); if (!files.length){ say(st, 'Choose one or more music files first (MP3s from Pixabay, or your own).', true); return; }
+  const big = files.filter(x => x.size > 25e6); if (big.length){ say(st, big.map(x => x.name).join(', ') + ': over 25 MB, choose an MP3 instead.', true); return; }
+  $('#alAdd').disabled = true; let done = 0;
+  try {
+    await loadTracks(true);
+    for (const file of files){
+      const title = nameOf(file); say(st, 'Adding ' + (done + 1) + ' of ' + files.length + ': ' + title + '…');
+      const ext = (file.name.match(/\.(mp3|m4a|wav|aac|ogg)$/i) || ['', 'mp3'])[1].toLowerCase(), path = 'music/tracks/' + slug(title) + '-' + Date.now().toString(36) + '.' + ext;
+      const secs = await audioSecs(file);
+      await gh('/contents/' + path, { method:'PUT', body:JSON.stringify({ message:'Music track: ' + title, content:await fileB64(file) }) });
+      tracks.push({ file:path, title, source:/\d{4,}\.mp3$/i.test(file.name) || /pixabay/i.test(file.name) ? 'pixabay' : 'own', secs:Math.round(secs*10)/10, added:new Date().toISOString().slice(0, 10) });
+      done++;
+    }
+    await writeFile('music/tracks/index.json', tracks, tracksSha, 'Music library: ' + done + ' added'); await loadTracks(true);
+    $('#alFiles').value = ''; say(st, done + ' track' + (done === 1 ? '' : 's') + ' added. Choose one for a video under its ♪ Songs.'); renderLibrary();
+  } catch(e){ say(st, "Couldn't add " + (files[done] ? files[done].name : 'the tracks') + ': ' + e.message + (done ? ' (' + done + ' added before it)' : ''), true); if (done) try { await writeFile('music/tracks/index.json', tracks, tracksSha, 'Music library: ' + done + ' added'); renderLibrary(); } catch(x){} }
+  $('#alAdd').disabled = false;
+};
+// plays a track: alone, or with the video (silent) as it will sound, faded out over the video's last 1.5 seconds
+let trkPlayer = null;
+async function playTrack(card, id, t, btn, audioOnly){
+  if (trkPlayer){ trkPlayer.stop(); const was = trkPlayer.btn; trkPlayer = null; if (was === btn) return; }
+  const label0 = btn.textContent; btn.textContent = '…';
+  try {
+    const a = new Audio(await raw(t.file)); let v = null, iv = null;
+    const stop = () => { a.pause(); clearInterval(iv); if (v){ v.pause(); v.remove(); } btn.textContent = label0; };
+    if (!audioOnly){ v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'trkvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); card.querySelector('.pv, video').before(v);
+      v.onended = () => { stop(); trkPlayer = null; }; iv = setInterval(() => { const left = v.duration - v.currentTime; a.volume = left < 1.5 ? Math.max(0, left/1.5) : 1; }, 50); await v.play(); }
+    else a.onended = () => { stop(); trkPlayer = null; };
+    await a.play(); btn.textContent = '■'; trkPlayer = { stop, btn };
+  } catch(e){ btn.textContent = label0; }
+}
 function songUI(card, id){
-  const line = document.createElement('small'); line.className = 'songline'; line.textContent = songLine(id);
+  const line = document.createElement('small'); line.className = 'songline'; line.dataset.id = id; line.textContent = songLine(id);
   card.querySelector('.vb').before(line);
   const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '♪ Songs'; btn.title = 'Choose the music for each platform'; card.querySelector('.vb').prepend(btn);
   let box = null;
   btn.onclick = () => {
     if (box){ box.remove(); box = null; return; }
     box = document.createElement('div'); box.className = 'songbox';
-    box.innerHTML = `<h4>Instagram Reels</h4>
+    box.innerHTML = `<h4>Music <span class="unset">· TikTok, YouTube, Facebook and X</span></h4>
+      <p class="trk-now"></p><ul class="songs trk-list"></ul><p class="status trk-st" role="status"></p>
+      <p class="hint">Add tracks on the Audio tab.</p>
+      <h4>Instagram Reels</h4>
       <p class="hint">Pick a song from Instagram's music library to play instead of the video's own music.</p>
       <div class="row"><input type="text" enterkeyhint="search" placeholder="e.g. upbeat tropical, epic battle" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
       <p class="status" role="status"></p><ul class="songs"></ul>
@@ -926,8 +1007,21 @@ function songUI(card, id){
       <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
       <p class="hint">Facebook, YouTube and X don't let apps add a song, so they use the video's own music.</p>`;
     card.appendChild(box);
-    const st = box.querySelector('.status'), ul = box.querySelector('.songs'), inp = box.querySelector(".row input");
+    const st = box.querySelector('.status:not(.trk-st)'), ul = box.querySelector('.songs:not(.trk-list)'), inp = box.querySelector('input[enterkeyhint=search]');
     const m = music[id] = music[id] || {};
+    const tst = box.querySelector('.trk-st'), tl = box.querySelector('.trk-list'), now = box.querySelector('.trk-now');
+    const setTrack = async (t, msg) => { if (t) m.track = { file:t.file, title:t.title }; else delete m.track;
+      try { await saveMusic((t ? 'Music: ' + t.title : 'Original music') + ' for ' + id); line.textContent = songLine(id); showNow(); listTracks(); renderLibrary(); say(tst, msg); } catch(e){ say(tst, "Couldn't save: " + e.message, true); } };
+    const showNow = () => { const t = m.track; now.innerHTML = 'Using: <b>' + (t && t.file ? esc(t.title || t.file) : 'the original music') + '</b>' + (t && t.file ? ' <button type="button" class="sm" data-s="pv">▶ Play with the video</button> <button type="button" class="sm ghost" data-s="orig">Use the original</button>' : '');
+      const b = now.querySelector('[data-s="pv"]'); if (b) b.onclick = () => playTrack(card, id, t, b);
+      const o = now.querySelector('[data-s="orig"]'); if (o) o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
+    const listTracks = async () => { const lib = await loadTracks(); tl.innerHTML = lib.length ? '' : '<li class="hint">Your Audio library is empty.</li>';
+      for (const t of lib.slice().reverse()){ if (m.track && m.track.file === t.file) continue; const li = document.createElement('li');
+        li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + '</small></span><button type="button" class="sm primary">Use</button><button type="button" class="sm ghost" data-p="1">▶</button>';
+        li.querySelector('.primary').onclick = () => setTrack(t, 'This video now uses ' + t.title + ' on TikTok, YouTube, Facebook and X.');
+        li.querySelector('[data-p]').onclick = e => playTrack(card, id, t, e.currentTarget);
+        tl.appendChild(li); } };
+    showNow(); listTracks();
     box.querySelector('[data-s="tt"]').checked = !!(m.tiktok && m.tiktok.draft);
     const save = async (msg, done) => { try { await saveMusic(msg + ' for ' + id); line.textContent = songLine(id); say(st, done); } catch(e){ say(st, "Couldn't save: " + e.message, true); } };
     const run = async q => {
@@ -962,6 +1056,7 @@ async function renderVideos(keepPage = false){
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
     try { durations = (await readFile('media/durations.json')).data; } catch(e){ durations = {}; }
     try { music = (await readFile('music.json')).data; } catch(e){ music = {}; }
+    renderLibrary();
   }
   const files = vFiles, xs = vXs, all = sortVideos(files.filter(id => passes(id)), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
