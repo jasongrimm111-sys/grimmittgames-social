@@ -982,14 +982,16 @@ $('#alAdd').onclick = async () => {
   $('#alAdd').disabled = false;
 };
 // plays a track: alone, or with the video (silent) as it will sound, faded out over the video's last 1.5 seconds
+const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+const tapAudio = () => { const a = new Audio(); a.playsInline = true; a.src = SILENT; a.play().catch(() => {}); return a; };
 let trkPlayer = null;
 async function playTrack(card, id, t, btn, audioOnly){
   if (trkPlayer){ trkPlayer.stop(); const was = trkPlayer.btn; trkPlayer = null; if (was === btn) return; }
   const label0 = btn.textContent; btn.textContent = '…';
   try {
-    const a = new Audio(await raw(t.file)); let v = null, iv = null;
+    const a = tapAudio(); document.querySelectorAll('video.trkvid').forEach(x => x.remove()); a.src = await raw(t.file); let v = null, iv = null;
     const stop = () => { a.pause(); clearInterval(iv); if (v){ v.pause(); v.remove(); } btn.textContent = label0; };
-    if (!audioOnly){ v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'trkvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); const dp = document.querySelector('dialog.songdlg[open] .dlgpv'); if (dp){ dp.querySelectorAll('video').forEach(x => x.remove()); dp.appendChild(v); } else card.querySelector('.pv, video').before(v);
+    if (!audioOnly){ v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'trkvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); const dp = document.querySelector('dialog.songdlg[open] .dlgpv'); if (dp){ dp.querySelectorAll('video').forEach(x => x.remove()); dp.appendChild(v); } else { const pv = card.querySelector('.pv'), ph = card.querySelector('.ph'); if (pv) pv.before(v); else if (ph){ v.className = 'pvvid'; ph.querySelectorAll('video').forEach(x => x.remove()); ph.prepend(v); } }
       v.onended = () => { stop(); trkPlayer = null; }; iv = setInterval(() => { const left = v.duration - v.currentTime; a.volume = left < 1.5 ? Math.max(0, left/1.5) : 1; }, 50); await v.play(); }
     else a.onended = () => { stop(); trkPlayer = null; };
     await a.play(); btn.textContent = '■'; trkPlayer = { stop, btn };
@@ -1697,10 +1699,10 @@ async function previewSong(id, p){
 // plays the video (silent) in the Instagram card with the song over it, as the Reel will sound
 async function playWithSong(id, sg, btn){
   if (pvPlayer){ pvPlayer.v.pause(); pvPlayer.a.pause(); pvPlayer.v.remove(); const was = pvPlayer.btn; pvPlayer = null; if (was === btn){ btn.textContent = '▶ Play with the video'; return; } }
-  const ph = btn.closest('.pvc').querySelector('.ph'); btn.textContent = 'Loading…';
+  const ph = btn.closest('.pvc').querySelector('.ph'), a = tapAudio(); ph.querySelectorAll('video').forEach(x => x.remove()); btn.textContent = 'Loading…';
   try {
     const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'pvvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
-    const a = new Audio(sg.preview); ph.prepend(v); pvPlayer = { v, a, btn };
+    a.src = sg.preview; ph.prepend(v); pvPlayer = { v, a, btn };
     v.onended = () => { a.pause(); btn.textContent = '▶ Play with the video'; v.remove(); pvPlayer = null; };
     await Promise.all([v.play(), a.play()]); btn.textContent = '■ Stop';
   } catch(e){ btn.textContent = '▶ Play with the video'; say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
