@@ -217,6 +217,8 @@ button:disabled{opacity:.5;cursor:default}
 .q li.skipped .t{opacity:.45;text-decoration:line-through}
 .q li.done .t small{color:var(--accent)}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.pvsong{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:space-between;margin-top:6px;font-size:13px}.pvsong small{color:var(--muted,#8a9)}
+.pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}
 .songline{color:var(--muted,#8a9);font-size:12px;line-height:1.3}
 .songbox{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
 .songbox h4{margin:6px 0 0;font-size:14px}.songbox .row{display:flex;gap:6px;flex-wrap:wrap}.songbox .row input{flex:1;min-width:0}
@@ -901,9 +903,9 @@ function songLine(id){
   const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && ig.none ? "Instagram: the video's own music" : 'Instagram: AI picks a song when posting';
   return '♪ ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
 }
-async function findSongs(q){
+async function findSongs(q, extra = {}){
   const req = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
-  await gh('/actions/workflows/songs.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ query:q, req } }) });
+  await gh('/actions/workflows/songs.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ query:q, req, ...extra } }) });
   for (let i = 0; i < 60; i++){ await wait(3000); try { const j = await gh('/contents/results/' + req + '.json?ref=songs'); return JSON.parse(unb64(j.content)); } catch(e){} }
   throw new Error('no answer from the search after 3 minutes');
 }
@@ -938,7 +940,7 @@ function songUI(card, id){
         for (const s of r.songs){
           const li = document.createElement('li');
           li.innerHTML = `${s.art ? `<img src="${esc(s.art)}" alt="">` : '<span class="noart">♪</span>'}<span class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}${s.ms ? ' · ' + fmtMs(s.ms) : ''}</small></span><button type="button" class="sm primary">Choose</button>${s.preview ? `<audio controls preload="none" src="${esc(s.preview)}"></audio>` : ''}`;
-          li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
+          li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist, preview:s.preview || '' }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
           ul.appendChild(li);
         }
       } catch(e){ say(st, "Couldn't search: " + e.message, true); }
@@ -1545,7 +1547,7 @@ async function renderPreviews(){
   if (!on.size){ box.innerHTML = '<p class="hint">Choose platforms under "Post to" to preview them.</p>'; box.hidden = false; return; }
   box.innerHTML = `<div class="pvgrid">`
     + (on.has('tiktok') ? card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`) : '')
-    + (on.has('instagram') && $('#mIgReel').checked ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
+    + (on.has('instagram') && $('#mIgReel').checked ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div><div class="pvsong" id="pvSong"></div>`, 'First line shows; the rest is under "more"') : '')
     + (on.has('instagram') && $('#mIgStory').checked ? card('Instagram Story', `<div class="ph" ${bg}><div class="top">${who}</div></div>`, 'Video only: Stories have no caption · gone after 24 hours') : '')
     + (on.has('youtube') && ($('#mYtShorts').checked || !$('#mYtVideo').checked) ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
     + (on.has('youtube') && $('#mYtVideo').checked ? card('YouTube video', `<div class="wide" ${bg.replace('style="', 'data-x="')}><div class="wbg" ${bg}></div><div class="wfg" ${bg}></div><div class="wt">${esc((p.youtube.videoTitle || caps.youtube).replace(/\s*#shorts\b/ig, ''))}</div></div>`, 'Landscape 16:9 version, with its own title') : '')
@@ -1555,8 +1557,40 @@ async function renderPreviews(){
     + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
     + '</div>' + note + '<p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  previewSong(id, p);
 }
 $('#btnPreview').onclick = renderPreviews;
+// the song on the Instagram preview: the one chosen for the video, or the AI's pick (sent with the post, so it's what posts)
+let pvSong = { id:null, phrase:null, song:null }, pvPlayer = null;
+async function previewSong(id, p){
+  const el = $('#pvSong'); if (!el) return;
+  const m = (music[id] || {}).instagram, phrase = (p && p.instagram && p.instagram.song) || '';
+  const show = (sg, how) => {
+    el.innerHTML = '<span>♪ <b>' + esc(sg.title) + '</b>' + (sg.artist ? ' · ' + esc(sg.artist) : '') + ' <small>' + esc(how) + '</small></span>' + (sg.preview ? '<button type="button" class="sm primary">▶ Play with the video</button>' : '<small>(no preview available)</small>');
+    const b = el.querySelector('button'); if (b) b.onclick = () => playWithSong(id, sg, b);
+  };
+  if (m && m.none){ el.textContent = "♪ The Reel uses the video's own music (set on the Videos tab)"; return; }
+  if (m && m.audio_id){ show(m, 'chosen on the Videos tab'); return; }
+  if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
+  el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
+  try {
+    const r = await findSongs('', { pick:id, phrase });
+    if (!r.song){ el.textContent = '♪ No song found right now' + (r.error ? ' (' + r.error + ')' : '') + ': the AI will try again when it posts.'; return; }
+    pvSong = { id, phrase, song:r.song };
+    if ($('#pvSong') === el) show(r.song, r.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick');
+  } catch(e){ el.textContent = "♪ Couldn't choose a song now (" + e.message + '): the AI will choose when it posts.'; }
+}
+// plays the video (silent) in the Instagram card with the song over it, as the Reel will sound
+async function playWithSong(id, sg, btn){
+  if (pvPlayer){ pvPlayer.v.pause(); pvPlayer.a.pause(); pvPlayer.v.remove(); const was = pvPlayer.btn; pvPlayer = null; if (was === btn){ btn.textContent = '▶ Play with the video'; return; } }
+  const ph = btn.closest('.pvc').querySelector('.ph'); btn.textContent = 'Loading…';
+  try {
+    const v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'pvvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
+    const a = new Audio(sg.preview); ph.prepend(v); pvPlayer = { v, a, btn };
+    v.onended = () => { a.pause(); btn.textContent = '▶ Play with the video'; v.remove(); pvPlayer = null; };
+    await Promise.all([v.play(), a.play()]); btn.textContent = '■ Stop';
+  } catch(e){ btn.textContent = '▶ Play with the video'; say($('#runStatus'), "Couldn't play the preview: " + e.message, true); }
+}
 // ---------- Outreach: review requests ----------
 const EMAIL_RE = /[A-Z0-9._%+'-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i;
 let outreachCfg = null, outreachSha, unsubList = [], unsubSha, outreachLinks = [];
@@ -1752,7 +1786,8 @@ $('#btnNow').onclick = () => {
   const meta = {}, pick2 = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
   if (where.includes('youtube')){ meta.youtube = [...($('#mYtShorts').checked ? ['shorts'] : []), ...($('#mYtVideo').checked ? ['video'] : [])]; if (!meta.youtube.length){ say($('#runStatus'), 'Choose Shorts and/or Video for YouTube.', true); return; } }
   if (where.includes('facebook')){ meta.facebook = [...pick2('#mFbReel', '#mFbStory'), ...($('#mFbVideo').checked ? ['video'] : [])]; if (!meta.facebook.length){ say($('#runStatus'), 'Choose Reels and/or Story for Facebook.', true); return; } }
-  if (where.includes('instagram')){ meta.instagram = pick2('#mIgReel', '#mIgStory'); if (!meta.instagram.length){ say($('#runStatus'), 'Choose Reels and/or Story for Instagram.', true); return; } }
+  if (where.includes('instagram')){ meta.instagram = pick2('#mIgReel', '#mIgStory'); if (!meta.instagram.length){ say($('#runStatus'), 'Choose Reels and/or Story for Instagram.', true); return; }
+    if (pvSong.song && pvSong.id === $('#pickVideo').value){ const g = pvSong.song; meta.igSong = { audio_id:g.audio_id, title:g.title, artist:g.artist, how:g.how }; } }
   const vid = $('#pickVideo').value, done = vid ? Object.keys((state.posted || {})[vid] || {}) : [];
   if (vid && !$('#repost').checked && where.every(k => done.includes(k))){ say($('#runStatus'), label(vid) + ' has already been posted to ' + where.map(k => NAME[k]).join(', ') + '. Tick "Post again" to send it again, or choose other platforms.', true); return; }
   dispatch({ video:vid, platform:where.join(','), captions:caps, tiktok, meta, repost:$('#repost').checked && !$('#againBox').hidden });
