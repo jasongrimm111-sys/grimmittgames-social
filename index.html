@@ -1646,6 +1646,7 @@ function edited(){
 const TABS = ['dashboard', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
 function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
+  stopAllMedia();
   document.body.classList.toggle('fullnew', t === 'new');
   document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('on', el.dataset.tab.split(' ').includes(t)));
   document.querySelectorAll('.tabs [data-go]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === t)));
@@ -1737,7 +1738,14 @@ function stepProblem(n){
   }
   return '';
 }
+// stops every video and sound playing on the page (changing step or tab)
+function stopAllMedia(){
+  document.querySelectorAll('video').forEach(v => { try { v.pause(); } catch(e){} });   // a paused video stops its mixed music and game sounds too
+  if (typeof pvPlayer !== 'undefined' && pvPlayer){ try { pvPlayer.v.pause(); if (pvPlayer.a) pvPlayer.a.pause(); pvPlayer.v.remove(); pvPlayer.ph.classList.remove('playing', 'loadingv'); } catch(e){} pvPlayer = null; }
+  if (typeof trkPlayer !== 'undefined' && trkPlayer){ try { trkPlayer.stop(); } catch(e){} trkPlayer = null; }
+}
 function goStep(n){
+  stopAllMedia();
   for (let k = 1; k < n; k++){ const why = stepProblem(k); if (why){ n = k; say($('#stepStatus'), why, true); break; } }
   if (n === step || !stepProblem(n - 1)) say($('#stepStatus'), '');
   step = n;
