@@ -223,10 +223,10 @@ button:disabled{opacity:.5;cursor:default}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding-bottom:0}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
 .songbox li{grid-template-columns:40px 1fr auto auto}.trkvid{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;object-fit:cover}a.btn{display:inline-flex;align-items:center;text-decoration:none}
-dialog.songdlg{width:min(860px,96vw);max-height:92vh;max-height:92dvh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--bg,#0d1117);color:var(--fg,#e8f0ea);overflow:auto}
+dialog.songdlg{scrollbar-width:thin;width:min(1040px,96vw);max-height:96vh;max-height:96dvh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--bg,#0d1117);color:var(--fg,#e8f0ea);overflow:auto}
 dialog.songdlg::backdrop{background:rgba(0,0,0,.6)}
 .songdlg .dlghead{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;background:inherit;border-bottom:1px solid var(--line)}
-.songdlg .dlgbody{display:grid;grid-template-columns:240px 1fr;gap:18px;padding:16px}
+.songdlg .dlgbody{display:grid;grid-template-columns:190px 1fr;gap:18px;padding:14px 16px}
 .songdlg .dlgpv{position:sticky;top:64px;align-self:start;width:100%;aspect-ratio:9/16;border-radius:14px;background:#000 center/cover no-repeat;overflow:hidden}
 .songdlg .dlgpv video{width:100%;height:100%;object-fit:cover;display:block}
 .songdlg .songbox{border-top:0;margin:0;padding:0;gap:8px}.songdlg .songbox .songs{max-height:none}.songdlg .songbox li{grid-template-columns:40px 1fr auto auto}
@@ -235,9 +235,9 @@ dialog.songdlg::backdrop{background:rgba(0,0,0,.6)}
 .dtabs{margin:0 0 4px}.dtabs button{flex:1 1 auto}
 .trkfind{display:grid;grid-template-columns:1fr auto auto;gap:6px}.trkfind input,.trkfind select{min-width:0}
 .trk-now,.ig-now{background:var(--chip);border-radius:12px;padding:10px 12px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
-.songdlg .pager{margin-top:6px}.songdlg .pager .hint{margin:0 auto}.optrow button{flex:1 1 auto}
+.songdlg [data-pane]{display:flex;flex-direction:column;gap:10px}.songdlg [data-pane][hidden]{display:none}.songdlg [data-pane] h5{margin:8px 0 -2px;font-size:13px;font-weight:600;color:var(--muted)}.optrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.optrow button{margin:0;padding:10px 8px;white-space:normal;line-height:1.25}.igfind{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}.igfind input{min-width:0}@media (max-width:640px){.optrow{grid-template-columns:1fr}.igfind{grid-template-columns:1fr 1fr}.igfind input{grid-column:1/-1}}.cur{border:1px solid var(--accent);background:rgba(198,244,50,.07)}.cur .lbl{display:block;width:100%;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:2px}.opt{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:2px;border:1px solid var(--line);background:var(--chip);border-radius:12px;color:var(--fg)}.opt small{color:var(--muted);font-weight:400;font-size:12px}.opt[aria-pressed=true]{border-color:var(--accent);background:rgba(198,244,50,.1);box-shadow:inset 0 0 0 1px var(--accent)}.opt[aria-pressed=true] b::before{content:'✓ ';color:var(--accent)}.songbox li.chosen{outline:1px solid var(--accent);border-radius:10px;background:rgba(198,244,50,.07)}.songdlg .pager{margin-top:6px}.songdlg .pager .hint{margin:0 auto}.optrow button{flex:1 1 auto}
 .libhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:6px}.libhead h2{margin:0}
-dialog.updlg{width:min(860px,96vw);scrollbar-width:none}dialog.updlg::-webkit-scrollbar{display:none}.updbody{padding:14px 18px 18px;display:flex;flex-direction:column;gap:6px}.updbody .row{flex-wrap:wrap}.updbody label{margin-top:4px}.updbody p.hint{margin:2px 0;font-size:.82rem}#upload .updbody{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;align-items:start}#upload .updbody>.ucol{display:flex;flex-direction:column;gap:6px;min-width:0}@media (max-width:640px){#upload .updbody{grid-template-columns:1fr}}
+dialog.updlg{width:min(1040px,96vw);scrollbar-width:none}dialog.updlg::-webkit-scrollbar{display:none}.updbody{padding:14px 18px 18px;display:flex;flex-direction:column;gap:6px}.updbody .row{flex-wrap:wrap}.updbody label{margin-top:4px}.updbody p.hint{margin:2px 0;font-size:.82rem}#upload .updbody{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;align-items:start}#upload .updbody>.ucol{display:flex;flex-direction:column;gap:6px;min-width:0}@media (max-width:640px){#upload .updbody{grid-template-columns:1fr}}
 .songline{color:var(--muted,#8a9);font-size:12px;line-height:1.3}
 .songbox{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
 .songbox h4{margin:6px 0 0;font-size:14px}.songbox .row{display:flex;gap:6px;flex-wrap:wrap}.songbox .row input{flex:1;min-width:0}
@@ -933,7 +933,7 @@ async function saveMusic(msg){ let sha; try { sha = (await gh('/contents/music.j
 const fmtMs = ms => ms ? Math.floor(ms/60000) + ':' + String(Math.round(ms/1000) % 60).padStart(2, '0') : '';
 function songLine(id){
   const m = music[id] || {}, ig = m.instagram;
-  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && (ig.useTrack || ig.track) ? 'Instagram: ' + (m.track && m.track.file ? m.track.title : 'your uploaded track (choose one under Music)') : ig && ig.none ? 'Instagram: the original video audio' : 'Instagram: AI picks a song when posting';
+  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && (ig.useTrack || ig.track) ? 'Instagram: same as the other platforms' : ig && ig.none ? 'Instagram: the original video audio' : ig && ig.ai ? 'Instagram: AI picks a song when posting' : 'Instagram: same as the other platforms';
   return '♪ Music: ' + (m.track && m.track.file ? (m.track.title || 'your track') : 'the original') + ' · ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
 }
 async function findSongs(q, extra = {}){
@@ -1042,19 +1042,19 @@ function songUI(card, id){
     box = document.createElement('div'); box.className = 'songbox';
     box.innerHTML = `<div class="subtabs dtabs" role="tablist" aria-label="Where the music plays"><button type="button" role="tab" data-t="s" aria-selected="true">TikTok · YouTube · Facebook · X</button><button type="button" role="tab" data-t="i" aria-selected="false">Instagram</button></div>
       <div data-pane="s">
-        <div class="trk-now"></div>
+        <div class="trk-now cur"></div>
         <div class="trkfind"><input type="text" enterkeyhint="search" class="trk-q" placeholder="Search your tracks" aria-label="Search your tracks">
           <select class="trk-src" aria-label="Source"><option value="">All tracks</option><option value="pixabay">Pixabay</option><option value="own">Your uploads</option></select>
           <select class="trk-sort" aria-label="Sort"><option value="new">Newest first</option><option value="az">A to Z</option><option value="fit">Closest to the video's length</option></select></div>
         <ul class="songs trk-list"></ul><div class="pager trk-pg" hidden></div><p class="status trk-st" role="status"></p>
-        <p class="hint">Add more tracks with Upload audio on the Audio tab.</p>
         <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
       </div>
       <div data-pane="i" hidden>
-        <p class="hint">Instagram can play a song from its own music library, or the same audio as the other platforms.</p>
-        <div class="ig-now"></div>
-        <div class="row optrow"><button type="button" class="sm" data-s="ai">Let AI choose when posting</button><button type="button" class="sm" data-s="igtrk">Same track as the other platforms</button><button type="button" class="sm" data-s="none">Original video audio</button></div>
-        <div class="row"><input type="text" enterkeyhint="search" placeholder="Search Instagram music, e.g. upbeat tropical" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
+        <div class="ig-now cur"></div>
+        <h5>Choose what the Reel plays</h5>
+        <div class="optrow"><button type="button" class="opt" data-s="igtrk"><b>Same as the other platforms</b><small class="sub-same"></small></button><button type="button" class="opt" data-s="ai"><b>AI picks a song</b><small>a trending Instagram song, chosen when posting</small></button><button type="button" class="opt" data-s="none"><b>Original video audio</b><small>the game's own music</small></button></div>
+        <h5>Or pick a song from Instagram's music library</h5>
+        <div class="igfind"><input type="text" enterkeyhint="search" placeholder="Search Instagram music, e.g. upbeat tropical" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
         <p class="status" role="status"></p><ul class="songs ig-list"></ul><div class="pager ig-pg" hidden></div>
       </div>`;
     const dlg = document.createElement('dialog'); dlg.className = 'songdlg';
@@ -1067,14 +1067,14 @@ function songUI(card, id){
     // two tabs: the track for TikTok, YouTube, Facebook and X, and Instagram's own choice
     box.querySelectorAll('.dtabs [data-t]').forEach(b => b.onclick = () => { box.querySelectorAll('.dtabs [data-t]').forEach(x => x.setAttribute('aria-selected', x === b)); box.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== b.dataset.t); });
     // a page of results with Previous / Next (used for both lists)
-    const PER = 6, pageTo = (pg, n, at, go) => { const pages = Math.ceil(n/PER); pg.hidden = pages < 2; if (pages < 2){ pg.innerHTML = ''; return; }
+    const PER = 5, pageTo = (pg, n, at, go) => { const pages = Math.ceil(n/PER); pg.hidden = pages < 2; if (pages < 2){ pg.innerHTML = ''; return; }
       pg.innerHTML = `<button type="button" class="ghost sm" data-d="-1"${at === 0 ? ' disabled' : ''}>← Previous</button><span class="hint">Page ${at + 1} of ${pages} · ${n} in all</span><button type="button" class="ghost sm" data-d="1"${at >= pages - 1 ? ' disabled' : ''}>Next →</button>`;
       pg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => go(at + +b.dataset.d)); };
     const m = music[id] = music[id] || {};
     const tst = box.querySelector('.trk-st'), tl = box.querySelector('.trk-list'), now = box.querySelector('.trk-now');
     const setTrack = async (t, msg) => { if (t) m.track = { file:t.file, title:t.title }; else delete m.track;
       try { await saveMusic((t ? 'Music: ' + t.title : 'Original music') + ' for ' + id); line.textContent = songLine(id); showNow(); listTracks(); renderLibrary(); say(tst, msg); } catch(e){ say(tst, "Couldn't save: " + e.message, true); } };
-    const showNow = () => { const t = m.track; now.innerHTML = 'Using: <b>' + (t && t.file ? esc(t.title || t.file) : 'the original music') + '</b>' + (t && t.file ? ' <button type="button" class="sm" data-s="pv">▶ Play with the video</button> <button type="button" class="sm ghost" data-s="orig">Use the original</button>' : '');
+    const showNow = () => { const t = m.track; now.innerHTML = '<span class="lbl">Now playing on TikTok, YouTube, Facebook and X</span><b>' + (t && t.file ? '♪ ' + esc(t.title || t.file) : 'The original video audio') + '</b>' + (t && t.file ? ' <button type="button" class="sm" data-s="pv">▶ Play with the video</button> <button type="button" class="sm ghost" data-s="orig">Use the original</button>' : '');
       const b = now.querySelector('[data-s="pv"]'); if (b) b.onclick = () => playTrack(card, id, t, b);
       const o = now.querySelector('[data-s="orig"]'); if (o) o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
     const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
@@ -1085,7 +1085,7 @@ function songUI(card, id){
       if (tsort.value === 'az') list.sort((a, b) => (a.title || a.file).localeCompare(b.title || b.file));
       if (tsort.value === 'fit' && vs) list.sort((a, b) => Math.abs((a.secs || 0) - vs) - Math.abs((b.secs || 0) - vs));
       tPage = Math.min(tPage, Math.max(0, Math.ceil(list.length/PER) - 1));
-      tl.innerHTML = list.length ? '' : `<li class="hint">${lib.length ? 'No tracks match.' : 'Your Audio library is empty.'}</li>`;
+      tl.innerHTML = list.length ? '' : `<li class="hint">${lib.length ? 'No tracks match.' : 'Your Audio library is empty: add tracks with Upload audio on the Audio tab.'}</li>`;
       pageTo(tpg, list.length, tPage, p => { tPage = p; listTracks(); });
       for (const t of list.slice(tPage*PER, tPage*PER + PER)){ const li = document.createElement('li');
         li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + '</small></span><button type="button" class="sm primary">Use</button><button type="button" class="sm ghost" data-p="1">▶</button>';
@@ -1094,19 +1094,23 @@ function songUI(card, id){
         tl.appendChild(li); } };
     tq.oninput = () => { tPage = 0; listTracks(); }; tsrc.onchange = tsort.onchange = tq.oninput;
     // what Instagram will play, shown at the top of its tab
-    const igNow = box.querySelector('.ig-now'), showIg = () => { const g = m.instagram || {};
-      igNow.innerHTML = 'Instagram plays: <b>' + (g.none ? 'the original video audio' : g.useTrack ? 'the same track as the other platforms' : g.audio_id ? esc(g.title) + (g.artist ? ' · ' + esc(g.artist) : '') : 'a song the AI picks when posting') + '</b>'; };
+    const igNow = box.querySelector('.ig-now'), showIg = () => { const g = m.instagram || {}, t = m.track && m.track.file ? m.track.title : '';
+      const same = !m.instagram || g.useTrack || g.track, sel = g.none ? 'none' : g.ai ? 'ai' : g.audio_id ? 'song' : 'igtrk';
+      igNow.innerHTML = '<span class="lbl">Now playing on Instagram</span><b>' + (g.none ? 'The original video audio' : g.ai ? 'A song the AI picks when posting' : g.audio_id ? '♪ ' + esc(g.title) + (g.artist ? ' · ' + esc(g.artist) : '') + ' <small>(Instagram song)</small>' : 'Same as the other platforms: ' + (t ? esc(t) : 'the original video audio')) + '</b>';
+      box.querySelector('.sub-same').textContent = t ? t : 'the original video audio';
+      box.querySelectorAll('.optrow .opt').forEach(b => b.setAttribute('aria-pressed', b.dataset.s === sel));
+      ul.querySelectorAll('li[data-aid]').forEach(li => { const on = g.audio_id && li.dataset.aid === g.audio_id; li.classList.toggle('chosen', !!on); li.querySelector('button').textContent = on ? '✓ Chosen' : 'Choose'; }); };
     showNow(); listTracks(); showIg();
     box.querySelector('[data-s="tt"]').checked = !!(m.tiktok && m.tiktok.draft);
     const save = async (msg, done) => { try { await saveMusic(msg + ' for ' + id); line.textContent = songLine(id); showIg(); say(st, done); } catch(e){ say(st, "Couldn't save: " + e.message, true); } };
     const igPg = box.querySelector('.ig-pg'); let igSongs = [], igPage = 0;
     const showSongs = () => { ul.innerHTML = ''; pageTo(igPg, igSongs.length, igPage, p => { igPage = p; showSongs(); });
         for (const s of igSongs.slice(igPage*PER, igPage*PER + PER)){
-          const li = document.createElement('li');
+          const li = document.createElement('li'); li.dataset.aid = s.audio_id;
           li.innerHTML = `${s.art ? `<img src="${esc(s.art)}" alt="">` : '<span class="noart">♪</span>'}<span class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}${s.ms ? ' · ' + fmtMs(s.ms) : ''}</small></span><button type="button" class="sm primary">Choose</button>${s.preview ? `<audio controls preload="none" src="${esc(s.preview)}"></audio>` : ''}`;
           li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist, preview:s.preview || '' }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
           ul.appendChild(li);
-        } };
+        } showIg(); };
     const run = async q => {
       ul.innerHTML = ''; igSongs = []; igPage = 0; igPg.hidden = true; say(st, "Searching Instagram's music" + (q ? ' for "' + q + '"' : ' (trending)') + '… this takes about 30 seconds.');
       try {
@@ -1120,11 +1124,10 @@ function songUI(card, id){
     box.querySelector('[data-s="find"]').onclick = () => run(inp.value.trim());
     inp.onkeydown = e => { if (e.key === 'Enter') run(inp.value.trim()); };
     box.querySelector('[data-s="trend"]').onclick = () => run('');
-    box.querySelector('[data-s="ai"]').onclick = () => { delete m.instagram; save('AI picks the song', "The AI will pick a song that suits the video when it's posted."); };
+    box.querySelector('[data-s="ai"]').onclick = () => { m.instagram = { ai:true }; save('AI picks the song', "The AI will pick a trending song that suits the video when it's posted."); };
     box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save('Original audio on Instagram', 'The Reel will use the original video audio.'); };
     // Instagram can use the same uploaded track as the other platforms
-    box.querySelector('[data-s="igtrk"]').onclick = () => { if (!(m.track && m.track.file)){ say(st, 'Choose a track on the TikTok · YouTube · Facebook · X tab first: Instagram then uses the same one.', true); return; }
-      m.instagram = { useTrack:true }; save('Uploaded track on Instagram', 'The Reel will use ' + m.track.title + ', the same track as the other platforms.'); };
+    box.querySelector('[data-s="igtrk"]').onclick = () => { delete m.instagram; save('Same audio as the other platforms on Instagram', 'The Reel will use the same audio as the other platforms.'); };
     box.querySelector('[data-s="tt"]').onchange = e => { if (e.target.checked) m.tiktok = { draft:true }; else delete m.tiktok; save('TikTok drafts setting', e.target.checked ? 'This video will go to your TikTok drafts: open TikTok to add a sound and post it.' : 'This video will post straight to TikTok.'); };
   };
 }
@@ -1747,8 +1750,9 @@ async function previewSong(id, p){
   };
   if (m && m.none){ el.textContent = '♪ The Reel uses the original video audio (set on the Media tab)'; return; }
   const vt = (music[id] || {}).track;
-  if (m && (m.useTrack || m.track)){ if (!(vt && vt.file)){ el.textContent = '♪ The Reel uses the original video audio (no uploaded track chosen for this video)'; return; }
-    el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>your uploaded track</small></span><button type="button" class="sm primary">▶ Play with the video</button>'; el.querySelector('button').onclick = e => playTrack(e.currentTarget.closest('.pvc'), id, vt, e.currentTarget); return; }
+  // nothing chosen, or "same as the other platforms": the Reel has the video's own audio or its chosen track
+  if (!m || m.useTrack || m.track){ if (!(vt && vt.file)){ el.textContent = '♪ The Reel uses the same audio as the other platforms: the original video audio'; return; }
+    el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>same track as the other platforms</small></span><button type="button" class="sm primary">▶ Play with the video</button>'; el.querySelector('button').onclick = e => playTrack(e.currentTarget.closest('.pvc'), id, vt, e.currentTarget); return; }
   if (m && m.audio_id){ show(m, 'chosen on the Media tab'); return; }
   if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
   el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
