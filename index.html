@@ -194,6 +194,7 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 .dashhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 10px}
 .dashhead h2{margin:0}
 [data-tab]:not(.on){display:none!important}
+.subhide{display:none!important}.pgsave{margin-top:14px}#activity .q{max-height:none;overflow:visible}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
 .check{display:flex;gap:8px;align-items:center;font-weight:600;margin:6px 0}
 .hint{color:var(--muted);font-size:.88rem;margin:4px 0 0}
@@ -222,14 +223,21 @@ button:disabled{opacity:.5;cursor:default}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding-bottom:0}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:460px;overflow:auto}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
 .songbox li{grid-template-columns:40px 1fr auto auto}.trkvid{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;object-fit:cover}a.btn{display:inline-flex;align-items:center;text-decoration:none}
-dialog.songdlg{width:min(860px,96vw);max-height:92vh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--bg,#0d1117);color:var(--fg,#e8f0ea);overflow:auto}
+dialog.songdlg{width:min(860px,96vw);max-height:92vh;max-height:92dvh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--bg,#0d1117);color:var(--fg,#e8f0ea);overflow:auto}
 dialog.songdlg::backdrop{background:rgba(0,0,0,.6)}
 .songdlg .dlghead{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px;background:inherit;border-bottom:1px solid var(--line)}
 .songdlg .dlgbody{display:grid;grid-template-columns:240px 1fr;gap:18px;padding:16px}
 .songdlg .dlgpv{position:sticky;top:64px;align-self:start;width:100%;aspect-ratio:9/16;border-radius:14px;background:#000 center/cover no-repeat;overflow:hidden}
 .songdlg .dlgpv video{width:100%;height:100%;object-fit:cover;display:block}
 .songdlg .songbox{border-top:0;margin:0;padding:0;gap:8px}.songdlg .songbox .songs{max-height:none}.songdlg .songbox li{grid-template-columns:40px 1fr auto auto}
-@media (max-width:640px){.songdlg .dlgbody{grid-template-columns:1fr}.songdlg .dlgpv{position:static;width:min(220px,60vw);justify-self:center}}
+@media (max-width:640px){dialog.songdlg{width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0}.songdlg .dlghead{padding-top:max(12px,env(safe-area-inset-top))}.songdlg .dlgbody{grid-template-columns:1fr;padding:12px 12px max(16px,env(safe-area-inset-bottom))}.songdlg .dlgpv{position:static;width:min(120px,32vw);justify-self:center}.trkfind{grid-template-columns:1fr 1fr}.trkfind .trk-q{grid-column:1/-1}}
+.songdlg .dlghead b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.songdlg .dlgx{flex:none;width:44px;height:44px;padding:0;border-radius:50%;font-size:20px;line-height:1;display:grid;place-items:center}
+.dtabs{margin:0 0 4px}.dtabs button{flex:1 1 auto}
+.trkfind{display:grid;grid-template-columns:1fr auto auto;gap:6px}.trkfind input,.trkfind select{min-width:0}
+.trk-now,.ig-now{background:var(--chip);border-radius:12px;padding:10px 12px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.songdlg .pager{margin-top:6px}.songdlg .pager .hint{margin:0 auto}.optrow button{flex:1 1 auto}
+.libhead{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin-bottom:6px}.libhead h2{margin:0}
+dialog.updlg{width:min(620px,96vw)}.updbody{padding:16px;display:flex;flex-direction:column;gap:8px}.updbody .row{flex-wrap:wrap}
 .songline{color:var(--muted,#8a9);font-size:12px;line-height:1.3}
 .songbox{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
 .songbox h4{margin:6px 0 0;font-size:14px}.songbox .row{display:flex;gap:6px;flex-wrap:wrap}.songbox .row input{flex:1;min-width:0}
@@ -295,7 +303,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="dashboard">Dashboard</button>
     <button type="button" role="tab" data-go="activity">Activity</button>
-    <button type="button" role="tab" data-go="videos">Videos</button>
+    <button type="button" role="tab" data-go="videos">Media</button>
     <button type="button" role="tab" data-go="schedule">Schedule</button>
     <button type="button" role="tab" data-go="outreach">Outreach</button>
     <div class="navmore" id="moreBox">
@@ -405,14 +413,11 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
   <section data-tab="videos" class="vsubbar"><div class="subtabs" role="tablist" aria-label="Videos or audio"><button type="button" role="tab" data-vsub="v" aria-selected="true">Videos</button><button type="button" role="tab" data-vsub="a" aria-selected="false">Audio</button></div></section>
   <section data-tab="videos" data-vpart="a" class="audiolib" id="audioLib">
-    <h2>Audio library <span class="unset" id="alCount"></span></h2>
-      <p class="hint">Music for your videos: tracks from Pixabay (free for commercial use, no credit needed) or your own. Add as many as you like, then choose one for a video under its ♪ Songs. Videos use their original music unless you choose a track; a longer track is cut to the video and faded out, a shorter one loops, and the game's sound effects stay.</p>
-      <div class="row"><a class="btn sm" href="https://pixabay.com/music/" target="_blank" rel="noopener">Find music on Pixabay ↗</a><input type="file" id="alFiles" accept="audio/*" multiple aria-label="Music files"><button type="button" id="alAdd" class="primary sm">Add to library</button></div>
-      <p class="status" id="alStatus" role="status"></p>
+    <div class="libhead"><h2>Audio library <span class="unset" id="alCount"></span></h2><button type="button" class="primary" id="openAl">⬆ Upload audio</button></div>
+
       <ul class="songs" id="alList"></ul>
   </section>
-  <section data-tab="videos" data-vpart="v" id="upload">
-    <h2>Upload your own video</h2>
+  <dialog id="upload" class="songdlg updlg"><div class="dlghead"><b>⬆ Upload your own video</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="updbody">
     <label for="upFile">Video file</label>
     <input id="upFile" type="file" accept="video/mp4,video/quicktime,.mp4,.mov,.m4v">
     <div id="upCheck" class="upcheck" aria-live="polite"></div>
@@ -422,16 +427,21 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <textarea id="upAbout" rows="2" maxlength="400" placeholder="e.g. A close Rush run in Volcano Ridge, escaping the lava wave with a rocket"></textarea>
     <div class="row"><div><label for="upWorld">World <span class="unset">· optional</span></label><select id="upWorld"><option value="">None</option></select></div>
       <div><label for="upKind">Type <span class="unset">· optional</span></label><select id="upKind"><option value="">None</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option></select></div></div>
-    <p class="hint">Tagging a world and type lets the Videos filters find it, like the game's own videos.</p>
+    <p class="hint">Tagging a world and type lets the Media filters find it, like the game's own videos.</p>
     <label class="check"><input id="upNext" type="checkbox"> Post it next</label>
     <div class="row"><button id="btnUpload" class="primary" type="button">Upload</button></div>
     <progress id="upProg" max="100" value="0" hidden></progress>
     <p class="hint">Works best as a vertical 9:16 video (like 1080 × 1920) from 3 to 90 seconds, MP4 or MOV (iPhone videos are fine), up to 95 MB. When it posts, it's converted to a format every platform accepts and an X version is made.</p>
     <p id="upStatus" class="status" role="status"></p>
-  </section>
+  </div></dialog>
+  <dialog id="alDlg" class="songdlg updlg"><div class="dlghead"><b>⬆ Upload audio</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="updbody">
+      <p class="hint">Music for your videos: tracks from Pixabay (free for commercial use, no credit needed) or your own. Add as many as you like, then choose one for a video under its ♪ Songs. Videos use their original music unless you choose a track; a longer track is cut to the video and faded out, a shorter one loops, and the game's sound effects stay.</p>
+      <div class="row"><a class="btn sm" href="https://pixabay.com/music/" target="_blank" rel="noopener">Find music on Pixabay ↗</a><input type="file" id="alFiles" accept="audio/*" multiple aria-label="Music files"><button type="button" id="alAdd" class="primary sm">Add to library</button></div>
+      <p class="status" id="alStatus" role="status"></p>
+  </div></dialog>
 
   <section data-tab="videos" data-vpart="v">
-    <div class="shead"><h2>Find videos</h2></div>
+    <div class="shead libhead"><h2>Videos</h2><button type="button" class="primary" id="openUp">⬆ Upload video</button></div>
     <div class="vfilters">
       <div class="f"><label for="vSort">Sort by</label><select id="vSort">
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option>
@@ -445,7 +455,6 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   </section>
 
   <section data-tab="videos" data-vpart="v">
-    <h2>Videos</h2>
     <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
     <div id="videos" class="vgrid"></div>
     <div id="vPager" class="pager" hidden></div>
@@ -619,7 +628,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p id="oSetStatus" class="status" role="status"></p>
   </section>
 
-  <div class="bar" data-tab="schedule platforms ai account"><button id="btnSave" class="primary" type="button">Save changes</button></div>
+  <div class="bar" data-tab="platforms ai account"><button id="btnSave" class="primary" type="button">Save changes</button></div>
   <p id="status" class="status" role="status" data-tab="schedule platforms ai account"></p>
   </div>
   <footer class="foot">
@@ -864,7 +873,7 @@ function choose(id){
   $('#chosen').textContent = id ? 'Chosen: ' + label(id) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
   againShow(); if ($('#where').children.length) applyLengths();
 }
-// the Videos tab shows a page at a time (posters load only for that page)
+// the Media tab shows a page at a time (posters load only for that page)
 let durations = {};
 const lenOf = id => (durations[id] && durations[id].s) || ((customs[id] || {}).seconds) || 0;
 const fmtLen = s => s ? Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0') : '';
@@ -962,6 +971,12 @@ async function renderLibrary(){
     ul.appendChild(li);
   }
 }
+// the upload forms open from a button over the library, so the videos and tracks show straight away
+for (const [btn, dlg] of [['#openUp', '#upload'], ['#openAl', '#alDlg']]){
+  const d = $(dlg); $(btn).onclick = () => d.showModal();
+  d.querySelector('[data-x]').onclick = () => d.close();
+  d.addEventListener('click', e => { if (e.target === d) d.close(); });
+}
 $('#alAdd').onclick = async () => {
   const files = [...$('#alFiles').files], st = $('#alStatus'); if (!files.length){ say(st, 'Choose one or more music files first (MP3s from Pixabay, or your own).', true); return; }
   const big = files.filter(x => x.size > 25e6); if (big.length){ say(st, big.map(x => x.name).join(', ') + ': over 25 MB, choose an MP3 instead.', true); return; }
@@ -989,10 +1004,12 @@ async function playTrack(card, id, t, btn, audioOnly){
   if (trkPlayer){ trkPlayer.stop(); const was = trkPlayer.btn; trkPlayer = null; if (was === btn) return; }
   const label0 = btn.textContent; btn.textContent = '…';
   try {
-    const a = tapAudio(); document.querySelectorAll('video.trkvid').forEach(x => x.remove()); a.src = await raw(t.file); let v = null, iv = null;
-    const stop = () => { a.pause(); clearInterval(iv); if (v){ v.pause(); v.remove(); } btn.textContent = label0; };
+    // s: the video's game sound effects, played over the music the way the post will have them
+    const a = tapAudio(), s = audioOnly ? null : tapAudio(); document.querySelectorAll('video.trkvid').forEach(x => x.remove()); a.src = await raw(t.file); let v = null, iv = null, sOk = false;
+    if (s){ try { s.src = await raw('media/sfx/' + id + '.m4a'); sOk = true; } catch(e){} }
+    const stop = () => { a.pause(); if (s) s.pause(); clearInterval(iv); if (v){ v.pause(); v.remove(); } btn.textContent = label0; };
     if (!audioOnly){ v = document.createElement('video'); v.muted = true; v.playsInline = true; v.className = 'trkvid'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); const dp = document.querySelector('dialog.songdlg[open] .dlgpv'); if (dp){ dp.querySelectorAll('video').forEach(x => x.remove()); dp.appendChild(v); } else { const pv = card.querySelector('.pv'), ph = card.querySelector('.ph'); if (pv) pv.before(v); else if (ph){ v.className = 'pvvid'; ph.querySelectorAll('video').forEach(x => x.remove()); ph.prepend(v); } }
-      v.onended = () => { stop(); trkPlayer = null; }; iv = setInterval(() => { const left = v.duration - v.currentTime; a.volume = left < 1.5 ? Math.max(0, left/1.5) : 1; }, 50); await v.play(); }
+      v.onended = () => { stop(); trkPlayer = null; }; iv = setInterval(() => { const left = v.duration - v.currentTime; a.volume = left < 1.5 ? Math.max(0, left/1.5) : 1; if (sOk && !s.paused && Math.abs(s.currentTime - v.currentTime) > .15) s.currentTime = v.currentTime; }, 50); await v.play(); if (sOk){ s.currentTime = v.currentTime; s.play().catch(() => {}); } }
     else a.onended = () => { stop(); trkPlayer = null; };
     await a.play(); btn.textContent = '■'; trkPlayer = { stop, btn };
   } catch(e){ btn.textContent = label0; }
@@ -1005,24 +1022,36 @@ function songUI(card, id){
   btn.onclick = () => {
     if (box){ box.remove(); box = null; return; }
     box = document.createElement('div'); box.className = 'songbox';
-    box.innerHTML = `<h4>Music <span class="unset">· TikTok, YouTube, Facebook and X</span></h4>
-      <p class="trk-now"></p><ul class="songs trk-list"></ul><p class="status trk-st" role="status"></p>
-      <p class="hint">Add tracks on the Audio tab.</p>
-      <h4>Instagram Reels</h4>
-      <p class="hint">Pick a song from Instagram's music library to play instead of the video's own music.</p>
-      <div class="row"><input type="text" enterkeyhint="search" placeholder="e.g. upbeat tropical, epic battle" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
-      <p class="status" role="status"></p><ul class="songs"></ul>
-      <div class="row"><button type="button" class="ghost sm" data-s="ai">Let AI choose when posting</button><button type="button" class="ghost sm" data-s="igtrk">Use my uploaded track</button><button type="button" class="ghost sm" data-s="none">Use the original video audio</button></div>
-      <h4>TikTok</h4>
-      <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
-      <p class="hint">TikTok (when posted directly), YouTube, Facebook and X use the Music choice at the top.</p>`;
+    box.innerHTML = `<div class="subtabs dtabs" role="tablist" aria-label="Where the music plays"><button type="button" role="tab" data-t="s" aria-selected="true">TikTok · YouTube · Facebook · X</button><button type="button" role="tab" data-t="i" aria-selected="false">Instagram</button></div>
+      <div data-pane="s">
+        <div class="trk-now"></div>
+        <div class="trkfind"><input type="text" enterkeyhint="search" class="trk-q" placeholder="Search your tracks" aria-label="Search your tracks">
+          <select class="trk-src" aria-label="Source"><option value="">All tracks</option><option value="pixabay">Pixabay</option><option value="own">Your uploads</option></select>
+          <select class="trk-sort" aria-label="Sort"><option value="new">Newest first</option><option value="az">A to Z</option><option value="fit">Closest to the video's length</option></select></div>
+        <ul class="songs trk-list"></ul><div class="pager trk-pg" hidden></div><p class="status trk-st" role="status"></p>
+        <p class="hint">Add more tracks with Upload audio on the Audio tab.</p>
+        <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
+      </div>
+      <div data-pane="i" hidden>
+        <p class="hint">Instagram can play a song from its own music library, or the same audio as the other platforms.</p>
+        <div class="ig-now"></div>
+        <div class="row optrow"><button type="button" class="sm" data-s="ai">Let AI choose when posting</button><button type="button" class="sm" data-s="igtrk">Same track as the other platforms</button><button type="button" class="sm" data-s="none">Original video audio</button></div>
+        <div class="row"><input type="text" enterkeyhint="search" placeholder="Search Instagram music, e.g. upbeat tropical" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
+        <p class="status" role="status"></p><ul class="songs ig-list"></ul><div class="pager ig-pg" hidden></div>
+      </div>`;
     const dlg = document.createElement('dialog'); dlg.className = 'songdlg';
-    dlg.innerHTML = '<div class="dlghead"><b>♪ Music · ' + esc(label(id)) + '</b><button type="button" class="ghost sm" data-x>Close</button></div><div class="dlgbody"><div class="dlgpv" aria-label="Preview"></div></div>';
+    dlg.innerHTML = '<div class="dlghead"><b>♪ Music · ' + esc(label(id)) + '</b><button type="button" class="dlgx" data-x aria-label="Close">✕</button></div><div class="dlgbody"><div class="dlgpv" aria-label="Preview"></div></div>';
     dlg.querySelector('.dlgbody').appendChild(box); document.body.appendChild(dlg); dlg.showModal();
     poster(id).then(u => { dlg.querySelector('.dlgpv').style.backgroundImage = 'url(' + u + ')'; }).catch(() => {});
     const close = () => { if (trkPlayer){ trkPlayer.stop(); trkPlayer = null; } if (dlg.open) dlg.close(); dlg.remove(); box = null; };
     dlg.querySelector('[data-x]').onclick = close; dlg.addEventListener('cancel', e => { e.preventDefault(); close(); }); dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
-    const st = box.querySelector('.status:not(.trk-st)'), ul = box.querySelector('.songs:not(.trk-list)'), inp = box.querySelector('input[enterkeyhint=search]');
+    const st = box.querySelector('[data-pane="i"] .status'), ul = box.querySelector('.ig-list'), inp = box.querySelector('[data-pane="i"] input');
+    // two tabs: the track for TikTok, YouTube, Facebook and X, and Instagram's own choice
+    box.querySelectorAll('.dtabs [data-t]').forEach(b => b.onclick = () => { box.querySelectorAll('.dtabs [data-t]').forEach(x => x.setAttribute('aria-selected', x === b)); box.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== b.dataset.t); });
+    // a page of results with Previous / Next (used for both lists)
+    const PER = 6, pageTo = (pg, n, at, go) => { const pages = Math.ceil(n/PER); pg.hidden = pages < 2; if (pages < 2){ pg.innerHTML = ''; return; }
+      pg.innerHTML = `<button type="button" class="ghost sm" data-d="-1"${at === 0 ? ' disabled' : ''}>← Previous</button><span class="hint">Page ${at + 1} of ${pages} · ${n} in all</span><button type="button" class="ghost sm" data-d="1"${at >= pages - 1 ? ' disabled' : ''}>Next →</button>`;
+      pg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => go(at + +b.dataset.d)); };
     const m = music[id] = music[id] || {};
     const tst = box.querySelector('.trk-st'), tl = box.querySelector('.trk-list'), now = box.querySelector('.trk-now');
     const setTrack = async (t, msg) => { if (t) m.track = { file:t.file, title:t.title }; else delete m.track;
@@ -1030,28 +1059,44 @@ function songUI(card, id){
     const showNow = () => { const t = m.track; now.innerHTML = 'Using: <b>' + (t && t.file ? esc(t.title || t.file) : 'the original music') + '</b>' + (t && t.file ? ' <button type="button" class="sm" data-s="pv">▶ Play with the video</button> <button type="button" class="sm ghost" data-s="orig">Use the original</button>' : '');
       const b = now.querySelector('[data-s="pv"]'); if (b) b.onclick = () => playTrack(card, id, t, b);
       const o = now.querySelector('[data-s="orig"]'); if (o) o.onclick = () => setTrack(null, 'This video uses its original music again.'); };
-    const listTracks = async () => { const lib = await loadTracks(); tl.innerHTML = lib.length ? '' : '<li class="hint">Your Audio library is empty.</li>';
-      for (const t of lib.slice().reverse()){ if (m.track && m.track.file === t.file) continue; const li = document.createElement('li');
+    const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
+    const listTracks = async () => { const lib = await loadTracks(), q = tq.value.trim().toLowerCase(), vs = lenOf(id);
+      let list = lib.slice().reverse().filter(t => !(m.track && m.track.file === t.file))
+        .filter(t => !tsrc.value || (tsrc.value === 'pixabay' ? t.source === 'pixabay' : t.source !== 'pixabay'))
+        .filter(t => !q || (t.title || t.file).toLowerCase().includes(q));
+      if (tsort.value === 'az') list.sort((a, b) => (a.title || a.file).localeCompare(b.title || b.file));
+      if (tsort.value === 'fit' && vs) list.sort((a, b) => Math.abs((a.secs || 0) - vs) - Math.abs((b.secs || 0) - vs));
+      tPage = Math.min(tPage, Math.max(0, Math.ceil(list.length/PER) - 1));
+      tl.innerHTML = list.length ? '' : `<li class="hint">${lib.length ? 'No tracks match.' : 'Your Audio library is empty.'}</li>`;
+      pageTo(tpg, list.length, tPage, p => { tPage = p; listTracks(); });
+      for (const t of list.slice(tPage*PER, tPage*PER + PER)){ const li = document.createElement('li');
         li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + '</small></span><button type="button" class="sm primary">Use</button><button type="button" class="sm ghost" data-p="1">▶</button>';
         li.querySelector('.primary').onclick = () => setTrack(t, 'This video now uses ' + t.title + ' on TikTok, YouTube, Facebook and X.');
         li.querySelector('[data-p]').onclick = e => playTrack(card, id, t, e.currentTarget);
         tl.appendChild(li); } };
-    showNow(); listTracks();
+    tq.oninput = () => { tPage = 0; listTracks(); }; tsrc.onchange = tsort.onchange = tq.oninput;
+    // what Instagram will play, shown at the top of its tab
+    const igNow = box.querySelector('.ig-now'), showIg = () => { const g = m.instagram || {};
+      igNow.innerHTML = 'Instagram plays: <b>' + (g.none ? 'the original video audio' : g.useTrack ? 'the same track as the other platforms' : g.audio_id ? esc(g.title) + (g.artist ? ' · ' + esc(g.artist) : '') : 'a song the AI picks when posting') + '</b>'; };
+    showNow(); listTracks(); showIg();
     box.querySelector('[data-s="tt"]').checked = !!(m.tiktok && m.tiktok.draft);
-    const save = async (msg, done) => { try { await saveMusic(msg + ' for ' + id); line.textContent = songLine(id); say(st, done); } catch(e){ say(st, "Couldn't save: " + e.message, true); } };
+    const save = async (msg, done) => { try { await saveMusic(msg + ' for ' + id); line.textContent = songLine(id); showIg(); say(st, done); } catch(e){ say(st, "Couldn't save: " + e.message, true); } };
+    const igPg = box.querySelector('.ig-pg'); let igSongs = [], igPage = 0;
+    const showSongs = () => { ul.innerHTML = ''; pageTo(igPg, igSongs.length, igPage, p => { igPage = p; showSongs(); });
+        for (const s of igSongs.slice(igPage*PER, igPage*PER + PER)){
+          const li = document.createElement('li');
+          li.innerHTML = `${s.art ? `<img src="${esc(s.art)}" alt="">` : '<span class="noart">♪</span>'}<span class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}${s.ms ? ' · ' + fmtMs(s.ms) : ''}</small></span><button type="button" class="sm primary">Choose</button>${s.preview ? `<audio controls preload="none" src="${esc(s.preview)}"></audio>` : ''}`;
+          li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist, preview:s.preview || '' }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
+          ul.appendChild(li);
+        } };
     const run = async q => {
-      ul.innerHTML = ''; say(st, "Searching Instagram's music" + (q ? ' for "' + q + '"' : ' (trending)') + '… this takes about 30 seconds.');
+      ul.innerHTML = ''; igSongs = []; igPage = 0; igPg.hidden = true; say(st, "Searching Instagram's music" + (q ? ' for "' + q + '"' : ' (trending)') + '… this takes about 30 seconds.');
       try {
         const r = await findSongs(q);
         if (r.error){ say(st, 'Instagram said: ' + r.error, true); return; }
         if (!r.songs.length){ say(st, 'No songs found. Try other words.'); return; }
         say(st, r.songs.length + ' songs. Play one to hear it, then choose it.');
-        for (const s of r.songs){
-          const li = document.createElement('li');
-          li.innerHTML = `${s.art ? `<img src="${esc(s.art)}" alt="">` : '<span class="noart">♪</span>'}<span class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}${s.ms ? ' · ' + fmtMs(s.ms) : ''}</small></span><button type="button" class="sm primary">Choose</button>${s.preview ? `<audio controls preload="none" src="${esc(s.preview)}"></audio>` : ''}`;
-          li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist, preview:s.preview || '' }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
-          ul.appendChild(li);
-        }
+        igSongs = r.songs; showSongs();
       } catch(e){ say(st, "Couldn't search: " + e.message, true); }
     };
     box.querySelector('[data-s="find"]').onclick = () => run(inp.value.trim());
@@ -1060,7 +1105,7 @@ function songUI(card, id){
     box.querySelector('[data-s="ai"]').onclick = () => { delete m.instagram; save('AI picks the song', "The AI will pick a song that suits the video when it's posted."); };
     box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save('Original audio on Instagram', 'The Reel will use the original video audio.'); };
     // Instagram can use the same uploaded track as the other platforms
-    box.querySelector('[data-s="igtrk"]').onclick = () => { if (!(m.track && m.track.file)){ say(st, 'Choose a track under Music above first: Instagram then uses the same one.', true); return; }
+    box.querySelector('[data-s="igtrk"]').onclick = () => { if (!(m.track && m.track.file)){ say(st, 'Choose a track on the TikTok · YouTube · Facebook · X tab first: Instagram then uses the same one.', true); return; }
       m.instagram = { useTrack:true }; save('Uploaded track on Instagram', 'The Reel will use ' + m.track.title + ', the same track as the other platforms.'); };
     box.querySelector('[data-s="tt"]').onchange = e => { if (e.target.checked) m.tiktok = { draft:true }; else delete m.tiktok; save('TikTok drafts setting', e.target.checked ? 'This video will go to your TikTok drafts: open TikTok to add a sound and post it.' : 'This video will post straight to TikTok.'); };
   };
@@ -1133,13 +1178,13 @@ async function hideItem(kind, key){
     try { await writeFile('hidden.json', hidden, hiddenSha, 'Removed from Activity'); return; } catch(e){ if (attempt) throw e; }
   }
 }
-// Activity lists show 10 at a time; each list remembers its own page
-const APAGE = 10, aPages = { runs:0, problems:0, history:0 };
+// Activity lists show 5 at a time; each list remembers its own page
+const APAGE = 5, aPages = { runs:0, problems:0, history:0 };
 function pageList(key, items, render, empty){
   const pages = Math.max(1, Math.ceil(items.length / APAGE)); aPages[key] = Math.min(aPages[key], pages - 1);
   const slice = items.slice(aPages[key] * APAGE, aPages[key] * APAGE + APAGE);
   $('#' + key).innerHTML = slice.length ? slice.map(render).join('') : empty;
-  const pg = $('#' + key + 'Pager'); pg.hidden = pages < 2;
+  const pg = $('#' + key + 'Pager'); pg.hidden = !items.length;
   pg.innerHTML = `<button type="button" class="ghost sm" data-ap="${aPages[key] - 1}"${aPages[key] === 0 ? ' disabled' : ''}>← Newer</button><span class="hint">Page ${aPages[key] + 1} of ${pages} · ${items.length} in all</span><button type="button" class="ghost sm" data-ap="${aPages[key] + 1}"${aPages[key] >= pages - 1 ? ' disabled' : ''}>Older →</button>`;
   pg.querySelectorAll('[data-ap]').forEach(b => b.onclick = () => { aPages[key] = +b.dataset.ap; renderHistory(); });
 }
@@ -1682,11 +1727,11 @@ async function previewSong(id, p){
     el.innerHTML = '<span>♪ <b>' + esc(sg.title) + '</b>' + (sg.artist ? ' · ' + esc(sg.artist) : '') + ' <small>' + esc(how) + '</small></span>' + (sg.preview ? '<button type="button" class="sm primary">▶ Play with the video</button>' : '<small>(no preview available)</small>');
     const b = el.querySelector('button'); if (b) b.onclick = () => playWithSong(id, sg, b);
   };
-  if (m && m.none){ el.textContent = '♪ The Reel uses the original video audio (set on the Videos tab)'; return; }
+  if (m && m.none){ el.textContent = '♪ The Reel uses the original video audio (set on the Media tab)'; return; }
   const vt = (music[id] || {}).track;
   if (m && (m.useTrack || m.track)){ if (!(vt && vt.file)){ el.textContent = '♪ The Reel uses the original video audio (no uploaded track chosen for this video)'; return; }
     el.innerHTML = '<span>♪ <b>' + esc(vt.title) + '</b> <small>your uploaded track</small></span><button type="button" class="sm primary">▶ Play with the video</button>'; el.querySelector('button').onclick = e => playTrack(e.currentTarget.closest('.pvc'), id, vt, e.currentTarget); return; }
-  if (m && m.audio_id){ show(m, 'chosen on the Videos tab'); return; }
+  if (m && m.audio_id){ show(m, 'chosen on the Media tab'); return; }
   if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
   el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
   try {
@@ -1882,6 +1927,18 @@ $('#btnOut').onclick = () => { try { sessionStorage.clear(); } catch(e){} locati
 $('#btnAddSlot').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'20:00', kind:'any', platforms:[] }); renderSlots(); };
 $('#btnDaily').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'19:00', kind:'any', platforms:[] }); renderSlots(); say($('#status'), 'Added 7 pm every day: press Save changes to keep it.'); };
 $('#rClear').onclick = () => { $('#rFrom').value = $('#rTo').value = ''; };
+// Schedule and Outreach: one sub-tab per section (named from its heading), the choice remembered
+function subTabs(tab){
+  const secs = [...document.querySelectorAll(`section[data-tab="${tab}"]`)]; if (secs.length < 2) return;
+  const bar = document.createElement('section'); bar.dataset.tab = tab; bar.className = 'vsubbar';
+  const st = document.createElement('div'); st.className = 'subtabs'; st.setAttribute('role', 'tablist'); bar.appendChild(st); secs[0].before(bar);
+  const show = i => { secs.forEach((x, j) => x.classList.toggle('subhide', j !== i)); st.querySelectorAll('button').forEach((b, j) => b.setAttribute('aria-selected', j === i)); try { localStorage.setItem('gg-sub-' + tab, i); } catch(e){} };
+  secs.forEach((x, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'tab'); b.textContent = x.querySelector('h2').textContent.trim(); b.onclick = () => show(i); st.appendChild(b); });
+  let at = 0; try { at = +localStorage.getItem('gg-sub-' + tab) || 0; } catch(e){} show(Math.min(at, secs.length - 1));
+}
+// each Schedule tab has its own Save button (they all save the schedule together)
+for (const x of document.querySelectorAll('section[data-tab="schedule"]')){ const d = document.createElement('div'); d.className = 'row pgsave'; d.innerHTML = '<button type="button" class="primary">Save changes</button>'; d.firstChild.onclick = () => $('#btnSave').click(); x.appendChild(d); }
+subTabs('schedule'); subTabs('outreach');
 $('#btnSave').onclick = async () => {
   const st = $('#status'); collect(); say(st, 'Saving…');
   try {
