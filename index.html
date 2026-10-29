@@ -217,6 +217,13 @@ button:disabled{opacity:.5;cursor:default}
 .q li.skipped .t{opacity:.45;text-decoration:line-through}
 .q li.done .t small{color:var(--accent)}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.songline{color:var(--muted,#8a9);font-size:12px;line-height:1.3}
+.songbox{border-top:1px solid var(--line);margin-top:4px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.songbox h4{margin:6px 0 0;font-size:14px}.songbox .row{display:flex;gap:6px;flex-wrap:wrap}.songbox .row input{flex:1;min-width:0}
+.songbox .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-height:420px;overflow:auto}
+.songbox li{display:grid;grid-template-columns:40px 1fr auto;gap:4px 8px;align-items:center}.songbox li img,.songbox .noart{width:40px;height:40px;border-radius:6px;object-fit:cover;display:grid;place-items:center;background:var(--line)}
+.songbox li .t{min-width:0;display:flex;flex-direction:column}.songbox li .t b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.songbox li audio{grid-column:1/-1;width:100%;height:32px}
+.songbox .chk{display:flex;gap:6px;align-items:flex-start;font-size:14px}
 .vcard{border:1px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .vcard .pv{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000 center/cover no-repeat;border:0;padding:0;cursor:pointer;position:relative}
 .vcard .pv::after{content:'▶';position:absolute;inset:0;display:grid;place-items:center;color:#fff;font-size:2rem;text-shadow:0 2px 8px rgba(0,0,0,.6)}
@@ -689,7 +696,7 @@ const CREDS = [
       <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>. Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
       <li>On the app page copy the <b>Client key</b> into this box.</li>`],
     ['TIKTOK_CLIENT_SECRET', 'Client secret', `<li>Same app page: copy the <b>Client secret</b> into this box.</li>`],
-    ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,video.publish&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
+    ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,video.publish,video.upload&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
       <li>Sign in and allow it. You land on monkeyvinerush.com with <code>?code=…</code> in the address bar: copy that code.</li>
       <li>Ask Claude to swap the code for a refresh token (it needs your client key and secret), or use the token endpoint in TikTok's docs. Paste the <b>refresh token</b> here. It lasts about a year; you'll see a warning in the runs when it needs renewing.</li>`],
   ]],
@@ -884,6 +891,66 @@ function sortVideos(ids, mode){
 }
 try { const v = localStorage.getItem('gg-social-vsort'); if (v) setTimeout(() => { $('#vSort').value = v; }, 0); } catch(e){}
 $('#vSort').onchange = () => { try { localStorage.setItem('gg-social-vsort', $('#vSort').value); } catch(e){} vPage = 0; renderVideos(true); };
+// ---------- songs: Instagram Reels can use a song from Instagram's music library; TikTok can go to drafts to add a sound there ----------
+// (the choice is saved in music.json and used whenever the video is posted, from the site or on a schedule)
+let music = {};
+async function saveMusic(msg){ let sha; try { sha = (await gh('/contents/music.json')).sha; } catch(e){} await writeFile('music.json', music, sha, msg); }
+const fmtMs = ms => ms ? Math.floor(ms/60000) + ':' + String(Math.round(ms/1000) % 60).padStart(2, '0') : '';
+function songLine(id){
+  const m = music[id] || {}, ig = m.instagram;
+  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && ig.none ? "Instagram: the video's own music" : 'Instagram: AI picks a song when posting';
+  return '♪ ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
+}
+async function findSongs(q){
+  const req = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  await gh('/actions/workflows/songs.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ query:q, req } }) });
+  for (let i = 0; i < 60; i++){ await wait(3000); try { const j = await gh('/contents/results/' + req + '.json?ref=songs'); return JSON.parse(unb64(j.content)); } catch(e){} }
+  throw new Error('no answer from the search after 3 minutes');
+}
+function songUI(card, id){
+  const line = document.createElement('small'); line.className = 'songline'; line.textContent = songLine(id);
+  card.querySelector('.vb').before(line);
+  const btn = document.createElement('button'); btn.type = 'button'; btn.textContent = '♪ Songs'; btn.title = 'Choose the music for each platform'; card.querySelector('.vb').prepend(btn);
+  let box = null;
+  btn.onclick = () => {
+    if (box){ box.remove(); box = null; return; }
+    box = document.createElement('div'); box.className = 'songbox';
+    box.innerHTML = `<h4>Instagram Reels</h4>
+      <p class="hint">Pick a song from Instagram's music library to play instead of the video's own music.</p>
+      <div class="row"><input type="text" enterkeyhint="search" placeholder="e.g. upbeat tropical, epic battle" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
+      <p class="status" role="status"></p><ul class="songs"></ul>
+      <div class="row"><button type="button" class="ghost sm" data-s="ai">Let AI choose when posting</button><button type="button" class="ghost sm" data-s="none">Keep the video's own music</button></div>
+      <h4>TikTok</h4>
+      <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
+      <p class="hint">Facebook, YouTube and X don't let apps add a song, so they use the video's own music.</p>`;
+    card.appendChild(box);
+    const st = box.querySelector('.status'), ul = box.querySelector('.songs'), inp = box.querySelector(".row input");
+    const m = music[id] = music[id] || {};
+    box.querySelector('[data-s="tt"]').checked = !!(m.tiktok && m.tiktok.draft);
+    const save = async (msg, done) => { try { await saveMusic(msg + ' for ' + id); line.textContent = songLine(id); say(st, done); } catch(e){ say(st, "Couldn't save: " + e.message, true); } };
+    const run = async q => {
+      ul.innerHTML = ''; say(st, "Searching Instagram's music" + (q ? ' for "' + q + '"' : ' (trending)') + '… this takes about 30 seconds.');
+      try {
+        const r = await findSongs(q);
+        if (r.error){ say(st, 'Instagram said: ' + r.error, true); return; }
+        if (!r.songs.length){ say(st, 'No songs found. Try other words.'); return; }
+        say(st, r.songs.length + ' songs. Play one to hear it, then choose it.');
+        for (const s of r.songs){
+          const li = document.createElement('li');
+          li.innerHTML = `${s.art ? `<img src="${esc(s.art)}" alt="">` : '<span class="noart">♪</span>'}<span class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}${s.ms ? ' · ' + fmtMs(s.ms) : ''}</small></span><button type="button" class="sm primary">Choose</button>${s.preview ? `<audio controls preload="none" src="${esc(s.preview)}"></audio>` : ''}`;
+          li.querySelector('button').onclick = () => { m.instagram = { audio_id:s.audio_id, title:s.title, artist:s.artist }; save('Song chosen', 'Chosen: ' + s.title + '. It plays on the Instagram Reel when this video is posted.'); };
+          ul.appendChild(li);
+        }
+      } catch(e){ say(st, "Couldn't search: " + e.message, true); }
+    };
+    box.querySelector('[data-s="find"]').onclick = () => run(inp.value.trim());
+    inp.onkeydown = e => { if (e.key === 'Enter') run(inp.value.trim()); };
+    box.querySelector('[data-s="trend"]').onclick = () => run('');
+    box.querySelector('[data-s="ai"]').onclick = () => { delete m.instagram; save('AI picks the song', "The AI will pick a song that suits the video when it's posted."); };
+    box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save("Video's own music", "The Reel will use the video's own music."); };
+    box.querySelector('[data-s="tt"]').onchange = e => { if (e.target.checked) m.tiktok = { draft:true }; else delete m.tiktok; save('TikTok drafts setting', e.target.checked ? 'This video will go to your TikTok drafts: open TikTok to add a sound and post it.' : 'This video will post straight to TikTok.'); };
+  };
+}
 async function renderVideos(keepPage = false){
   if (!keepPage){
     let files = [], xs = new Set(); try { for (const f of ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name))){ const id = f.name.replace(/\.(mp4|mov)$/i, ''); fileOf[id] = f.name; files.push(id); } } catch(e){}
@@ -892,6 +959,7 @@ async function renderVideos(keepPage = false){
     try { const f = JSON.parse(localStorage.getItem('gg-social-vfilt') || 'null'); if (f && !vFiltersRestored){ $('#vWorld').value = f.w || ''; $('#vType').value = f.t || ''; $('#vStatus').value = f.s || ''; } } catch(e){} vFiltersRestored = true;
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
     try { durations = (await readFile('media/durations.json')).data; } catch(e){ durations = {}; }
+    try { music = (await readFile('music.json')).data; } catch(e){ music = {}; }
   }
   const files = vFiles, xs = vXs, all = sortVideos(files.filter(id => passes(id)), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
@@ -922,6 +990,7 @@ async function renderVideos(keepPage = false){
     };
     dl('[data-a="dlx"]', 'media/x/' + id + '.mp4', 'monkey-vine-rush-' + id + '-4x5.mp4');
     d.querySelector('[data-a="post"]').onclick = () => compose(id);
+    songUI(d, id);
   }
 }
 document.addEventListener('play', e => { for (const v of document.querySelectorAll('video')) if (v !== e.target) v.pause(); }, true);
