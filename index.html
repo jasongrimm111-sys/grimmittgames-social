@@ -353,12 +353,18 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <p id="aiStatus" class="status" role="status"></p>
       <div id="capEdit" hidden>
         <div class="subtabs" id="capTabs" role="tablist" aria-label="Captions for each platform"></div>
-        <div class="cap" data-cap="youtube"><h3>YouTube</h3><p class="hint">Normal videos use the same title without #Shorts.</p>
-          <label for="e-yt-title">Title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text">
-          <label for="e-yt-desc">Description</label><textarea id="e-yt-desc" rows="5"></textarea>
+        <div class="cap" data-cap="youtube"><h3>YouTube <span class="unset" id="ytTypes"></span></h3>
+          <div data-type="yt-shorts"><label for="e-yt-title">Shorts title <span class="count" data-for="e-yt-title" data-max="100"></span></label><input id="e-yt-title" type="text"></div>
+          <div data-type="yt-video"><label for="e-yt-vtitle">Video title <span class="unset">· the landscape video, no #Shorts</span> <span class="count" data-for="e-yt-vtitle" data-max="100"></span></label><input id="e-yt-vtitle" type="text"></div>
+          <label for="e-yt-desc">Description <span class="unset" id="ytDescFor"></span> <span class="count" data-for="e-yt-desc" data-max="5000"></span></label><textarea id="e-yt-desc" rows="5"></textarea>
           <label for="e-yt-tags">Search tags <span class="unset">· comma separated</span></label><input id="e-yt-tags" type="text"></div>
-        <div class="cap" data-cap="instagram"><h3>Instagram Reels</h3><label for="e-ig">Caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
-        <div class="cap" data-cap="facebook"><h3>Facebook Reels</h3><label for="e-fb">Description</label><textarea id="e-fb" rows="4"></textarea></div>
+        <div class="cap" data-cap="instagram"><h3>Instagram <span class="unset" id="igTypes"></span></h3>
+          <div data-type="ig-reels"><label for="e-ig">Reels caption <span class="count" data-for="e-ig" data-max="2200"></span></label><textarea id="e-ig" rows="5"></textarea></div>
+          <p class="hint" data-type="ig-story">Instagram Stories don't have a caption: the Story is posted with the video only.</p></div>
+        <div class="cap" data-cap="facebook"><h3>Facebook <span class="unset" id="fbTypes"></span></h3>
+          <div data-type="fb-video"><label for="e-fb-title">Video title <span class="unset">· the Page video</span> <span class="count" data-for="e-fb-title" data-max="255"></span></label><input id="e-fb-title" type="text"></div>
+          <div data-type="fb-desc"><label for="e-fb">Description <span class="unset" id="fbDescFor"></span></label><textarea id="e-fb" rows="4"></textarea></div>
+          <p class="hint" data-type="fb-story">Facebook Stories don't have a caption: the Story is posted with the video only.</p></div>
         <div class="cap" data-cap="tiktok"><h3>TikTok</h3><label for="e-tt">Caption <span class="count" data-for="e-tt" data-max="2200"></span></label><textarea id="e-tt" rows="4"></textarea></div>
         <div class="cap" data-cap="x"><h3>X</h3><label for="e-x">Post <span class="count" data-for="e-x" data-max="280" data-x="1"></span></label><textarea id="e-x" rows="3"></textarea></div>
       </div>
@@ -651,7 +657,8 @@ const writeFile = (p, data, sha, msg) => gh('/contents/' + p, { method:'PUT', bo
 const say = (el, msg, err) => { el.textContent = msg; el.classList.toggle('err', !!err); };
 const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
 let customs = {};
-const label = id => { if (id.startsWith('u-')) return (customs[id] || {}).title || 'Your video'; const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || []; const k = { levels:'Level play', rush:'Rush chase', boss:'Boss fight' }[m[3]] || m[3]; return m[2] ? `World ${+m[1]} · ${m[2][0].toUpperCase() + m[2].slice(1)} · ${k}` : id; };
+const label = id => { if (id.startsWith('u-')) return (customs[id] || {}).title || 'Your video';
+  if (id.startsWith('f-')){ const f = typeof promptMod !== 'undefined' && promptMod && promptMod.FEATURES && promptMod.FEATURES[id]; return f ? f.title : id.slice(2).replace(/-/g, ' ').replace(/^./, c => c.toUpperCase()); } const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || []; const k = { levels:'Level play', rush:'Rush chase', boss:'Boss fight' }[m[3]] || m[3]; return m[2] ? `World ${+m[1]} · ${m[2][0].toUpperCase() + m[2].slice(1)} · ${k}` : id; };
 
 // ---------- credentials, with where to find each one ----------
 const CREDS = [
@@ -1085,6 +1092,7 @@ function collect(){
 }
 async function load(){
   const st = $('#connStatus'); say(st, 'Loading…');
+  try { await aiModule(); } catch(e){}   // the shared caption module also names the feature videos
   try {
     ({ data:cfg, sha:cfgSha } = await readFile('config.json')); ({ data:queue, sha:queueSha } = await readFile('queue.json'));
     try { state = (await readFile('state.json')).data; } catch(e){}
@@ -1139,9 +1147,25 @@ async function renderDash(){
 }
 
 // ---------- composer: AI suggestions, editing, saving captions for a scheduled post ----------
-const FIELDS = { 'e-yt-title':['youtube', 'title'], 'e-yt-desc':['youtube', 'description'], 'e-yt-tags':['youtube', 'tags'], 'e-ig':['instagram', 'caption'], 'e-fb':['facebook', 'description'], 'e-tt':['tiktok', 'title'], 'e-x':['x', 'text'] };
+const FIELDS = { 'e-yt-title':['youtube', 'title'], 'e-yt-vtitle':['youtube', 'videoTitle'], 'e-yt-desc':['youtube', 'description'], 'e-yt-tags':['youtube', 'tags'], 'e-ig':['instagram', 'caption'], 'e-fb-title':['facebook', 'title'], 'e-fb':['facebook', 'description'], 'e-tt':['tiktok', 'title'], 'e-x':['x', 'text'] };
 const xLen = t => t.replace(/https?:\/\/\S+/g, 'x'.repeat(23)).length;
-function counts(){ document.querySelectorAll('.count').forEach(c => { const v = $('#' + c.dataset.for).value, n = c.dataset.x ? xLen(v) : v.length; c.textContent = n + ' / ' + c.dataset.max; c.classList.toggle('over', n > +c.dataset.max); }); }
+// only the caption counters (other parts of the page use a "count" class too)
+function counts(){ document.querySelectorAll('#capEdit .count[data-for]').forEach(c => { const f = $('#' + c.dataset.for); if (!f) return; const v = f.value, n = c.dataset.x ? xLen(v) : v.length; c.textContent = n + ' / ' + c.dataset.max; c.classList.toggle('over', n > +c.dataset.max); }); }
+// the caption fields for the kinds of post ticked in step 2 (Shorts / Video, Reels / Video / Story)
+function capTypes(){
+  const yS = $('#mYtShorts').checked, yV = $('#mYtVideo').checked, fR = $('#mFbReel').checked, fV = $('#mFbVideo').checked, fS = $('#mFbStory').checked, iR = $('#mIgReel').checked, iS = $('#mIgStory').checked;
+  const show = { 'yt-shorts':yS || !yV, 'yt-video':yV, 'ig-reels':iR || !iS, 'ig-story':iS, 'fb-video':fV, 'fb-desc':fR || fV || !fS, 'fb-story':fS };
+  document.querySelectorAll('#capEdit [data-type]').forEach(el => el.hidden = !show[el.dataset.type]);
+  const list = a => a.filter(Boolean).join(' + ');
+  $('#ytTypes').textContent = '· ' + (list([yS && 'Shorts', yV && 'Video']) || 'Shorts');
+  $('#igTypes').textContent = '· ' + (list([iR && 'Reels', iS && 'Story']) || 'Reels');
+  $('#fbTypes').textContent = '· ' + (list([fR && 'Reels', fV && 'Video', fS && 'Story']) || 'Reels');
+  $('#ytDescFor').textContent = yS && yV ? '· used for both' : '';
+  $('#fbDescFor').textContent = fR && fV ? '· used for the Reel and the video' : '';
+}
+// step 2's message keeps up with what's chosen: it changes or goes away as soon as the problem is fixed
+function recheckWhere(){ if (step === 2 && $('#stepStatus').textContent){ const why = stepProblem(2); say($('#stepStatus'), why, !!why); } }
+document.querySelectorAll('#metaOpts input, #ttPriv').forEach(c => c.addEventListener('change', () => { capTypes(); recheckWhere(); if (!$('#previews').hidden) renderPreviews(); }));
 document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#capEdit')){ counts(); renderCapTabs(); } });
 function fillDone(){ if (step === 3) $('#stepNext').textContent = 'Next →'; }
 function fill(p){ for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = (p[k] || {})[f]; $('#' + el).value = Array.isArray(v) ? v.join(', ') : (v || ''); } $('#capEdit').hidden = false; counts(); renderCapTabs(); fillDone(); }
@@ -1204,7 +1228,7 @@ function whereChanged(){
   const on = new Set(picked());
   $('#whereSum').textContent = !on.size ? 'None selected' : on.size === Object.keys(NAME).filter(isReady).length && on.size > 1 ? 'All set-up platforms (' + [...on].map(k => NAME[k]).join(', ') + ')' : [...on].map(k => NAME[k]).join(', ');
   renderCapTabs();
-  ttShow(); metaShow(); applyLengths();
+  ttShow(); metaShow(); applyLengths(); capTypes(); recheckWhere();
   if (!$('#previews').hidden) renderPreviews();
 }
 function metaShow(){
@@ -1272,7 +1296,7 @@ async function compose(id){
 }
 let nextId = '';
 const pickedId = () => $('#pickVideo').value || nextId || queue[0];
-let promptMod = null;
+var promptMod = null;   // var: label() may look at it before this line has run
 async function aiModule(){
   if (!promptMod){ const res = await fetch(API + '/contents/src/ai-prompt.js', { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error('could not load the AI prompt (' + res.status + ')'); promptMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
   return promptMod;
@@ -1282,7 +1306,9 @@ async function videoInfo(id){
   if (id.startsWith('u-')){ const c = customs[id] || {}; return { custom:true, title:c.title || 'Your video', about:c.about || '', blurb:c.about || c.title || '' }; }
   worlds = worlds || (await readFile('src/worlds.json')).data;
   const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
-  if (!m) return { custom:true, title:label(id), about:'A feature video showing ' + label(id).toLowerCase() + ' in Monkey Vine Rush.', blurb:label(id) };
+  if (!m){ const f = (await aiModule()).featureInfo?.(id);   // the feature videos ("f-..."): their own title and what's in them
+    if (f) return { ...f, blurb:f.title + ': ' + f.about + '.' };
+    return { custom:true, title:label(id), about:'A feature video showing ' + label(id).toLowerCase() + ' in Monkey Vine Rush.', blurb:label(id) }; }
   const W = worlds.find(w => w.id === m[2]) || {};
   return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
 }
@@ -1312,14 +1338,15 @@ $('#btnSuggest').onclick = async () => {
 };
 async function stdCaptions(id){
     const P = await aiModule(), info = await videoInfo(id);
-    const sample = { youtube:{ title:`${label(id)} | Monkey Vine Rush`, description:info.blurb || '', tags:['Monkey Vine Rush', 'mobile game', 'iPhone game'] }, instagram:{ caption:info.blurb + '\n\nFree on the App Store: link in bio 🔗\n\n#MonkeyVineRush #mobilegame' }, facebook:{ description:info.blurb || '' }, tiktok:{ title:info.blurb + ' Free on the App Store, link in bio! #MonkeyVineRush #mobilegame' }, x:{ text:info.blurb || '' } };
+    const name = info.feature ? info.title : label(id);
+    const sample = { youtube:{ title:`${name} | Monkey Vine Rush`, videoTitle:`${name} | Monkey Vine Rush, a free iPhone game`, description:info.blurb || '', tags:['Monkey Vine Rush', 'mobile game', 'iPhone game'] }, instagram:{ caption:info.blurb + '\n\nFree on the App Store: link in bio 🔗\n\n#MonkeyVineRush #mobilegame' }, facebook:{ title:`${name} | Monkey Vine Rush`, description:info.blurb || '' }, tiktok:{ title:info.blurb + ' Free on the App Store, link in bio! #MonkeyVineRush #mobilegame' }, x:{ text:info.blurb || '' } };
     return P.finish(sample);
 }
 $('#btnStd').onclick = async () => {
   if (needWhere()) return;
   const st = $('#aiStatus'), id = pickedId();
   try {
-    fill(await stdCaptions(id)); say(st, 'A simple starting point for ' + label(id) + ': edit away.');
+    fill(await stdCaptions(id)); say(st, 'A simple starting point for ' + label(id) + ': edit away, then press Next.');
   } catch(e){ say(st, 'Couldn\'t load: ' + e.message, true); }
 };
 $('#btnPlan').onclick = async () => {
@@ -1449,10 +1476,13 @@ async function renderPreviews(){
   if (!on.size){ box.innerHTML = '<p class="hint">Choose platforms under "Post to" to preview them.</p>'; box.hidden = false; return; }
   box.innerHTML = `<div class="pvgrid">`
     + (on.has('tiktok') ? card('TikTok', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:3">${clip(caps.tiktok, 90)}</div>${$('#ttBrand').checked && !$('#ttOpts').hidden ? '<span class="promo">Promotional content</span>' : ''}</div>${side}</div>`, `${caps.tiktok.length} characters`) : '')
-    + (on.has('instagram') ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
-    + (on.has('youtube') ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
-    + (on.has('youtube') && $('#mYtVideo').checked ? card('YouTube video', `<div class="wide" ${bg.replace('style="', 'data-x="')}><div class="wbg" ${bg}></div><div class="wfg" ${bg}></div><div class="wt">${esc(caps.youtube.replace(/\s*#shorts\b/ig, ''))}</div></div>`, 'Landscape 16:9 version, title without #Shorts') : '')
-    + (on.has('facebook') ? card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable') : '')
+    + (on.has('instagram') && $('#mIgReel').checked ? card('Instagram Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.instagram.split('\n')[0], 60)}</div></div>${side}</div>`, 'First line shows; the rest is under "more"') : '')
+    + (on.has('instagram') && $('#mIgStory').checked ? card('Instagram Story', `<div class="ph" ${bg}><div class="top">${who}</div></div>`, 'Video only: Stories have no caption · gone after 24 hours') : '')
+    + (on.has('youtube') && ($('#mYtShorts').checked || !$('#mYtVideo').checked) ? card('YouTube Shorts', `<div class="ph" ${bg}><div class="top">Shorts</div><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2;font-weight:600">${esc(caps.youtube)}</div></div>${side}</div>`, `Title ${caps.youtube.length}/100 · description and tags below the video`) : '')
+    + (on.has('youtube') && $('#mYtVideo').checked ? card('YouTube video', `<div class="wide" ${bg.replace('style="', 'data-x="')}><div class="wbg" ${bg}></div><div class="wfg" ${bg}></div><div class="wt">${esc((p.youtube.videoTitle || caps.youtube).replace(/\s*#shorts\b/ig, ''))}</div></div>`, 'Landscape 16:9 version, with its own title') : '')
+    + (on.has('facebook') && $('#mFbReel').checked ? card('Facebook Reels', `<div class="ph" ${bg}><div class="ov">${who}<div class="c" style="-webkit-line-clamp:2">${clip(caps.facebook.split('\n')[0], 70)}</div></div>${side}</div>`, 'Links in the description are clickable') : '')
+    + (on.has('facebook') && $('#mFbVideo').checked ? card('Facebook video', `<div class="wide" ${bg.replace('style="', 'data-x="')}><div class="wbg" ${bg}></div><div class="wfg" ${bg}></div><div class="wt">${esc(p.facebook.title || caps.facebook.split('\n')[0])}</div></div>`, 'Page video: title, then the description below it') : '')
+    + (on.has('facebook') && $('#mFbStory').checked ? card('Facebook Story', `<div class="ph" ${bg}><div class="top">${who}</div></div>`, 'Video only: Stories have no caption · gone after 24 hours') : '')
     + (on.has('x') ? card('X', `<div class="xcard"><div class="h"><i></i><span><b>Monkey Vine Rush</b> <small>@monkeyvinerush · now</small></span></div><div class="t">${linkify(caps.x)}</div><div class="m" ${bg}></div></div>`, `${xLen(caps.x)}/280 · posted with the 4:5 version`) : '')
     + '</div>' + note + '<p class="hint">A guide to how each app shows the post: names, crops and line breaks vary a little by app version and screen.</p>';
   box.hidden = false; box.scrollIntoView({ behavior:'smooth', block:'nearest' });
