@@ -1190,7 +1190,7 @@ function applyLengths(){
   document.querySelectorAll('#where input').forEach(c => {
     const lim = LIMITS[c.dataset.w], lab = c.closest('label'); lab.querySelectorAll('small.why').forEach(x => x.remove());
     if (!isReady(c.dataset.w)) return;
-    const over = lim && secs > lim[0]; c.disabled = over; lab.classList.toggle('off', over);
+    const over = !!(lim && secs > lim[0]); c.disabled = over; lab.classList.toggle('off', over);
     if (over){ c.checked = false; lab.insertAdjacentHTML('beforeend', `<small class="why">(too long)</small>`); notes.push(lim[1]); }
   });
   for (const [box, [max, why, alt]] of Object.entries(FORMAT_LIMITS)){
@@ -1281,7 +1281,9 @@ let worlds = null;
 async function videoInfo(id){
   if (id.startsWith('u-')){ const c = customs[id] || {}; return { custom:true, title:c.title || 'Your video', about:c.about || '', blurb:c.about || c.title || '' }; }
   worlds = worlds || (await readFile('src/worlds.json')).data;
-  const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || [], W = worlds.find(w => w.id === m[2]) || {};
+  const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
+  if (!m) return { custom:true, title:label(id), about:'A feature video showing ' + label(id).toLowerCase() + ' in Monkey Vine Rush.', blurb:label(id) };
+  const W = worlds.find(w => w.id === m[2]) || {};
   return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
 }
 // captions are shown for the chosen platforms only, so choose them first
@@ -1292,14 +1294,18 @@ $('#btnSuggest').onclick = async () => {
   if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials first (with your sign-in password), then try again.', true); return; }
   say(st, 'Writing captions for ' + label(id) + '…'); $('#btnSuggest').disabled = true;
   try {
-    const P = await aiModule(), info = await videoInfo(id);
-    const { default:Anthropic } = await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm');
+    // each stage names itself in any error, so a failure says where it happened
+    const stage = async (what, fn) => { try { return await fn(); } catch(e){ throw new Error(what + ': ' + (e.message || e)); } };
+    const P = await stage('loading the AI instructions', aiModule), info = await stage('reading the video details', () => videoInfo(id));
+    const { default:Anthropic } = await stage('loading the AI library', () => import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm'));
     const client = new Anthropic({ apiKey:aiKey, dangerouslyAllowBrowser:true });
-    const res = await client.beta.messages.create({ model:P.MODEL, max_tokens:16000, output_config:{ effort:'low', format:{ type:'json_schema', schema:P.SCHEMA } },
+    const res = await stage('asking the AI', () => client.beta.messages.create({ model:P.MODEL, max_tokens:16000, output_config:{ effort:'low', format:{ type:'json_schema', schema:P.SCHEMA } },
       betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:P.SYSTEM,
-      messages:[{ role:'user', content:P.userPrompt(info, { voice:$('#aiVoice').value.trim() || (cfg.ai || {}).voice, prompt:$('#aiPrompt').value.trim(), extraHashtags:cfg.extraHashtags, askQuestion:cfg.askQuestion !== false }) }] });
+      messages:[{ role:'user', content:P.userPrompt(info, { voice:$('#aiVoice').value.trim() || (cfg.ai || {}).voice, prompt:$('#aiPrompt').value.trim(), extraHashtags:cfg.extraHashtags, askQuestion:cfg.askQuestion !== false }) }] }));
     if (res.stop_reason === 'refusal') throw new Error('the AI declined this one; try rewording your request');
-    fill(P.finish(JSON.parse(res.content.filter(b => b.type === 'text').map(b => b.text).join(''))));
+    const text = res.content.filter(b => b.type === 'text').map(b => b.text).join('');
+    let data; try { data = JSON.parse(text); } catch(e){ try { data = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)); } catch(e2){ throw new Error('the AI\'s reply wasn\'t in the expected format (' + res.stop_reason + '); please try again'); } }
+    fill(P.finish(data));
     say(st, 'Here are the suggestions for ' + label(id) + '. Edit anything, then post now or save them for its scheduled post.');
   } catch(e){ say(st, 'Couldn\'t write captions: ' + (e.message || e), true); }
   $('#btnSuggest').disabled = false;
