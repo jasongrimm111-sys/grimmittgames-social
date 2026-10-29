@@ -39,6 +39,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .vcard .pv,.pick .im{position:relative}
 label.check.off{opacity:.45}label.check small.why{font-weight:400;color:var(--warn);margin-left:4px}
 #lenNote{margin:6px 0 0}
+.pfilters{margin:6px 0 12px}
 .vfilters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:12px 14px;align-items:end;margin-top:8px}
 .vfilters .f{display:flex;flex-direction:column;gap:6px;min-width:0}.vfilters label{margin:0;font-size:.85rem;color:var(--muted);font-weight:600}
 .vfilters select{width:100%;min-width:0}.vfilters .fbtn button{white-space:nowrap}
@@ -291,7 +292,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary" data-go="new">+ Create new post</button></div>
     <div class="stats" id="stats"></div>
     <ul id="upcoming" class="q"></ul>
-    <p class="hint">Times are in your schedule's time zone. Captions are written by AI just before each post, unless you've saved your own for that video (<span class="tag mine">your captions</span>). Tap Edit to plan one.</p>
+    <p class="hint">Times are in your schedule's time zone. Captions for scheduled posts are written by AI just before each one goes out.</p>
   </section>
   <section id="compose" data-tab="new">
     <h2>New post</h2>
@@ -303,7 +304,14 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     </ol>
 
     <div class="step" data-s="1">
-      <label>Choose a video <span class="unset">· newest first</span></label><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div>
+      <label>Choose a video</label>
+      <div class="vfilters pfilters">
+        <div class="f"><label for="pSort">Sort by</label><select id="pSort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option><option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option></select></div>
+        <div class="f"><label for="pWorld">World</label><select id="pWorld"><option value="">All worlds</option></select></div>
+        <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+        <div class="f"><label for="pStatus">Status</label><select id="pStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
+        <div class="f fbtn"><button type="button" id="pClear" class="ghost">Clear filters</button></div>
+      </div><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div>
       <div id="picker" class="pgrid" role="group" aria-label="Choose a video"></div>
       <div id="againBox" hidden><p class="hint" id="againNote"></p><label class="check"><input id="repost" type="checkbox"> Post again to platforms it's already been on</label></div>
     </div>
@@ -413,11 +421,11 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h2>Activity</h2>
     <div class="row"><button id="btnRefresh" type="button">Refresh</button><span id="liveNote" class="hint"></span></div>
     <h3>Running now and recent runs</h3>
-    <ul id="runs" class="q"></ul>
+    <ul id="runs" class="q"></ul><div class="pager" id="runsPager" hidden></div>
     <h3>Problems</h3>
-    <ul id="problems" class="q"></ul>
+    <ul id="problems" class="q"></ul><div class="pager" id="problemsPager" hidden></div>
     <h3>Posted</h3>
-    <ul id="history" class="q"></ul>
+    <ul id="history" class="q"></ul><div class="pager" id="historyPager" hidden></div>
   </section>
 
   <section data-tab="credentials">
@@ -798,8 +806,9 @@ const posters = {};
 const poster = id => posters[id] = posters[id] || raw('media/posters/' + id + '.jpg');
 const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '';
 function renderPicker(){
-  const cur = $('#pickVideo').value, ids = byNewest([...mediaIds]), box = $('#picker');
+  const cur = $('#pickVideo').value, ids = sortVideos([...mediaIds].filter(id => passes(id, 'p')), $('#pSort').value), box = $('#picker');
   box.innerHTML = `<button type="button" class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small></button>`
+    + (ids.length ? '' : '<p class="hint" style="grid-column:1 / -1">No videos match these filters.</p>')
     + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
@@ -829,8 +838,8 @@ const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set(), vFiltersRestored 
 const KIND_ORDER = { levels:0, rush:1, boss:2 };
 // filters: world, type and whether it's been posted
 const WORLD_NAMES = {};
-function passes(id){
-  const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#vWorld').value, t = $('#vType').value, st = $('#vStatus').value, m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
+function passes(id, p = 'v'){
+  const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#' + p + 'World').value, t = $('#' + p + 'Type').value, st = $('#' + p + 'Status').value, m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
   const wNo = m ? m[1] : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
   if (w && wNo !== w) return false;
   if (t === 'u' ? !id.startsWith('u-') : t === 'f' ? !id.startsWith('f-') : t && kind !== t) return false;
@@ -843,12 +852,16 @@ function fillWorlds(){
   const cur = $('#vWorld').value;
   $('#vWorld').innerHTML = '<option value="">All worlds</option>' + [...seen].sort((a, b) => +a[0] - +b[0]).map(([n, w]) => `<option value="${n}">${+n} · ${w[0].toUpperCase() + w.slice(1)}</option>`).join('');
   $('#vWorld').value = cur;
+  const pw = $('#pWorld').value;
+  $('#pWorld').innerHTML = $('#vWorld').innerHTML; $('#pWorld').value = pw;
   const up = $('#upWorld').value;
   $('#upWorld').innerHTML = '<option value="">None</option>' + [...seen].sort((a, b) => +a[0] - +b[0]).map(([n, w]) => `<option value="${n}">${+n} · ${w[0].toUpperCase() + w.slice(1)}</option>`).join('');
   $('#upWorld').value = up;
 }
 const saveFilters = () => { try { localStorage.setItem('gg-social-vfilt', JSON.stringify({ w:$('#vWorld').value, t:$('#vType').value, s:$('#vStatus').value })); } catch(e){} };
 for (const sel of ['#vWorld', '#vType', '#vStatus']) $(sel).onchange = () => { saveFilters(); vPage = 0; renderVideos(true); };
+for (const sel of ['#pSort', '#pWorld', '#pType', '#pStatus']) $(sel).onchange = () => renderPicker();
+$('#pClear').onclick = () => { $('#pWorld').value = $('#pType').value = $('#pStatus').value = ''; renderPicker(); };
 $('#vClear').onclick = () => { $('#vWorld').value = $('#vType').value = $('#vStatus').value = ''; saveFilters(); vPage = 0; renderVideos(true); };
 const vParts = id => { if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id); return m ? { w:+m[1], k:KIND_ORDER[m[3]] ?? 3 } : { w:99, k:3 }; };
 const timesPosted = id => Object.keys((state.posted || {})[id] || {}).length;
@@ -873,7 +886,7 @@ async function renderVideos(keepPage = false){
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
     try { durations = (await readFile('media/durations.json')).data; } catch(e){ durations = {}; }
   }
-  const files = vFiles, xs = vXs, all = sortVideos(files.filter(passes), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
+  const files = vFiles, xs = vXs, all = sortVideos(files.filter(id => passes(id)), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
   const order = all.slice(vPage * VPAGE, vPage * VPAGE + VPAGE);
   const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
@@ -929,6 +942,16 @@ async function hideItem(kind, key){
     try { await writeFile('hidden.json', hidden, hiddenSha, 'Removed from Activity'); return; } catch(e){ if (attempt) throw e; }
   }
 }
+// Activity lists show 10 at a time; each list remembers its own page
+const APAGE = 10, aPages = { runs:0, problems:0, history:0 };
+function pageList(key, items, render, empty){
+  const pages = Math.max(1, Math.ceil(items.length / APAGE)); aPages[key] = Math.min(aPages[key], pages - 1);
+  const slice = items.slice(aPages[key] * APAGE, aPages[key] * APAGE + APAGE);
+  $('#' + key).innerHTML = slice.length ? slice.map(render).join('') : empty;
+  const pg = $('#' + key + 'Pager'); pg.hidden = pages < 2;
+  pg.innerHTML = `<button type="button" class="ghost sm" data-ap="${aPages[key] - 1}"${aPages[key] === 0 ? ' disabled' : ''}>← Newer</button><span class="hint">Page ${aPages[key] + 1} of ${pages} · ${items.length} in all</span><button type="button" class="ghost sm" data-ap="${aPages[key] + 1}"${aPages[key] >= pages - 1 ? ' disabled' : ''}>Older →</button>`;
+  pg.querySelectorAll('[data-ap]').forEach(b => b.onclick = () => { aPages[key] = +b.dataset.ap; renderHistory(); });
+}
 async function renderHistory(){
   try { state = (await readFile('state.json')).data; } catch(e){}
   try { hidden = (await readFile('hidden.json')).data; } catch(e){ hidden = { posted:[], failed:[] }; }
@@ -936,12 +959,12 @@ async function renderHistory(){
   const hp = new Set([...(hidden.posted || []), ...removedHere.posted]), hf = new Set([...(hidden.failed || []), ...removedHere.failed]);
   const rows = []; for (const [vid, p] of Object.entries(state.posted || {})) for (const [k, v] of Object.entries(p)) rows.push({ ...v, vid, k });
   rows.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#history').innerHTML = rows.length ? rows.map(r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.vid))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => ({ story:'Story', reels:'Reels', shorts:'Shorts', video:'Video' })[p] || p).join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-unpost="${esc(r.vid)}" data-k="${r.k}" title="Delete this record: the video counts as not posted to this platform, so it can be posted there again">Remove</button></span></li>`).join('')
-    : '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>';
+  pageList('history', rows, r => `<li><span class="n">${ICON[r.k] || '•'}</span><span class="t">${esc(label(r.vid))} ${SRC[r.source] || ''}<small>${NAME[r.k] || r.k}${r.places ? ' ' + r.places.map(p => ({ story:'Story', reels:'Reels', shorts:'Shorts', video:'Video' })[p] || p).join(' + ') : ''} · ${new Date(r.at).toLocaleString()}${r.privacy ? ' · ' + esc(r.privacy) : ''}</small>${r.text ? `<small>${esc(r.text.split('\n')[0].slice(0, 140))}</small>` : ''}</span><span class="b">${r.url ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">Open</a>` : ''}<button type="button" data-unpost="${esc(r.vid)}" data-k="${r.k}" title="Delete this record: the video counts as not posted to this platform, so it can be posted there again">Remove</button></span></li>`,
+    '<li><span></span><span class="t">Nothing posted yet.</span><span></span></li>');
   const probs = []; for (const [id, p] of Object.entries(state.failed || {})) for (const [k, v] of Object.entries(p)) if (!hf.has(id + '|' + k + '|' + v.at)) probs.push({ id, k, ...v });
   probs.sort((a, b) => String(b.at).localeCompare(String(a.at)));
-  $('#problems').innerHTML = probs.length ? probs.map(r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button><button type="button" data-hide="failed" data-key="${esc(r.id + '|' + r.k + '|' + r.at)}">Remove</button></span></li>`).join('')
-    : '<li><span></span><span class="t">No problems.</span><span></span></li>';
+  pageList('problems', probs, r => `<li><span class="n prob">!</span><span class="t">${esc(label(r.id))} · ${NAME[r.k] || r.k}<small>${new Date(r.at).toLocaleString()}</small><small class="prob">${esc(r.error)}</small></span><span class="b"><button type="button" data-retry="${esc(r.id)}" data-k="${r.k}">Try again</button><button type="button" data-hide="failed" data-key="${esc(r.id + '|' + r.k + '|' + r.at)}">Remove</button></span></li>`,
+    '<li><span></span><span class="t">No problems.</span><span></span></li>');
   document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => dispatch({ video:b.dataset.retry, platform:b.dataset.k }));
   document.querySelectorAll('[data-unpost]').forEach(b => b.onclick = async () => {
     if (b.dataset.sure !== '1'){ b.dataset.sure = '1'; b.textContent = 'Sure?'; setTimeout(() => { b.dataset.sure = ''; b.textContent = 'Remove'; }, 4000); return; }
@@ -951,13 +974,13 @@ async function renderHistory(){
   });
   document.querySelectorAll('[data-hide]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Removing…'; try { await hideItem(b.dataset.hide, b.dataset.key); b.closest('li').remove(); } catch(e){ b.disabled = false; b.textContent = 'Remove'; say($('#runStatus'), 'Couldn\'t remove: ' + e.message, true); } });
   try {
-    const runs = ((await gh('/actions/workflows/post.yml/runs?per_page=10')) || {}).workflow_runs || [];
+    const runs = ((await gh('/actions/workflows/post.yml/runs?per_page=100')) || {}).workflow_runs || [];
     const live = runs.some(r => r.status !== 'completed');
     $('#liveNote').textContent = live ? 'A post is running: this list updates by itself.' : '';
     clearTimeout(liveTimer); if (live) liveTimer = setTimeout(renderHistory, 15000);
     setTimeout(() => document.querySelectorAll('[data-run]').forEach(b => b.onclick = async () => { b.disabled = true; b.textContent = 'Removing…'; try { await gh('/actions/runs/' + b.dataset.run, { method:'DELETE' }); b.closest('li').remove(); } catch(e){ b.disabled = false; b.textContent = 'Remove'; } }), 0);
-    $('#runs').innerHTML = runs.length ? runs.map(r => `<li><span class="n">${r.conclusion === 'success' ? '✓' : r.conclusion === 'failure' ? '✗' : '…'}</span><span class="t">${r.event === 'schedule' ? 'Scheduled check' : 'Run from here'}${r.status !== 'completed' ? ' <span class="tag live">running</span>' : ''}<small>${new Date(r.created_at).toLocaleString()} · ${r.conclusion || r.status}</small></span><span class="b"><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Details</a>${r.status === 'completed' ? `<button type="button" data-run="${r.id}" title="Delete this run's record">Remove</button>` : ''}</span></li>`).join('')
-      : '<li><span></span><span class="t">No runs yet.</span><span></span></li>';
+    pageList('runs', runs, r => `<li><span class="n">${r.conclusion === 'success' ? '✓' : r.conclusion === 'failure' ? '✗' : '…'}</span><span class="t">${r.event === 'schedule' ? 'Scheduled check' : 'Run from here'}${r.status !== 'completed' ? ' <span class="tag live">running</span>' : ''}<small>${new Date(r.created_at).toLocaleString()} · ${r.conclusion || r.status}</small></span><span class="b"><a href="${esc(r.html_url)}" target="_blank" rel="noopener">Details</a>${r.status === 'completed' ? `<button type="button" data-run="${r.id}" title="Delete this run's record">Remove</button>` : ''}</span></li>`,
+      '<li><span></span><span class="t">No runs yet.</span><span></span></li>');
   } catch(e){ $('#runs').innerHTML = ''; }
 }
 
@@ -1111,7 +1134,7 @@ async function renderDash(){
   const days = (cfg.slots || []).reduce((n, sl) => n + sl.days.length, 0);
   $('#stats').innerHTML = [[cfg.paused ? 'Paused' : next ? next.label.split(' · ')[0] + ' ' + next.label.split(' · ')[1] : 'None', cfg.paused ? 'posting is paused' : next ? 'next post' : 'no posting times'], [posted, 'videos posted'], [u.ready.length + ' of 5', 'platforms ready'], [days + ' a week', 'posting times'], [probs, 'problems']]
     .map(([b, sp]) => `<div><b>${esc(b)}</b><span>${sp}</span></div>`).join('');
-  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => sl.why ? `<li class="skipslot"><span class="n">–</span><span class="t">No post<small>${sl.label} · ${esc(sl.why)}</small></span><span></span></li>` : `<li><span class="n">◷</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? (sl.plats || []).map(k => NAME[k]).join(', ') || 'no platforms for this time' : 'no platforms set up yet'}</small></span><span class="b">${sl.id ? `<button type="button" data-edit="${sl.id}">Edit</button>` : ''}</span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
+  $('#upcoming').innerHTML = cfg.paused ? '<li><span></span><span class="t">Posting is paused (Schedule).</span><span></span></li>' : u.slots.map(sl => sl.why ? `<li class="skipslot"><span class="n">–</span><span class="t">No post<small>${sl.label} · ${esc(sl.why)}</small></span><span></span></li>` : `<li><span class="n">◷</span><span class="t">${sl.id ? esc(label(sl.id)) : 'Nothing left to post'}${sl.id && planned.has(sl.id) ? ' <span class="tag mine">your captions</span>' : sl.id ? ' <span class="tag ai">AI</span>' : ''}<small>${sl.label} · ${u.ready.length ? (sl.plats || []).map(k => NAME[k]).join(', ') || 'no platforms for this time' : 'no platforms set up yet'}</small></span><span></span></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => compose(b.dataset.edit));
 }
 
