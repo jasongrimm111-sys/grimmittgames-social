@@ -260,6 +260,7 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
 @media (prefers-reduced-motion:reduce){.spin,.skel{animation:none}}
 .loadingv{position:relative}.loadingv::after{content:'';position:absolute;left:50%;top:50%;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:4px solid rgba(255,255,255,.25);border-top-color:var(--accent);animation:spin .8s linear infinite;z-index:7;pointer-events:none}
 .loadingv::before{content:'';position:absolute;inset:0;background:rgba(0,0,0,.35);border-radius:inherit;z-index:6;pointer-events:none}.loadingv>.tapplay,.loadingv>.tapplay+*{visibility:hidden}.vcard .pv.loadingv{cursor:progress}
+.dlgpv:fullscreen,.dlgpv:-webkit-full-screen{width:100vw!important;height:100vh!important;aspect-ratio:auto!important;border-radius:0!important;background-color:#000;background-size:contain!important}.dlgpv:fullscreen .pvvid,.dlgpv:-webkit-full-screen .pvvid{object-fit:contain}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
 .audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
@@ -1260,10 +1261,15 @@ function songUI(card, id){
     // the video on the left plays with the audio settings as they are now (saved or not); tap again to pause
     let pvv = null, curT = null;
     const dp = dlg.querySelector('.dlgpv'); dp.insertAdjacentHTML('beforeend', '<span class="tapplay">▶</span>'); dp.style.position = 'relative'; dp.style.cursor = 'pointer';
-    const stopPv = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } dp.classList.remove('playing', 'loadingv'); };
+    const fsOf = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const exitFs = () => { if (fsOf() === dp){ try { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch(e){} } };
+  const stopPv = () => { if (pvv){ pvv.pause(); pvv.remove(); pvv = null; } dp.classList.remove('playing', 'loadingv'); exitFs(); };
     dp.onclick = () => {
       if (pvv && pvv.isConnected){ if (pvv.paused) pvv.play().catch(() => {}); else pvv.pause(); return; }
-      stopPart(); stopPv(); const v = playVideo(id, x => { if (!x || pvv !== x) return; dp.querySelectorAll('video').forEach(y => y !== x && y.remove()); x.className = 'pvvid'; x.controls = false; dp.appendChild(x); dp.classList.add('playing');
+      stopPart(); stopPv();
+      // full screen straight away where the device allows it (iPad, computers), from the tap itself
+      { const fs = dp.requestFullscreen || dp.webkitRequestFullscreen; if (fs){ try { const r = fs.call(dp); if (r && r.catch) r.catch(() => {}); } catch(e){} } }
+      const v = playVideo(id, x => { if (!x || pvv !== x) return; dp.querySelectorAll('video').forEach(y => y !== x && y.remove()); x.className = 'pvvid'; x.controls = false; dp.appendChild(x); dp.classList.add('playing');
         x.addEventListener('ended', () => { stopPv(); }); }, !curT, curT || undefined, dp);
       pvv = v; };
     const tq = box.querySelector('.trk-q'), tsrc = box.querySelector('.trk-src'), tsort = box.querySelector('.trk-sort'), tpg = box.querySelector('.trk-pg'); let tPage = 0;
