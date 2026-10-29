@@ -35,7 +35,14 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
-.vsort{align-items:center;margin:0 0 12px;gap:8px}.vsort select{min-width:150px}
+.len{position:absolute;right:6px;bottom:6px;z-index:2;background:rgba(0,0,0,.78);color:#fff;font:600 .75rem Inter,system-ui,sans-serif;padding:2px 6px;border-radius:6px;pointer-events:none}
+.vcard .pv,.pick .im{position:relative}
+label.check.off{opacity:.45}label.check small.why{font-weight:400;color:var(--warn);margin-left:4px}
+#lenNote{margin:6px 0 0}
+.vfilters{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:12px 14px;align-items:end;margin-top:8px}
+.vfilters .f{display:flex;flex-direction:column;gap:6px;min-width:0}.vfilters label{margin:0;font-size:.85rem;color:var(--muted);font-weight:600}
+.vfilters select{width:100%;min-width:0}.vfilters .fbtn button{white-space:nowrap}
+@media (max-width:760px){ .vfilters{grid-template-columns:1fr 1fr} .vfilters .fbtn{grid-column:1 / -1} .vfilters .fbtn button{width:100%} }
 .pager{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}.pager .hint{margin-left:auto}
 .olinks{display:flex;flex-direction:column;gap:4px;margin:4px 0 10px}
 .olinks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500;padding:6px 8px;border-radius:8px;background:#0e1118;min-width:0;overflow-wrap:anywhere}
@@ -302,6 +309,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     </div>
 
     <div class="step" data-s="2" hidden>
+      <p id="lenNote" class="hint"></p>
       <div><label id="whereLbl">Post to</label>
         <div class="ms" id="whereBox">
           <button type="button" id="whereBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="whereLbl whereBtn"><span id="whereSum">None selected</span></button>
@@ -314,7 +322,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div id="metaOpts" class="cap">
         <h3>Where it appears</h3>
       <div class="row" id="metaYt"><span style="width:110px;font-weight:600">YouTube</span><label class="check"><input id="mYtShorts" type="checkbox"> Shorts</label><label class="check"><input id="mYtVideo" type="checkbox"> Video (landscape)</label></div>
-        <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
+        <div class="row" id="metaFb"><span style="width:110px;font-weight:600">Facebook</span><label class="check"><input id="mFbReel" type="checkbox"> Reels</label><label class="check"><input id="mFbVideo" type="checkbox"> Video</label><label class="check"><input id="mFbStory" type="checkbox"> Story</label></div>
         <div class="row" id="metaIg"><span style="width:110px;font-weight:600">Instagram</span><label class="check"><input id="mIgReel" type="checkbox"> Reels</label><label class="check"><input id="mIgStory" type="checkbox"> Story</label></div>
         <p class="hint">Tick both to post each one. YouTube videos use a landscape version; Stories last 24 hours (and have no caption on Instagram).</p>
       </div>
@@ -381,17 +389,22 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   </section>
 
   <section data-tab="videos">
-    <h2>Videos</h2>
-    <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
-    <div class="row vsort"><label for="vSort" style="margin:0">Sort by</label><select id="vSort">
+    <div class="shead"><h2>Find videos</h2></div>
+    <div class="vfilters">
+      <div class="f"><label for="vSort">Sort by</label><select id="vSort">
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option>
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
-    </select>
-      <label for="vWorld" style="margin:0 0 0 8px">World</label><select id="vWorld"><option value="">All worlds</option></select>
-      <label for="vType" style="margin:0 0 0 8px">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select>
-      <label for="vStatus" style="margin:0 0 0 8px">Status</label><select id="vStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select>
-      <button type="button" id="vClear" class="ghost sm">Clear filters</button>
+    </select></div>
+      <div class="f"><label for="vWorld">World</label><select id="vWorld"><option value="">All worlds</option></select></div>
+      <div class="f"><label for="vType">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+      <div class="f"><label for="vStatus">Status</label><select id="vStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
+      <div class="f fbtn"><button type="button" id="vClear" class="ghost">Clear filters</button></div>
     </div>
+  </section>
+
+  <section data-tab="videos">
+    <h2>Videos</h2>
+    <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
     <div id="videos" class="vgrid"></div>
     <div id="vPager" class="pager" hidden></div>
   </section>
@@ -466,6 +479,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div class="pcard">
         <div class="phd"><span class="pi pfb">f</span><b>Facebook</b><input class="switch" type="checkbox" data-p="facebook" aria-label="Post to Facebook"></div>
         <div class="setting"><div><b>Reels</b><small>Stays on your Page and in feeds.</small></div><input class="switch" id="dFbReel" type="checkbox" aria-label="Facebook Reels"></div>
+        <div class="setting"><div><b>Video</b><small>A normal Page video: for anything longer than 90 seconds.</small></div><input class="switch" id="dFbVideo" type="checkbox" aria-label="Facebook video"></div>
         <div class="setting"><div><b>Story</b><small>Lasts 24 hours.</small></div><input class="switch" id="dFbStory" type="checkbox" aria-label="Facebook Story"></div>
       </div>
       <div class="pcard">
@@ -786,7 +800,7 @@ const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefi
 function renderPicker(){
   const cur = $('#pickVideo').value, ids = byNewest([...mediaIds]), box = $('#picker');
   box.innerHTML = `<button type="button" class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small></button>`
-    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im"></span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
+    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<button type="button" class="pick" data-id="${id}" aria-pressed="${cur === id}"><span class="im">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</span><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small></button>`; }).join('');
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
     b.onclick = () => chooseAndNext(b.dataset.id);
@@ -804,9 +818,12 @@ function choose(id){
   $('#pickVideo').value = id;
   document.querySelectorAll('#picker .pick').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
   $('#chosen').textContent = id ? 'Chosen: ' + label(id) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
-  againShow();
+  againShow(); if ($('#where').children.length) applyLengths();
 }
 // the Videos tab shows a page at a time (posters load only for that page)
+let durations = {};
+const lenOf = id => (durations[id] && durations[id].s) || ((customs[id] || {}).seconds) || 0;
+const fmtLen = s => s ? Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0') : '';
 const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set(), vFiltersRestored = false;
 // sorting: remembered on this device
 const KIND_ORDER = { levels:0, rush:1, boss:2 };
@@ -854,6 +871,7 @@ async function renderVideos(keepPage = false){
     mediaIds = new Set(files); vFiles = files; vXs = xs; fillWorlds();
     try { const f = JSON.parse(localStorage.getItem('gg-social-vfilt') || 'null'); if (f && !vFiltersRestored){ $('#vWorld').value = f.w || ''; $('#vType').value = f.t || ''; $('#vStatus').value = f.s || ''; } } catch(e){} vFiltersRestored = true;
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
+    try { durations = (await readFile('media/durations.json')).data; } catch(e){ durations = {}; }
   }
   const files = vFiles, xs = vXs, all = sortVideos(files.filter(passes), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
@@ -870,7 +888,7 @@ async function renderVideos(keepPage = false){
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
     const d = document.createElement('div'); d.className = 'vcard';
-    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}"></button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
+    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">Write / post…</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = async e => { const b = e.currentTarget; b.disabled = true; try { const v = document.createElement('video'); v.controls = true; v.playsInline = true; v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); b.replaceWith(v); v.play().catch(() => {}); v.addEventListener('volumechange', () => { if (v.muted && !v.dataset.userMuted) { v.dataset.userMuted = '1'; } }); } catch(err){ b.disabled = false; } };
@@ -1017,7 +1035,7 @@ function render(){
   $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
   const pl = k => ((cfg[k] || {}).places || ['reels']);
   const yp = (cfg.youtube || {}).places || ['shorts']; $('#dYtShorts').checked = yp.includes('shorts'); $('#dYtVideo').checked = yp.includes('video');
-  $('#dFbReel').checked = pl('facebook').includes('reels'); $('#dFbStory').checked = pl('facebook').includes('story'); $('#dIgReel').checked = pl('instagram').includes('reels'); $('#dIgStory').checked = pl('instagram').includes('story');
+  $('#dFbReel').checked = pl('facebook').includes('reels'); $('#dFbVideo').checked = pl('facebook').includes('video'); $('#dFbStory').checked = pl('facebook').includes('story'); $('#dIgReel').checked = pl('instagram').includes('reels'); $('#dIgStory').checked = pl('instagram').includes('story');
   const td = cfg.tiktok || {}; $('#tdCom').checked = td.allowComment !== false; $('#tdDuet').checked = td.allowDuet !== false; $('#tdStitch').checked = td.allowStitch !== false; $('#tdBrand').checked = td.yourBrand !== false;
   cfg.notify = cfg.notify || { enabled:true, email:OWNER }; $('#nOn').checked = cfg.notify.enabled !== false; $('#nEmail').value = cfg.notify.email || '';
   cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order || 'queue'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rPer').checked = !!cfg.rules.perPlatform; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
@@ -1033,7 +1051,8 @@ function collect(){
   cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
   cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
   const places = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
-  cfg.facebook = { ...(cfg.facebook || {}), places:places('#dFbReel', '#dFbStory').length ? places('#dFbReel', '#dFbStory') : ['reels'] };
+  const fbp = [...places('#dFbReel', '#dFbStory'), ...($('#dFbVideo').checked ? ['video'] : [])];
+  cfg.facebook = { ...(cfg.facebook || {}), places:fbp.length ? fbp : ['reels'] };
   cfg.instagram = { ...(cfg.instagram || {}), places:places('#dIgReel', '#dIgStory').length ? places('#dIgReel', '#dIgStory') : ['reels'] };
   cfg.tiktok = { ...(cfg.tiktok || {}), allowComment:$('#tdCom').checked, allowDuet:$('#tdDuet').checked, allowStitch:$('#tdStitch').checked, yourBrand:$('#tdBrand').checked };
   cfg.notify = { ...(cfg.notify || {}), enabled:$('#nOn').checked, email:$('#nEmail').value.trim() };
@@ -1140,11 +1159,29 @@ $('#whereAll').onclick = () => { document.querySelectorAll('#where input:not(:di
 $('#whereNone').onclick = () => { document.querySelectorAll('#where input').forEach(c => c.checked = false); whereChanged(); };
 document.addEventListener('click', e => { if (!$('#wherePanel').hidden && !e.target.closest('#whereBox')) wherePanel(false); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#wherePanel').hidden){ wherePanel(false); $('#whereBtn').focus(); } });
+// what the chosen video is too long for (limits as of 2026): the option is greyed out with the reason
+const LIMITS = { x:[140, 'X takes up to 2:20'], tiktok:[600, 'TikTok takes up to 10:00'], instagram:[900, 'Instagram takes up to 15:00'] };
+const FORMAT_LIMITS = { mYtShorts:[180, 'Shorts are up to 3:00', 'mYtVideo'], mFbReel:[90, 'Reels are up to 1:30', 'mFbVideo'], mFbStory:[60, 'Stories are up to 1:00'], mIgStory:[60, 'Stories are up to 1:00'] };
+function applyLengths(){
+  const id = $('#pickVideo').value || nextId, secs = id ? lenOf(id) : 0, notes = [];
+  document.querySelectorAll('#where input').forEach(c => {
+    const lim = LIMITS[c.dataset.w], lab = c.closest('label'); lab.querySelectorAll('small.why').forEach(x => x.remove());
+    if (!isReady(c.dataset.w)) return;
+    const over = lim && secs > lim[0]; c.disabled = over; lab.classList.toggle('off', over);
+    if (over){ c.checked = false; lab.insertAdjacentHTML('beforeend', `<small class="why">(too long)</small>`); notes.push(lim[1]); }
+  });
+  for (const [box, [max, why, alt]] of Object.entries(FORMAT_LIMITS)){
+    const c = $('#' + box), lab = c.closest('label'); lab.querySelectorAll('small.why').forEach(x => x.remove());
+    const over = secs > max; c.disabled = over; lab.classList.toggle('off', over);
+    if (over){ if (c.checked && alt) $('#' + alt).checked = true; c.checked = false; lab.insertAdjacentHTML('beforeend', `<small class="why">(${why})</small>`); }
+  }
+  $('#lenNote').innerHTML = secs ? `This video is <b>${fmtLen(secs)}</b> long.` + (notes.length ? ' ' + esc(notes.join('; ')) + ', so those are switched off.' : '') : '';
+}
 function whereChanged(){
   const on = new Set(picked());
   $('#whereSum').textContent = !on.size ? 'None selected' : on.size === Object.keys(NAME).filter(isReady).length && on.size > 1 ? 'All set-up platforms (' + [...on].map(k => NAME[k]).join(', ') + ')' : [...on].map(k => NAME[k]).join(', ');
   renderCapTabs();
-  ttShow(); metaShow();
+  ttShow(); metaShow(); applyLengths();
   if (!$('#previews').hidden) renderPreviews();
 }
 function metaShow(){
@@ -1154,7 +1191,7 @@ function metaShow(){
 function metaReset(){
   const pl = k => ((cfg[k] || {}).places || ['reels']);
   const yp = (cfg.youtube || {}).places || ['shorts']; $('#mYtShorts').checked = yp.includes('shorts'); $('#mYtVideo').checked = yp.includes('video');
-  $('#mFbReel').checked = pl('facebook').includes('reels'); $('#mFbStory').checked = pl('facebook').includes('story'); $('#mIgReel').checked = pl('instagram').includes('reels'); $('#mIgStory').checked = pl('instagram').includes('story');
+  $('#mFbReel').checked = pl('facebook').includes('reels'); $('#mFbVideo').checked = pl('facebook').includes('video'); $('#mFbStory').checked = pl('facebook').includes('story'); $('#mIgReel').checked = pl('instagram').includes('reels'); $('#mIgStory').checked = pl('instagram').includes('story');
 }
 // captions: one tab per chosen platform, showing one caption at a time
 let capTab = '';
@@ -1179,7 +1216,7 @@ function stepProblem(n){
     const on = picked();
     if (!on.length) return 'Choose at least one platform under "Post to".';
     if (on.includes('tiktok') && !$('#ttPriv').value) return 'Choose who can see the TikTok video.';
-    if (on.includes('facebook') && !$('#mFbReel').checked && !$('#mFbStory').checked) return 'Choose Reels and/or Story for Facebook.';
+    if (on.includes('facebook') && !$('#mFbReel').checked && !$('#mFbStory').checked && !$('#mFbVideo').checked) return 'Choose Reels, Video and/or Story for Facebook.';
     if (on.includes('instagram') && !$('#mIgReel').checked && !$('#mIgStory').checked) return 'Choose Reels and/or Story for Instagram.';
     if (on.includes('youtube') && !$('#mYtShorts').checked && !$('#mYtVideo').checked) return 'Choose Shorts and/or Video for YouTube.';
   }
@@ -1198,7 +1235,7 @@ function goStep(n){
 }
 function renderSummary(){
   const id = $('#pickVideo').value, on = picked(), caps = $('#capEdit').hidden ? 'written by AI when it posts' : 'the ones in step 3';
-  const extra = [on.includes('youtube') ? 'YouTube ' + [$('#mYtShorts').checked && 'Shorts', $('#mYtVideo').checked && 'Video'].filter(Boolean).join(' + ') : '', on.includes('facebook') ? 'Facebook ' + [$('#mFbReel').checked && 'Reels', $('#mFbStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('instagram') ? 'Instagram ' + [$('#mIgReel').checked && 'Reels', $('#mIgStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('tiktok') ? 'TikTok: ' + $('#ttPriv').selectedOptions[0].textContent : ''].filter(Boolean);
+  const extra = [on.includes('youtube') ? 'YouTube ' + [$('#mYtShorts').checked && 'Shorts', $('#mYtVideo').checked && 'Video'].filter(Boolean).join(' + ') : '', on.includes('facebook') ? 'Facebook ' + [$('#mFbReel').checked && 'Reels', $('#mFbVideo').checked && 'Video', $('#mFbStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('instagram') ? 'Instagram ' + [$('#mIgReel').checked && 'Reels', $('#mIgStory').checked && 'Story'].filter(Boolean).join(' + ') : '', on.includes('tiktok') ? 'TikTok: ' + $('#ttPriv').selectedOptions[0].textContent : ''].filter(Boolean);
   $('#summary').innerHTML = `<h3>Ready to post</h3><p><b>Video:</b> ${esc(id ? label(id) : 'next in line' + (nextId ? ' (' + label(nextId) + ')' : ''))}</p><p><b>Where:</b> ${esc(on.map(k => NAME[k]).join(', '))}${extra.length ? ' · ' + esc(extra.join(' · ')) : ''}</p><p><b>Captions:</b> ${caps}</p>`;
 }
 document.querySelectorAll('[data-step]').forEach(b => b.onclick = () => goStep(+b.dataset.step));
@@ -1586,7 +1623,7 @@ $('#btnNow').onclick = () => {
   let caps = edited(); if (caps) caps = Object.fromEntries(Object.entries(caps).filter(([k]) => where.includes(k)));
   const meta = {}, pick2 = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
   if (where.includes('youtube')){ meta.youtube = [...($('#mYtShorts').checked ? ['shorts'] : []), ...($('#mYtVideo').checked ? ['video'] : [])]; if (!meta.youtube.length){ say($('#runStatus'), 'Choose Shorts and/or Video for YouTube.', true); return; } }
-  if (where.includes('facebook')){ meta.facebook = pick2('#mFbReel', '#mFbStory'); if (!meta.facebook.length){ say($('#runStatus'), 'Choose Reels and/or Story for Facebook.', true); return; } }
+  if (where.includes('facebook')){ meta.facebook = [...pick2('#mFbReel', '#mFbStory'), ...($('#mFbVideo').checked ? ['video'] : [])]; if (!meta.facebook.length){ say($('#runStatus'), 'Choose Reels and/or Story for Facebook.', true); return; } }
   if (where.includes('instagram')){ meta.instagram = pick2('#mIgReel', '#mIgStory'); if (!meta.instagram.length){ say($('#runStatus'), 'Choose Reels and/or Story for Instagram.', true); return; } }
   const vid = $('#pickVideo').value, done = vid ? Object.keys((state.posted || {})[vid] || {}) : [];
   if (vid && !$('#repost').checked && where.every(k => done.includes(k))){ say($('#runStatus'), label(vid) + ' has already been posted to ' + where.map(k => NAME[k]).join(', ') + '. Tick "Post again" to send it again, or choose other platforms.', true); return; }
