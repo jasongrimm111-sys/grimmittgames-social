@@ -35,7 +35,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .cap{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:10px 0}
 .cap h3{margin:0 0 6px;font-size:.95rem}
 .prob{color:var(--warn)}
-.vsort{align-items:center;margin:0 0 12px}.vsort select{min-width:220px}
+.vsort{align-items:center;margin:0 0 12px;gap:8px}.vsort select{min-width:150px}
 .pager{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}.pager .hint{margin-left:auto}
 .olinks{display:flex;flex-direction:column;gap:4px;margin:4px 0 10px}
 .olinks label{display:flex;gap:8px;align-items:center;margin:0;font-weight:500;padding:6px 8px;border-radius:8px;background:#0e1118;min-width:0;overflow-wrap:anywhere}
@@ -370,6 +370,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <input id="upTitle" type="text" maxlength="80" placeholder="e.g. My first win against Big Beak">
     <label for="upAbout">What's in it <span class="unset">· helps AI write the captions</span></label>
     <textarea id="upAbout" rows="2" maxlength="400" placeholder="e.g. A close Rush run in Volcano Ridge, escaping the lava wave with a rocket"></textarea>
+    <div class="row"><div><label for="upWorld">World <span class="unset">· optional</span></label><select id="upWorld"><option value="">None</option></select></div>
+      <div><label for="upKind">Type <span class="unset">· optional</span></label><select id="upKind"><option value="">None</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option></select></div></div>
+    <p class="hint">Tagging a world and type lets the Videos filters find it, like the game's own videos.</p>
     <label class="check"><input id="upNext" type="checkbox"> Post it next</label>
     <div class="row"><button id="btnUpload" class="primary" type="button">Upload</button></div>
     <progress id="upProg" max="100" value="0" hidden></progress>
@@ -383,7 +386,12 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="row vsort"><label for="vSort" style="margin:0">Sort by</label><select id="vSort">
       <option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option>
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
-    </select></div>
+    </select>
+      <label for="vWorld" style="margin:0 0 0 8px">World</label><select id="vWorld"><option value="">All worlds</option></select>
+      <label for="vType" style="margin:0 0 0 8px">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select>
+      <label for="vStatus" style="margin:0 0 0 8px">Status</label><select id="vStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select>
+      <button type="button" id="vClear" class="ghost sm">Clear filters</button>
+    </div>
     <div id="videos" class="vgrid"></div>
     <div id="vPager" class="pager" hidden></div>
   </section>
@@ -799,10 +807,33 @@ function choose(id){
   againShow();
 }
 // the Videos tab shows a page at a time (posters load only for that page)
-const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set();
+const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set(), vFiltersRestored = false;
 // sorting: remembered on this device
 const KIND_ORDER = { levels:0, rush:1, boss:2 };
-const vParts = id => { const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id); return m ? { w:+m[1], k:KIND_ORDER[m[3]] ?? 3 } : { w:99, k:3 }; };
+// filters: world, type and whether it's been posted
+const WORLD_NAMES = {};
+function passes(id){
+  const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#vWorld').value, t = $('#vType').value, st = $('#vStatus').value, m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
+  const wNo = m ? m[1] : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
+  if (w && wNo !== w) return false;
+  if (t === 'u' ? !id.startsWith('u-') : t === 'f' ? !id.startsWith('f-') : t && kind !== t) return false;
+  if (st === 'no' && timesPosted(id) > 0) return false;
+  if (st === 'yes' && timesPosted(id) === 0) return false;
+  return true;
+}
+function fillWorlds(){
+  const seen = new Map(); for (const id of vFiles){ const m = /^w(\d+)-([a-z]+)-/.exec(id); if (m) seen.set(m[1], m[2]); }
+  const cur = $('#vWorld').value;
+  $('#vWorld').innerHTML = '<option value="">All worlds</option>' + [...seen].sort((a, b) => +a[0] - +b[0]).map(([n, w]) => `<option value="${n}">${+n} · ${w[0].toUpperCase() + w.slice(1)}</option>`).join('');
+  $('#vWorld').value = cur;
+  const up = $('#upWorld').value;
+  $('#upWorld').innerHTML = '<option value="">None</option>' + [...seen].sort((a, b) => +a[0] - +b[0]).map(([n, w]) => `<option value="${n}">${+n} · ${w[0].toUpperCase() + w.slice(1)}</option>`).join('');
+  $('#upWorld').value = up;
+}
+const saveFilters = () => { try { localStorage.setItem('gg-social-vfilt', JSON.stringify({ w:$('#vWorld').value, t:$('#vType').value, s:$('#vStatus').value })); } catch(e){} };
+for (const sel of ['#vWorld', '#vType', '#vStatus']) $(sel).onchange = () => { saveFilters(); vPage = 0; renderVideos(true); };
+$('#vClear').onclick = () => { $('#vWorld').value = $('#vType').value = $('#vStatus').value = ''; saveFilters(); vPage = 0; renderVideos(true); };
+const vParts = id => { if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id); return m ? { w:+m[1], k:KIND_ORDER[m[3]] ?? 3 } : { w:99, k:3 }; };
 const timesPosted = id => Object.keys((state.posted || {})[id] || {}).length;
 function sortVideos(ids, mode){
   const newest = byNewest(ids);
@@ -820,10 +851,11 @@ async function renderVideos(keepPage = false){
   if (!keepPage){
     let files = [], xs = new Set(); try { for (const f of ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name))){ const id = f.name.replace(/\.(mp4|mov)$/i, ''); fileOf[id] = f.name; files.push(id); } } catch(e){}
     try { xs = new Set(((await gh('/contents/media/x')) || []).filter(f => f.name.endsWith('.mp4')).map(f => f.name.replace('.mp4', ''))); } catch(e){}
-    mediaIds = new Set(files); vFiles = files; vXs = xs;
+    mediaIds = new Set(files); vFiles = files; vXs = xs; fillWorlds();
+    try { const f = JSON.parse(localStorage.getItem('gg-social-vfilt') || 'null'); if (f && !vFiltersRestored){ $('#vWorld').value = f.w || ''; $('#vType').value = f.t || ''; $('#vStatus').value = f.s || ''; } } catch(e){} vFiltersRestored = true;
     try { created = (await readFile('media/index.json')).data; } catch(e){ created = {}; }
   }
-  const files = vFiles, xs = vXs, all = sortVideos(files, $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
+  const files = vFiles, xs = vXs, all = sortVideos(files.filter(passes), $('#vSort').value), pages = Math.max(1, Math.ceil(all.length / VPAGE));
   vPage = Math.min(Math.max(0, vPage), pages - 1);
   const order = all.slice(vPage * VPAGE, vPage * VPAGE + VPAGE);
   const box = $('#videos'); box.innerHTML = order.length ? '' : '<p class="hint">No videos in the project yet.</p>';
@@ -831,7 +863,9 @@ async function renderVideos(keepPage = false){
   pager.hidden = pages < 2;
   pager.innerHTML = `<button type="button" class="ghost sm" data-vp="${vPage - 1}"${vPage === 0 ? ' disabled' : ''}>← Previous</button>`
     + Array.from({ length:pages }, (_, i) => `<button type="button" class="sm${i === vPage ? ' primary' : ' ghost'}" data-vp="${i}" aria-label="Page ${i + 1}"${i === vPage ? ' aria-current="page"' : ''}>${i + 1}</button>`).join('')
-    + `<button type="button" class="ghost sm" data-vp="${vPage + 1}"${vPage >= pages - 1 ? ' disabled' : ''}>Next →</button><span class="hint">${all.length} videos</span>`;
+    + `<button type="button" class="ghost sm" data-vp="${vPage + 1}"${vPage >= pages - 1 ? ' disabled' : ''}>Next →</button><span class="hint">${all.length} of ${files.length} videos</span>`;
+  pager.hidden = pages < 2 && all.length === files.length;
+  if (!all.length) box.innerHTML = '<p class="hint">No videos match these filters.</p>';
   pager.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { vPage = +b.dataset.vp; renderVideos(true); $('#videos').scrollIntoView({ behavior:'smooth', block:'start' }); });
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
@@ -1304,7 +1338,7 @@ $('#btnUpload').onclick = async () => {
     prog.value = 25; say(st, 'Uploading (this can take a minute for a big file)…');
     const [custom, index, q] = await Promise.all([readOr('media/custom.json', {}), readOr('media/index.json', {}), readOr('queue.json', [])]);
     const now = new Date().toISOString();
-    custom[id] = { title, about, file:id + '.' + ext, created:now, width:upMeta ? upMeta.w : 0, height:upMeta ? upMeta.h : 0, seconds:upMeta ? Math.round(upMeta.d) : 0 };
+    custom[id] = { title, about, world:$('#upWorld').value || undefined, kind:$('#upKind').value || undefined, file:id + '.' + ext, created:now, width:upMeta ? upMeta.w : 0, height:upMeta ? upMeta.h : 0, seconds:upMeta ? Math.round(upMeta.d) : 0 };
     index[id] = now;
     if ($('#upNext').checked) q.unshift(id); else q.push(id);
     const files = [{ path:`media/${id}.${ext}`, b64:vid }];
@@ -1312,7 +1346,7 @@ $('#btnUpload').onclick = async () => {
     files.push({ path:'media/custom.json', b64:jsonB64(custom) }, { path:'media/index.json', b64:jsonB64(index) }, { path:'queue.json', b64:jsonB64(q) });
     await commitFiles(files, 'Uploaded video: ' + title, p => { if (p.startsWith('media/u-')) prog.value = 35; else prog.value = Math.min(90, prog.value + 12); });
     prog.value = 100; say(st, `Uploaded "${title}".${$('#upNext').checked ? ' It posts next.' : ' It\'s at the end of the posting order.'}`);
-    $('#upFile').value = ''; $('#upTitle').value = ''; $('#upAbout').value = ''; $('#upNext').checked = false; $('#upCheck').innerHTML = ''; upMeta = null;
+    $('#upFile').value = ''; $('#upTitle').value = ''; $('#upAbout').value = ''; $('#upWorld').value = ''; $('#upKind').value = ''; $('#upNext').checked = false; $('#upCheck').innerHTML = ''; upMeta = null;
     await reloadVideos();
   } catch(e){ say(st, 'Upload failed: ' + e.message + (e.message.startsWith('403') ? ' (the GitHub key needs Contents: Read and write)' : ''), true); }
   $('#btnUpload').disabled = false; setTimeout(() => { prog.hidden = true; prog.value = 0; }, 1500);
