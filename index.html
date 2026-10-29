@@ -1024,6 +1024,10 @@ $('#alAdd').onclick = async () => {
 };
 // plays a track: alone, or with the video (silent) as it will sound, faded out over the video's last 1.5 seconds
 const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
+// iPhones only let a video play with sound if it starts during the tap, so the player starts (silently) then and the real
+// video is loaded into it afterwards
+const tapVideo = () => { const v = document.createElement('video'); v.playsInline = true; v.setAttribute('playsinline', ''); v.src = SILENT; v.play().catch(() => {}); return v; };
+const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const tapAudio = () => { const a = new Audio(); a.playsInline = true; a.src = SILENT; a.play().catch(() => {}); return a; };
 let trkPlayer = null;
 async function playTrack(card, id, t, btn, audioOnly){
@@ -1045,8 +1049,11 @@ async function playTrack(card, id, t, btn, audioOnly){
 let mixCtx = null;
 async function mixInto(v, id, t, a, s){
   a.src = await raw(t.file); let sOk = false; try { s.src = await raw('media/sfx/' + id + '.m4a'); sOk = true; } catch(e){}
-  let own = 'graph';   // silence the video's own soundtrack but leave its volume and mute controls working
-  try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); const g = mixCtx.createGain(); g.gain.value = 0; mixCtx.createMediaElementSource(v).connect(g).connect(mixCtx.destination); mixCtx.resume().catch(() => {}); }
+  // silence the video's own soundtrack: on a computer through Web Audio, so its volume and mute controls still work; on
+  // iPhone (where Web Audio can stall a video and the volume is the phone's own) by muting the video itself
+  let own = 'graph';
+  if (IOS){ own = 'muted'; v.muted = true; }
+  else try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); const g = mixCtx.createGain(); g.gain.value = 0; mixCtx.createMediaElementSource(v).connect(g).connect(mixCtx.destination); mixCtx.resume().catch(() => {}); }
   catch(e){ own = 'muted'; v.muted = true; }
   const at = () => a.duration ? v.currentTime % a.duration : v.currentTime;
   const vol = () => { const left = v.duration - v.currentTime, f = left < 1.5 ? Math.max(0, left/1.5) : 1, off = own === 'graph' && v.muted;
@@ -1188,8 +1195,9 @@ async function renderVideos(keepPage = false){
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = async e => { const b = e.currentTarget; b.disabled = true;
       // the video's chosen music (with its game sounds on top) plays in place of its own soundtrack; the sound players are made during the tap for iPhone
-      const mt = (music[id] || {}).track, ma = mt && mt.file ? tapAudio() : null, ms = ma ? tapAudio() : null;
-      try { const v = document.createElement('video'); v.controls = true; v.playsInline = true; v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); if (ma){ try { await mixInto(v, id, mt, ma, ms); } catch(err){ /* a track that won't load: the video plays with its own sound */ } } b.replaceWith(v); v.play().catch(() => {}); v.addEventListener('volumechange', () => { if (v.muted && !v.dataset.userMuted) { v.dataset.userMuted = '1'; } }); } catch(err){ b.disabled = false; } };
+      const mt = (music[id] || {}).track, ma = mt && mt.file ? tapAudio() : null, ms = ma ? tapAudio() : null, v = tapVideo();
+      if (ma && !IOS){ try { mixCtx = mixCtx || new (window.AudioContext || window.webkitAudioContext)(); mixCtx.resume().catch(() => {}); } catch(err){} }
+      try { v.controls = true; v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4')); if (ma){ try { await mixInto(v, id, mt, ma, ms); } catch(err){ /* a track that won't load: the video plays with its own sound */ } } b.replaceWith(v); v.play().catch(() => {}); v.addEventListener('volumechange', () => { if (v.muted && !v.dataset.userMuted) { v.dataset.userMuted = '1'; } }); } catch(err){ b.disabled = false; } };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
     dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
     const rm = d.querySelector('[data-a="rm"]');
