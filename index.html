@@ -177,7 +177,7 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 .ms .panel{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 6px);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 14px 34px rgba(0,0,0,.45)}
 .ms .acts{display:flex;gap:6px;padding:0 0 8px;margin:0 0 6px;border-bottom:1px solid var(--line)}
 .ms .acts button{flex:1;padding:5px 8px;font-size:.85rem}
-.where{display:flex;flex-direction:column;gap:2px;margin:0}
+.where{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin:6px 0 0}.where label.wtile{position:relative;flex-direction:column;justify-content:center;gap:6px;padding:14px 8px;border:2px solid var(--line);border-radius:14px;background:var(--chip);text-align:center;transition:border-color .12s,background .12s}.wtile input{position:absolute;opacity:0;pointer-events:none}.wtile .logo{width:40px;height:40px}.wtile .logo svg{width:100%;height:100%;display:block}.wtile .tick{position:absolute;top:6px;right:8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--line);color:transparent}.wtile:has(input:checked){border-color:var(--accent);background:rgba(198,244,50,.08)}.wtile:has(input:checked) .tick{background:var(--accent);color:var(--accentfg)}.wtile:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:2px}.wtile.off{opacity:.5;cursor:not-allowed}.wtile small{color:var(--muted);font-weight:400}.whereacts{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px}.whereacts .hint{margin:0 auto 0 0}
 .where label{display:flex;gap:8px;align-items:center;font-weight:600;margin:0;padding:6px 6px;border-radius:8px;cursor:pointer}
 .where label:hover{background:var(--chip)}
 #queue{max-height:560px}
@@ -350,12 +350,9 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="step" data-s="2" hidden>
       <p id="lenNote" class="hint"></p>
       <div><label id="whereLbl">Post to</label>
-        <div class="ms" id="whereBox">
-          <button type="button" id="whereBtn" aria-haspopup="true" aria-expanded="false" aria-labelledby="whereLbl whereBtn"><span id="whereSum">None selected</span></button>
-          <div class="panel" id="wherePanel" hidden>
-            <div class="acts"><button type="button" id="whereAll">Select all</button><button type="button" id="whereNone">Unselect all</button></div>
-            <div class="where" id="where" role="group" aria-labelledby="whereLbl"></div>
-          </div>
+        <div id="whereBox">
+          <div class="where" id="where" role="group" aria-labelledby="whereLbl"></div>
+          <div class="whereacts"><span id="whereSum" class="hint">None selected</span><button type="button" class="ghost sm" id="whereAll">Select all</button><button type="button" class="ghost sm" id="whereNone">Unselect all</button></div>
         </div>
       </div>
       <div id="metaOpts" class="cap">
@@ -1241,6 +1238,14 @@ document.addEventListener('play', e => { for (const v of document.querySelectorA
 
 // ---------- posted and recent runs ----------
 const ICON = { youtube:'▶', instagram:'◎', facebook:'f', tiktok:'♪', x:'𝕏' };
+// each platform's logo for the "Post to" tiles
+const LOGO = {
+  youtube:'<svg viewBox="0 0 48 48"><rect x="2" y="9" width="44" height="30" rx="9" fill="#f00"/><path d="M20 17v14l12-7z" fill="#fff"/></svg>',
+  instagram:'<svg viewBox="0 0 48 48"><defs><radialGradient id="igg" cx=".3" cy="1" r="1.2"><stop offset="0" stop-color="#fd5"/><stop offset=".45" stop-color="#ff543e"/><stop offset=".75" stop-color="#c837ab"/><stop offset="1" stop-color="#5851db"/></radialGradient></defs><rect x="3" y="3" width="42" height="42" rx="12" fill="url(#igg)"/><rect x="12" y="12" width="24" height="24" rx="7" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="24" cy="24" r="5.6" fill="none" stroke="#fff" stroke-width="3.2"/><circle cx="31.6" cy="16.4" r="1.9" fill="#fff"/></svg>',
+  facebook:'<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21" fill="#1877f2"/><path d="M26.6 45V30.4h4.9l.8-5.7h-5.7v-3.6c0-1.6.5-2.8 2.8-2.8h3V13.2c-.5-.1-2.3-.2-4.4-.2-4.3 0-7.3 2.6-7.3 7.5v4.2h-4.9v5.7h4.9V45z" fill="#fff"/></svg>',
+  tiktok:'<svg viewBox="0 0 48 48"><rect x="3" y="3" width="42" height="42" rx="11" fill="#000"/><path d="M29.5 11c.6 3.7 2.8 6 6.5 6.3v4.4c-2.4.1-4.5-.7-6.5-2.1v9.6c0 6.4-5.9 9.6-10.6 7.1-3.5-1.9-4.6-6.6-2.4-9.9 1.5-2.3 4.1-3.5 6.9-3.1v4.7c-1.6-.5-3.4.2-4 1.7-.7 1.6.3 3.6 2 4 1.9.5 3.8-.9 3.8-2.9V11z" fill="#25f4ee" transform="translate(-1 -1)"/><path d="M29.5 11c.6 3.7 2.8 6 6.5 6.3v4.4c-2.4.1-4.5-.7-6.5-2.1v9.6c0 6.4-5.9 9.6-10.6 7.1-3.5-1.9-4.6-6.6-2.4-9.9 1.5-2.3 4.1-3.5 6.9-3.1v4.7c-1.6-.5-3.4.2-4 1.7-.7 1.6.3 3.6 2 4 1.9.5 3.8-.9 3.8-2.9V11z" fill="#fe2c55" transform="translate(1 1)"/><path d="M29.5 11c.6 3.7 2.8 6 6.5 6.3v4.4c-2.4.1-4.5-.7-6.5-2.1v9.6c0 6.4-5.9 9.6-10.6 7.1-3.5-1.9-4.6-6.6-2.4-9.9 1.5-2.3 4.1-3.5 6.9-3.1v4.7c-1.6-.5-3.4.2-4 1.7-.7 1.6.3 3.6 2 4 1.9.5 3.8-.9 3.8-2.9V11z" fill="#fff"/></svg>',
+  x:'<svg viewBox="0 0 48 48"><rect x="3" y="3" width="42" height="42" rx="11" fill="#000"/><path d="M13 13h7.2l5.4 7.5 6.6-7.5h2.6l-8 9.2L36 35h-7.2l-5.9-8.1-7.2 8.1H13l8.9-10z" fill="#fff"/></svg>'
+};
 const NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X' };   // YouTube covers Shorts and normal videos
 const SRC = { ai:'<span class="tag ai">AI</span>', approved:'<span class="tag mine">your captions</span>', site:'<span class="tag mine">written here</span>', template:'<span class="tag">standard</span>' };
 let mediaIds = new Set(), haveSecrets = new Set(), planned = new Set(), liveTimer = 0, hidden = { posted:[], failed:[] }, hiddenSha;
@@ -1511,17 +1516,14 @@ window.addEventListener('hashchange', () => showTab(location.hash.slice(1), fals
 const isReady = k => NEED[k].every(n => haveSecrets.has(n));
 // one checkbox per platform: set-up ones ticked to start with (unless switched off on the Platforms tab)
 function renderWhere(){
-  $('#where').innerHTML = Object.keys(NAME).map(k => { const ok = isReady(k); return `<label class="${ok ? '' : 'off'}"><input type="checkbox" data-w="${k}"${ok ? '' : ' disabled'}> ${NAME[k]}${ok ? '' : ' <small>(not set up)</small>'}</label>`; }).join('');
+  $('#where').innerHTML = Object.keys(NAME).map(k => { const ok = isReady(k); return `<label class="wtile${ok ? '' : ' off'}"><input type="checkbox" data-w="${k}"${ok ? '' : ' disabled'}><span class="logo">${LOGO[k] || ''}</span><b>${NAME[k]}</b>${ok ? '<span class="tick">✓</span>' : '<small>not set up</small>'}</label>`; }).join('');
   document.querySelectorAll('#where input').forEach(c => c.onchange = whereChanged);
   whereChanged();
 }
 const picked = () => [...document.querySelectorAll('#where input:checked')].map(c => c.dataset.w);
-const wherePanel = open => { $('#wherePanel').hidden = !open; $('#whereBtn').setAttribute('aria-expanded', String(open)); };
-$('#whereBtn').onclick = () => wherePanel($('#wherePanel').hidden);
+const wherePanel = open => { if (open) $('#where').scrollIntoView({ behavior:'smooth', block:'center' }); };   // the tiles are always showing
 $('#whereAll').onclick = () => { document.querySelectorAll('#where input:not(:disabled)').forEach(c => c.checked = true); whereChanged(); };
 $('#whereNone').onclick = () => { document.querySelectorAll('#where input').forEach(c => c.checked = false); whereChanged(); };
-document.addEventListener('click', e => { if (!$('#wherePanel').hidden && !e.target.closest('#whereBox')) wherePanel(false); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#wherePanel').hidden){ wherePanel(false); $('#whereBtn').focus(); } });
 // what the chosen video is too long for (limits as of 2026): the option is greyed out with the reason
 const LIMITS = { x:[140, 'X takes up to 2:20'], tiktok:[600, 'TikTok takes up to 10:00'], instagram:[900, 'Instagram takes up to 15:00'] };
 const FORMAT_LIMITS = { mYtShorts:[180, 'Shorts are up to 3:00', 'mYtVideo'], mFbReel:[90, 'Reels are up to 1:30', 'mFbVideo'], mFbStory:[60, 'Stories are up to 1:00'], mIgStory:[60, 'Stories are up to 1:00'] };
