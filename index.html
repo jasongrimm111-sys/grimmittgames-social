@@ -911,7 +911,7 @@ async function saveMusic(msg){ let sha; try { sha = (await gh('/contents/music.j
 const fmtMs = ms => ms ? Math.floor(ms/60000) + ':' + String(Math.round(ms/1000) % 60).padStart(2, '0') : '';
 function songLine(id){
   const m = music[id] || {}, ig = m.instagram;
-  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && ig.none ? "Instagram: the video's own music" : 'Instagram: AI picks a song when posting';
+  const a = ig && ig.audio_id ? `Instagram: ${ig.title}${ig.artist ? ' · ' + ig.artist : ''}` : ig && ig.track ? `Instagram: ${ig.track.title} (uploaded)` : ig && ig.none ? 'Instagram: the original video audio' : 'Instagram: AI picks a song when posting';
   return '♪ Music: ' + (m.track && m.track.file ? (m.track.title || 'your track') : 'the original') + ' · ' + a + (m.tiktok && m.tiktok.draft ? ' · TikTok: drafts, add a sound in the app' : '');
 }
 async function findSongs(q, extra = {}){
@@ -1002,7 +1002,8 @@ function songUI(card, id){
       <p class="hint">Pick a song from Instagram's music library to play instead of the video's own music.</p>
       <div class="row"><input type="text" enterkeyhint="search" placeholder="e.g. upbeat tropical, epic battle" aria-label="Search Instagram music"><button type="button" data-s="find" class="primary sm">Search</button><button type="button" data-s="trend" class="sm">Trending</button></div>
       <p class="status" role="status"></p><ul class="songs"></ul>
-      <div class="row"><button type="button" class="ghost sm" data-s="ai">Let AI choose when posting</button><button type="button" class="ghost sm" data-s="none">Keep the video's own music</button></div>
+      <div class="row"><button type="button" class="ghost sm" data-s="ai">Let AI choose when posting</button><button type="button" class="ghost sm" data-s="igtrk">Use an uploaded track</button><button type="button" class="ghost sm" data-s="none">Use the original video audio</button></div>
+      <ul class="songs ig-trk" hidden></ul>
       <h4>TikTok</h4>
       <label class="chk"><input type="checkbox" data-s="tt"> Send to my TikTok drafts instead of posting, so I can add a TikTok sound in the app</label>
       <p class="hint">Facebook, YouTube and X don't let apps add a song, so they use the video's own music.</p>`;
@@ -1043,7 +1044,18 @@ function songUI(card, id){
     inp.onkeydown = e => { if (e.key === 'Enter') run(inp.value.trim()); };
     box.querySelector('[data-s="trend"]').onclick = () => run('');
     box.querySelector('[data-s="ai"]').onclick = () => { delete m.instagram; save('AI picks the song', "The AI will pick a song that suits the video when it's posted."); };
-    box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save("Video's own music", "The Reel will use the video's own music."); };
+    box.querySelector('[data-s="none"]').onclick = () => { m.instagram = { none:true }; save('Original audio on Instagram', 'The Reel will use the original video audio.'); };
+    // an uploaded track on Instagram (it can differ from the other platforms' track)
+    const igl = box.querySelector('.ig-trk');
+    box.querySelector('[data-s="igtrk"]').onclick = async () => {
+      if (!igl.hidden){ igl.hidden = true; return; }
+      const lib = await loadTracks(); igl.hidden = false; igl.innerHTML = lib.length ? '' : '<li class="hint">Your Audio library is empty: add tracks on the Audio tab.</li>';
+      for (const t of lib.slice().reverse()){ const li = document.createElement('li');
+        li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + '</small></span><button type="button" class="sm primary">Use on Instagram</button><button type="button" class="sm ghost" data-p="1">▶</button>';
+        li.querySelector('.primary').onclick = () => { m.instagram = { track:{ file:t.file, title:t.title } }; igl.hidden = true; save('Uploaded track on Instagram', 'The Reel will use ' + t.title + '.'); };
+        li.querySelector('[data-p]').onclick = e => playTrack(card, id, t, e.currentTarget);
+        igl.appendChild(li); }
+    };
     box.querySelector('[data-s="tt"]').onchange = e => { if (e.target.checked) m.tiktok = { draft:true }; else delete m.tiktok; save('TikTok drafts setting', e.target.checked ? 'This video will go to your TikTok drafts: open TikTok to add a sound and post it.' : 'This video will post straight to TikTok.'); };
   };
 }
@@ -1664,7 +1676,8 @@ async function previewSong(id, p){
     el.innerHTML = '<span>♪ <b>' + esc(sg.title) + '</b>' + (sg.artist ? ' · ' + esc(sg.artist) : '') + ' <small>' + esc(how) + '</small></span>' + (sg.preview ? '<button type="button" class="sm primary">▶ Play with the video</button>' : '<small>(no preview available)</small>');
     const b = el.querySelector('button'); if (b) b.onclick = () => playWithSong(id, sg, b);
   };
-  if (m && m.none){ el.textContent = "♪ The Reel uses the video's own music (set on the Videos tab)"; return; }
+  if (m && m.none){ el.textContent = '♪ The Reel uses the original video audio (set on the Videos tab)'; return; }
+  if (m && m.track){ el.innerHTML = '<span>♪ <b>' + esc(m.track.title) + '</b> <small>your uploaded track</small></span><button type="button" class="sm primary">▶ Play with the video</button>'; el.querySelector('button').onclick = e => playTrack(e.currentTarget.closest('.pvc'), id, m.track, e.currentTarget); return; }
   if (m && m.audio_id){ show(m, 'chosen on the Videos tab'); return; }
   if (pvSong.id === id && pvSong.phrase === phrase && pvSong.song){ show(pvSong.song, pvSong.song.how === 'AI: trending' ? 'AI pick · trending' : 'AI pick'); return; }
   el.textContent = '♪ The AI is choosing a trending song for this video… (about 30 seconds)';
