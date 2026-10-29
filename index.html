@@ -866,11 +866,13 @@ const byNewest = ids => [...ids].sort((a, b) => String(created[b] || '').localeC
 const posters = {};
 const poster = id => posters[id] = posters[id] || raw('media/posters/' + id + '.jpg');
 const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '';
-const P_PER = 12; let pPage = 0, pSig = '';
+let pPage = 0, pSig = '';
+// as many videos as fill whole rows on this screen (with "Next in line" as the first card), about 18 cards
+const pPer = () => { const c = Math.max(1, getComputedStyle($('#picker')).gridTemplateColumns.split(' ').filter(Boolean).length); return c*Math.max(2, Math.ceil(18/c)) - 1; };
 function renderPicker(){
   const cur = $('#pickVideo').value, all = sortVideos([...mediaIds].filter(id => passes(id, 'p')), $('#pSort').value), box = $('#picker');
   if (all.join() !== pSig){ pSig = all.join(); pPage = 0; }   // new filters: back to the first page
-  const pages = Math.max(1, Math.ceil(all.length/P_PER)); pPage = Math.min(pPage, pages - 1);
+  const P_PER = pPer(), pages = Math.max(1, Math.ceil(all.length/P_PER)); pPage = Math.min(pPage, pages - 1);
   const ids = all.slice(pPage*P_PER, pPage*P_PER + P_PER), pg = $('#pPager'); pg.hidden = pages < 2;
   pg.innerHTML = `<button type="button" class="ghost sm" data-d="-1"${pPage === 0 ? ' disabled' : ''}>← Previous</button><span class="hint">Page ${pPage + 1} of ${pages} · ${all.length} videos</span><button type="button" class="ghost sm" data-d="1"${pPage >= pages - 1 ? ' disabled' : ''}>Next →</button>`;
   pg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { pPage += +b.dataset.d; renderPicker(); box.scrollIntoView({ behavior:'smooth', block:'start' }); });
