@@ -973,15 +973,18 @@ async function renderLibrary(){
   for (const t of list.slice(alPage*AL_PER, alPage*AL_PER + AL_PER).map(x => x.t)){
     const used = usersOf(t.file), li = document.createElement('li');
     li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + ' · ' + (used.length ? 'used by ' + used.map(v => esc(label(v))).join(', ') : 'not used yet') + '</small></span>'
-      + '<button type="button" class="sm ghost" data-a="play">▶</button><button type="button" class="sm ghost" data-a="rm">Remove</button>';
+      + '<button type="button" class="sm ghost" data-a="play">▶</button>' + (used.length
+        ? '<button type="button" class="sm ghost" data-a="rm" disabled title="Used by ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ': choose other music for ' + (used.length === 1 ? 'it' : 'them') + ' before removing this track">In use</button>'
+        : '<button type="button" class="sm ghost" data-a="rm">Remove</button>');
     li.querySelector('[data-a="play"]').onclick = e => playTrack(null, null, t, e.currentTarget, true);
     const rm = li.querySelector('[data-a="rm"]');
-    rm.onclick = async () => {
-      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = used.length ? 'Sure? ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ' go back to the original' : 'Sure? Remove'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Remove'; }, 4000); return; }
+    // a track a video uses can't be removed: choose other music for those videos first
+    if (!used.length) rm.onclick = async () => {
+      if (usersOf(t.file).length){ say($('#alLibStatus'), t.title + ' is used by a video now: choose other music for it first.', true); renderLibrary(); return; }
+      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Remove'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Remove'; }, 4000); return; }
       rm.disabled = true;
       try {
         await loadTracks(true); tracks = tracks.filter(x => x.file !== t.file); await writeFile('music/tracks/index.json', tracks, tracksSha, 'Music library: removed ' + t.title);
-        if (used.length){ for (const v of used) delete music[v].track; await saveMusic('Original music again for ' + used.join(', ')); }
         try { const g = await gh('/contents/' + t.file); await gh('/contents/' + t.file, { method:'DELETE', body:JSON.stringify({ message:'Remove music track ' + t.title, sha:g.sha }) }); } catch(e){}
         say($('#alLibStatus'), 'Removed ' + t.title + '.'); await loadTracks(true); renderLibrary(); document.querySelectorAll('.songline').forEach(l => { if (l.dataset.id) l.textContent = songLine(l.dataset.id); });
       } catch(e){ rm.disabled = false; say($('#alLibStatus'), "Couldn't remove it: " + e.message, true); }
