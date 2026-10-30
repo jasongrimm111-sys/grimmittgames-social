@@ -263,7 +263,7 @@ body.fullnew{overflow:hidden}body.fullnew #compose{position:fixed;inset:0;z-inde
 .dlgpv:fullscreen,.dlgpv:-webkit-full-screen{width:100vw!important;height:100vh!important;aspect-ratio:auto!important;border-radius:0!important;background-color:#000;background-size:contain!important}.dlgpv:fullscreen .pvvid,.dlgpv:-webkit-full-screen .pvvid{object-fit:contain}
 .pvvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;z-index:0}.playing>.tapplay{display:none}
 body:not(.vsub-a) section[data-vpart="a"],body.vsub-a section[data-vpart="v"]{display:none!important}.vsubbar{padding:12px 14px}.vsubbar .subtabs{margin:0}.audiolib .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}.audiolib input[type=file]{max-width:100%;font-size:13px}
-.audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px 1fr auto auto;gap:4px 8px;align-items:center}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
+.audiolib .songs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}.audiolib li{display:grid;grid-template-columns:40px minmax(0,1fr) 44px 104px;gap:4px 10px;align-items:center}.audiolib li [data-a=play]{width:44px;height:38px;padding:0;justify-self:center}.audiolib li [data-a=rm]{width:104px;justify-self:stretch}.audiolib .noart{width:40px;height:40px;border-radius:6px;display:grid;place-items:center;background:var(--line)}.audiolib li .t{min-width:0;display:flex;flex-direction:column}
 .songbox li{grid-template-columns:40px 1fr auto auto}.trkvid{width:100%;aspect-ratio:9/16;border-radius:10px;background:#000;object-fit:cover}a.btn{display:inline-flex;align-items:center;text-decoration:none}
 dialog.songdlg{scrollbar-width:thin;width:min(1040px,96vw);max-height:96vh;max-height:96dvh;padding:0;border:1px solid var(--line);border-radius:18px;background:var(--bg,#0d1117);color:var(--fg,#e8f0ea);overflow:auto}
 dialog.songdlg::backdrop{background:rgba(0,0,0,.6)}
@@ -1040,14 +1040,14 @@ async function renderLibrary(){
     const used = usersOf(t.file), li = document.createElement('li');
     li.innerHTML = '<span class="noart">♪</span><span class="t"><b>' + esc(t.title || t.file) + '</b><small>' + (t.source === 'pixabay' ? 'Pixabay' : 'Your track') + (t.secs ? ' · ' + fmtMs(t.secs*1000) : '') + ' · ' + (used.length ? 'used by ' + used.map(v => esc(label(v))).join(', ') : 'not used yet') + '</small></span>'
       + '<button type="button" class="sm ghost" data-a="play">▶</button>' + (used.length
-        ? '<button type="button" class="sm ghost" data-a="rm" disabled title="Used by ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ': choose other music for ' + (used.length === 1 ? 'it' : 'them') + ' before removing this track">In use</button>'
-        : '<button type="button" class="sm ghost" data-a="rm">Remove</button>');
+        ? '<button type="button" class="sm ghost" data-a="rm" disabled title="Used by ' + used.length + ' video' + (used.length === 1 ? '' : 's') + ': choose other music for ' + (used.length === 1 ? 'it' : 'them') + ' before deleting this track">In use</button>'
+        : '<button type="button" class="sm ghost" data-a="rm">Delete</button>');
     li.querySelector('[data-a="play"]').onclick = e => playTrack(null, null, t, e.currentTarget);
     const rm = li.querySelector('[data-a="rm"]');
     // a track a video uses can't be removed: choose other music for those videos first
     if (!used.length) rm.onclick = async () => {
       if (usersOf(t.file).length){ say($('#alLibStatus'), t.title + ' is used by a video now: choose other music for it first.', true); renderLibrary(); return; }
-      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Remove'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Remove'; }, 4000); return; }
+      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Delete'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Delete'; }, 4000); return; }
       rm.disabled = true;
       try {
         await loadTracks(true); tracks = tracks.filter(x => x.file !== t.file); await writeFile('music/tracks/index.json', tracks, tracksSha, 'Music library: removed ' + t.title);
@@ -1352,7 +1352,7 @@ async function renderVideos(keepPage = false){
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
     const d = document.createElement('div'); d.className = 'vcard';
-    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Updated ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
+    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Updated ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button><button type="button" class="ghost" data-a="rm">Delete</button></div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }, false, undefined, b); };
@@ -1360,9 +1360,9 @@ async function renderVideos(keepPage = false){
     dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
     const rm = d.querySelector('[data-a="rm"]');
     if (rm) rm.onclick = async () => {
-      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Remove'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Remove'; }, 4000); return; }
-      rm.disabled = true; rm.textContent = 'Removing…';
-      try { await removeUpload(id); await reloadVideos(); } catch(e){ rm.disabled = false; rm.textContent = 'Remove'; alertStatus('Couldn\'t remove: ' + e.message); }
+      if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Delete'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Delete'; }, 4000); return; }
+      rm.disabled = true; rm.textContent = 'Deleting…';
+      try { await removeUpload(id); await reloadVideos(); toastOk(label(id) + ' deleted. It won\'t be uploaded again.'); } catch(e){ rm.disabled = false; rm.textContent = 'Delete'; toastOk("Couldn't delete it: " + e.message); }
     };
     dl('[data-a="dlx"]', 'media/x/' + id + '.mp4', 'monkey-vine-rush-' + id + '-4x5.mp4');
     d.querySelector('[data-a="post"]').onclick = () => compose(id);
@@ -1919,13 +1919,18 @@ $('#btnUpload').onclick = async () => {
   } catch(e){ say(st, 'Upload failed: ' + e.message + (e.message.startsWith('403') ? ' (the GitHub key needs Contents: Read and write)' : ''), true); }
   $('#btnUpload').disabled = false; setTimeout(() => { prog.hidden = true; prog.value = 0; }, 1500);
 };
+// deletes a video from the library: the video, its poster, X / wide copies and game sounds, its place in the order, and
+// adds it to media/deleted.json so the promo uploads never put it back
 async function removeUpload(id){
-  const [custom, index, q] = await Promise.all([readOr('media/custom.json', {}), readOr('media/index.json', {}), readOr('queue.json', [])]);
+  const [custom, index, q, gone, durs] = await Promise.all([readOr('media/custom.json', {}), readOr('media/index.json', {}), readOr('queue.json', []), readOr('media/deleted.json', []), readOr('media/durations.json', {})]);
   const files = [{ path:'media/' + (fileOf[id] || (custom[id] || {}).file || id + '.mp4'), remove:true }];
-  try { await gh('/contents/media/posters/' + id + '.jpg'); files.push({ path:'media/posters/' + id + '.jpg', remove:true }); } catch(e){}
-  delete custom[id]; delete index[id];
-  files.push({ path:'media/custom.json', b64:jsonB64(custom) }, { path:'media/index.json', b64:jsonB64(index) }, { path:'queue.json', b64:jsonB64(q.filter(x => x !== id)) });
-  await commitFiles(files, 'Removed uploaded video: ' + ((customs[id] || {}).title || id));
+  for (const extra of ['media/posters/' + id + '.jpg', 'media/x/' + id + '.mp4', 'media/wide/' + id + '.mp4', 'media/sfx/' + id + '.m4a'])
+    try { await gh('/contents/' + extra); files.push({ path:extra, remove:true }); } catch(e){}
+  delete custom[id]; delete index[id]; delete durs[id];
+  const deleted = [...new Set([...(Array.isArray(gone) ? gone : []), id])];
+  files.push({ path:'media/custom.json', b64:jsonB64(custom) }, { path:'media/index.json', b64:jsonB64(index) }, { path:'media/durations.json', b64:jsonB64(durs) },
+    { path:'media/deleted.json', b64:jsonB64(deleted) }, { path:'queue.json', b64:jsonB64(q.filter(x => x !== id)) });
+  await commitFiles(files, 'Deleted video: ' + ((customs[id] || {}).title || label(id) || id));
 }
 // after an upload or removal: fresh order, list, picker and dashboard
 async function reloadVideos(){
