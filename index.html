@@ -1087,7 +1087,7 @@ $('#alAdd').onclick = async () => {
 const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
 // iPhones only let a video play with sound if it starts during the tap, so the player starts (silently) then and the real
 // video is loaded into it afterwards
-const tapVideo = () => { const v = document.createElement('video'); v.playsInline = true; v.setAttribute('playsinline', ''); v.src = SILENT; v.play().catch(() => {}); return v; };
+const tapVideo = muted => { const v = document.createElement('video'); v.playsInline = true; if (muted) v.muted = true; v.setAttribute('playsinline', ''); v.src = SILENT; v.play().catch(() => {}); return v; };
 const IOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const tapAudio = () => { const a = new Audio(); a.playsInline = true; a.src = SILENT; a.play().catch(() => {}); return a; };
 let trkPlayer = null;
@@ -1146,16 +1146,21 @@ async function mixInto(v, id, t){
 // Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
 // Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
 function playVideo(id, put, plain, over, spinEl){
-  const mt = plain ? null : over || (music[id] || {}).track, v = tapVideo();
+  const mt = plain ? null : over || (music[id] || {}).track, mixed = !!(mt && mt.file);
+  // with a track, the sound comes from Web Audio: start it first, and keep the tap's unlock video muted so an iPhone
+  // doesn't hand the sound over to it and leave the mix silent
+  if (mixed){ try { mixStart(); } catch(err){} }
+  const v = tapVideo(mixed);
   const spin = on => { if (spinEl) spinEl.classList.toggle('loadingv', on); }; spin(true); setTimeout(() => spin(false), 30000);
-  if (mt && mt.file){ try { mixStart(); } catch(err){} }
   (async () => {
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
       let mix = null; if (mt && mt.file){ try { mix = await mixInto(v, id, mt); } catch(err){ v.muted = false; /* a track that won't load: its own sound */ } }
       v.addEventListener('playing', () => spin(false), { once:true });
       put(v);
       // if the phone blocks it (iPhones can, once the tap is a few seconds old), it waits for one more tap, which always works
-      const start = () => { if (mix) mix.ctx.resume().catch(() => {}); return v.play(); };
+      // with a track the video itself is muted, so it always plays; check the mix is really sounding, else ask for a tap
+      const start = async () => { if (mix){ await Promise.race([mix.ctx.resume().catch(() => {}), new Promise(r => setTimeout(r, 800))]);
+        if (mix.ctx.state !== 'running') throw new Error('sound blocked'); } return v.play(); };
       start().catch(() => { spin(false); v.pause(); tapToPlay(v, start); }); }
     catch(err){ spin(false); put(null); }
   })();
