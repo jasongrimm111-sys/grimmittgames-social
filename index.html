@@ -378,7 +378,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="step" data-s="1">
       <label>Choose a video</label>
       <div class="vfilters pfilters">
-        <div class="f"><label for="pSort">Sort by</label><select id="pSort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option><option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option></select></div>
+        <div class="f"><label for="pSort">Sort by</label><select id="pSort"><option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option><option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option></select></div>
         <div class="f"><label for="pWorld">World</label><select id="pWorld"><option value="">All worlds</option></select></div>
         <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
         <div class="f"><label for="pStatus">Status</label><select id="pStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
@@ -503,7 +503,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="shead libhead"><h2>Videos</h2><button type="button" class="primary" id="openUp">⬆ Upload video</button></div>
     <div class="vfilters">
       <div class="f"><label for="vSort">Sort by</label><select id="vSort">
-      <option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="world">World (1 to 24)</option>
+      <option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option>
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
     </select></div>
       <div class="f"><label for="vWorld">World</label><select id="vWorld"><option value="">All worlds</option></select></div>
@@ -921,7 +921,7 @@ function renderPicker(){
   pg.querySelectorAll('[data-d]').forEach(b => b.onclick = () => { pPage += +b.dataset.d; renderPicker(); box.scrollIntoView({ behavior:'smooth', block:'start' }); });
   box.innerHTML = `<div class="pick" data-id="" aria-pressed="${!cur}"><span class="im">Next in line<br>${nextId ? esc(label(nextId).split(' · ').slice(0, 2).join(' · ')) : ''}</span><b>Next in line</b><small>whatever is due next</small><button type="button" class="sm sel">Select</button></div>`
     + (all.length ? '' : '<p class="hint" style="grid-column:1 / -1">No videos match these filters.</p>')
-    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<div class="pick" data-id="${id}" aria-pressed="${cur === id}"><button type="button" class="im" aria-label="Play ${esc(label(id))}"><span class="tapplay">▶</span>${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small><button type="button" class="sm sel">Select</button></div>`; }).join('');
+    + ids.map(id => { const p = Object.keys((state.posted || {})[id] || {}); return `<div class="pick" data-id="${id}" aria-pressed="${cur === id}"><button type="button" class="im" aria-label="Play ${esc(label(id))}"><span class="tapplay">▶</span>${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Updated ' + when(id) : ''}${p.length ? ' · posted to ' + p.length : ''}${planned.has(id) ? ' · your captions' : ''}</small><button type="button" class="sm sel">Select</button></div>`; }).join('');
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
     b.querySelector('.sel').onclick = () => chooseAndNext(b.dataset.id);
@@ -1352,7 +1352,7 @@ async function renderVideos(keepPage = false){
   for (const id of order){
     const posted = Object.keys((state.posted || {})[id] || {});
     const d = document.createElement('div'); d.className = 'vcard';
-    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Made ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
+    d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Updated ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button>${id.startsWith('u-') ? '<button type="button" data-a="rm">Remove</button>' : ''}</div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }, false, undefined, b); };
