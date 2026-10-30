@@ -908,7 +908,7 @@ let created = {}; const fileOf = {};
 const byNewest = ids => [...ids].sort((a, b) => String(created[b] || '').localeCompare(String(created[a] || '')) || queue.indexOf(a) - queue.indexOf(b));
 const posters = {};
 const poster = id => posters[id] = posters[id] || raw('media/posters/' + id + '.jpg');
-const when = id => created[id] ? new Date(created[id]).toLocaleDateString(undefined, { day:'numeric', month:'short' }) : '';
+const when = id => created[id] ? new Date(created[id]).toLocaleString(undefined, { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '';
 let pPage = 0, pSig = '';
 // as many videos as fill whole rows on this screen (with "Next in line" as the first card), about 18 cards
 const pPer = () => { const c = Math.max(1, getComputedStyle($('#picker')).gridTemplateColumns.split(' ').filter(Boolean).length); return c*Math.max(2, Math.ceil(18/c)) - 1; };
