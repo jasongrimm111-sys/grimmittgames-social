@@ -489,7 +489,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 </div><div class="ucol">    <div class="row"><div><label for="upWorld">World <span class="unset">· optional</span></label><select id="upWorld"><option value="">None</option></select></div>
       <div><label for="upKind">Type <span class="unset">· optional</span></label><select id="upKind"><option value="">None</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option></select></div></div>
     <p class="hint">Tagging a world and type lets the Media filters find it, like the game's own videos.</p>
-    <label class="check"><input id="upNext" type="checkbox"> Post it next</label>
+    <label class="check" hidden><input id="upNext" type="checkbox"> Post it next</label>
     <div class="row"><button id="btnUpload" class="primary" type="button">Upload</button></div>
     <progress id="upProg" max="100" value="0" hidden></progress>
     <p class="hint">Works best as a vertical 9:16 video (like 1080 × 1920) from 3 to 90 seconds, MP4 or MOV (iPhone videos are fine), up to 95 MB. When it posts, it's converted to a format every platform accepts and an X version is made.</p>
@@ -516,7 +516,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   </section>
 
   <section data-tab="videos" data-vpart="v">
-    <p class="hint">Every promo video in your private project, in posting order. Tap a picture to play it, download it, or pick it to post now.</p>
+    <p class="hint">Every promo video in your private project, newest first. Tap a picture to play it, download it, or pick it to post now.</p>
     <div id="videos" class="vgrid"><div class="skgrid"><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div></div></div>
     <div id="vPager" class="pager" hidden></div>
   </section>
@@ -563,7 +563,6 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="shead"><h2>Rules</h2><p class="sub">How the next video is chosen. Coming up on the Dashboard shows exactly what they'll post.</p></div>
     <div class="setting"><div><b>Which video goes next</b></div>
       <select id="rOrder">
-        <option value="queue">In the order below</option>
         <option value="mix">Mix it up (vary level play, rush, boss and Perfect Run)</option>
         <option value="random">Random</option>
       </select></div>
@@ -626,7 +625,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <p class="hint">Each post already has 3 to 5 hashtags matched to the video. Keep extras to one or two: a few relevant tags beat long lists.</p>
   </section>
 
-  <section data-tab="schedule">
+  <section data-tab="none" hidden>   <!-- the old posting order: no longer used or shown (kept so older code finds #queue) -->
     <h2>Order</h2>
     <p class="hint">Videos post from the top (newest uploads can be put first with "Post it next"). Drag a video by ⠿ to move it, use ↑ ↓, or skip one, then press Save changes.</p>
     <ul id="queue" class="q"></ul>
@@ -1480,7 +1479,7 @@ const listAnd = a => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + '
 const PLACE_NAME = { shorts:'Shorts', video:'normal video', reels:'Reels', story:'Story' };
 function slotRules(s){
   const v = id => { const e = document.getElementById(id); return e ? (e.type === 'checkbox' ? e.checked : e.value) : undefined; };
-  const tz = v('tz') || cfg.timezone || '', order = v('rOrder') || 'queue', noWorld = !!v('rWorld'), per = !!v('rPer'), max = parseInt(v('rMax'), 10) || 0, from = v('rFrom'), to = v('rTo');
+  const tz = v('tz') || cfg.timezone || '', order = v('rOrder') || 'mix', noWorld = !!v('rWorld'), per = !!v('rPer'), max = parseInt(v('rMax'), 10) || 0, from = v('rFrom'), to = v('rTo');
   const days = DAYS.filter(x => s.days.includes(x)), h = parseInt(s.time, 10), t12 = (h % 12 || 12) + (h < 12 ? ' am' : ' pm');
   const off = k => cfg.platforms && cfg.platforms[k] === false;
   const plats = (s.platforms.length ? s.platforms : Object.keys(NAME)).filter(k => NAME[k]);
@@ -1496,9 +1495,9 @@ function slotRules(s){
   if (skipped.length) L.push(listAnd(skipped.map(k => NAME[k])) + (skipped.length > 1 ? ' are' : ' is') + ' switched off on the Platforms tab, so ' + (skipped.length > 1 ? 'they get' : 'it gets') + ' nothing from this time.');
   L.push('<b>Videos:</b> ' + (kinds.length ? what + ' only' : 'any type') + '. ' + (per && on.length > 1 ? 'Each platform gets its own video.' : 'The same video goes to every platform.'));
   const pick = order === 'random' ? 'chosen at random'
-    : order === 'mix' ? (kinds.length === 1 ? 'taken in the Order list (only one type is ticked, so there is nothing to mix)' : 'mixed so the types take turns')
-    : 'taken from the top of the Order list';
-  L.push('<b>Which one:</b> the next ' + (kinds.length ? what + ' ' : '') + 'video not yet posted on that platform, ' + pick + (noWorld ? ', avoiding the same world twice in a row' : '') + '.');
+    : kinds.length === 1 ? 'chosen at random (only one type is ticked, so there is nothing to mix)'
+    : 'mixed so the types take turns';
+  L.push('<b>Which one:</b> the next ' + (kinds.length ? what + ' ' : '') + 'video not yet posted on that platform, ' + pick + (noWorld ? ', avoiding the world that platform posted last (if only that world is left, it still posts)' : '') + '.');
   L.push(kinds.length
     ? '<b>Repeats:</b> no ' + what + ' video posts twice on a platform until every ' + what + ' video has been posted there. Then ' + what + (kinds.length > 1 ? ' start' : ' starts') + ' a new round there (the last one posted waits until later in the round). It never switches to other types; only if there are no ' + what + ' videos at all does it post any type.'
     : '<b>Repeats:</b> no video posts twice on a platform until every video in the library has been posted there. Then the library starts a new round there (the last one posted waits until later in the round).');
@@ -1600,7 +1599,7 @@ function render(){
   $('#dFbReel').checked = pl('facebook').includes('reels'); $('#dFbVideo').checked = pl('facebook').includes('video'); $('#dFbStory').checked = pl('facebook').includes('story'); $('#dIgReel').checked = pl('instagram').includes('reels'); $('#dIgStory').checked = pl('instagram').includes('story');
   const td = cfg.tiktok || {}; $('#tdCom').checked = td.allowComment !== false; $('#tdDuet').checked = td.allowDuet !== false; $('#tdStitch').checked = td.allowStitch !== false; $('#tdBrand').checked = td.yourBrand !== false;
   cfg.notify = cfg.notify || { enabled:true, email:OWNER }; $('#nOn').checked = cfg.notify.enabled !== false; $('#nEmail').value = cfg.notify.email || '';
-  cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order || 'queue'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rPer').checked = !!cfg.rules.perPlatform; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
+  cfg.rules = cfg.rules || {}; $('#rOrder').value = cfg.rules.order === 'random' ? 'random' : 'mix'; $('#rWorld').checked = !!cfg.rules.noSameWorld; $('#rPer').checked = !!cfg.rules.perPlatform; $('#rMax').value = cfg.rules.maxPerDay || 0; $('#rFrom').value = cfg.rules.pauseFrom || ''; $('#rTo').value = cfg.rules.pauseTo || '';
   cfg.ai = cfg.ai || { enabled:true, voice:'' }; $('#aiOn').checked = cfg.ai.enabled !== false; $('#aiVoice').value = cfg.ai.voice || '';
   $('#pickVideo').innerHTML = '<option value="">Next in line</option>' + queue.map(id => `<option value="${id}">${esc(label(id))}${(state.posted || {})[id] ? ' (posted)' : ''}</option>`).join('');
   renderSlots(); renderQueue();
@@ -1992,7 +1991,7 @@ $('#btnUpload').onclick = async () => {
     if (posterBlob) files.push({ path:`media/posters/${id}.jpg`, b64:await asB64(posterBlob) });
     files.push({ path:'media/custom.json', b64:jsonB64(custom) }, { path:'media/index.json', b64:jsonB64(index) }, { path:'queue.json', b64:jsonB64(q) });
     await commitFiles(files, 'Uploaded video: ' + title, p => { if (p.startsWith('media/u-')) prog.value = 35; else prog.value = Math.min(90, prog.value + 12); });
-    prog.value = 100; say(st, ''); prog.hidden = true; if ($('#upload').open) $('#upload').close(); toastOk(`Uploaded "${title}".${$('#upNext').checked ? ' It posts next.' : ' It\'s at the end of the posting order.'}`);
+    prog.value = 100; say(st, ''); prog.hidden = true; if ($('#upload').open) $('#upload').close(); toastOk(`Uploaded "${title}".`);
     $('#upFile').value = ''; $('#upTitle').value = ''; $('#upAbout').value = ''; $('#upWorld').value = ''; $('#upKind').value = ''; $('#upNext').checked = false; $('#upCheck').innerHTML = ''; upMeta = null;
     await reloadVideos();
   } catch(e){ say(st, 'Upload failed: ' + e.message + (e.message.startsWith('403') ? ' (the GitHub key needs Contents: Read and write)' : ''), true); }
