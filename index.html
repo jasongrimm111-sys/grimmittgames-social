@@ -381,7 +381,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div class="vfilters pfilters">
         <div class="f"><label for="pSort">Sort by</label><select id="pSort"><option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option><option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option></select></div>
         <div class="f"><label for="pWorld">World</label><select id="pWorld"><option value="">All worlds</option></select></div>
-        <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+        <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
         <div class="f"><label for="pStatus">Status</label><select id="pStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
         <div class="f fbtn"><button type="button" id="pClear" class="ghost">Clear filters</button></div>
       </div><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div>
@@ -508,7 +508,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
     </select></div>
       <div class="f"><label for="vWorld">World</label><select id="vWorld"><option value="">All worlds</option></select></div>
-      <div class="f"><label for="vType">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+      <div class="f"><label for="vType">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
       <div class="f"><label for="vStatus">Status</label><select id="vStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
       <div class="f fbtn"><button type="button" id="vClear" class="ghost">Clear filters</button></div>
     </div>
@@ -756,7 +756,7 @@ const say = (el, msg, err) => { el.textContent = msg; el.classList.toggle('err',
 const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
 let customs = {};
 const label = id => { if (id.startsWith('u-')) return (customs[id] || {}).title || 'Your video';
-  if (id.startsWith('f-')){ const f = typeof promptMod !== 'undefined' && promptMod && promptMod.FEATURES && promptMod.FEATURES[id]; return f ? f.title : id.slice(2).replace(/-/g, ' ').replace(/^./, c => c.toUpperCase()); } const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id) || []; const k = { levels:'Level play', rush:'Rush chase', boss:'Boss fight' }[m[3]] || m[3]; return m[2] ? `World ${+m[1]} · ${m[2][0].toUpperCase() + m[2].slice(1)} · ${k}` : id; };
+  if (id.startsWith('f-')){ const f = typeof promptMod !== 'undefined' && promptMod && promptMod.FEATURES && promptMod.FEATURES[id]; return f ? f.title : id.slice(2).replace(/-/g, ' ').replace(/^./, c => c.toUpperCase()); } const m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id) || []; const k = { levels:'Level play', rush:'Rush chase', boss:'Boss fight', perfect:'Perfect Run' }[m[3]] || m[3]; return m[2] ? `World ${+m[1]} · ${m[2][0].toUpperCase() + m[2].slice(1)} · ${k}${m[4] ? ' · Level ' + +m[4] : ''}` : id; };
 
 // ---------- credentials, with where to find each one ----------
 const CREDS = [
@@ -949,11 +949,11 @@ const lenOf = id => (durations[id] && durations[id].s) || ((customs[id] || {}).s
 const fmtLen = s => s ? Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0') : '';
 const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set(), vFiltersRestored = false;
 // sorting: remembered on this device
-const KIND_ORDER = { levels:0, rush:1, boss:2 };
+const KIND_ORDER = { levels:0, rush:1, boss:2, perfect:3 };
 // filters: world, type and whether it's been posted
 const WORLD_NAMES = {};
 function passes(id, p = 'v'){
-  const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#' + p + 'World').value, t = $('#' + p + 'Type').value, st = $('#' + p + 'Status').value, m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
+  const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#' + p + 'World').value, t = $('#' + p + 'Type').value, st = $('#' + p + 'Status').value, m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id);
   const wNo = m ? m[1] : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
   if (w && wNo !== w) return false;
   if (t === 'u' ? !id.startsWith('u-') : t === 'f' ? !id.startsWith('f-') : t && kind !== t) return false;
@@ -977,7 +977,7 @@ for (const sel of ['#vWorld', '#vType', '#vStatus']) $(sel).onchange = () => { s
 for (const sel of ['#pSort', '#pWorld', '#pType', '#pStatus']) $(sel).onchange = () => renderPicker();
 $('#pClear').onclick = () => { $('#pWorld').value = $('#pType').value = $('#pStatus').value = ''; renderPicker(); };
 $('#vClear').onclick = () => { $('#vWorld').value = $('#vType').value = $('#vStatus').value = ''; saveFilters(); vPage = 0; renderVideos(true); };
-const vParts = id => { if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id); return m ? { w:+m[1], k:KIND_ORDER[m[3]] ?? 3 } : { w:99, k:3 }; };
+const vParts = id => { if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id); return m ? { w:+m[1], k:(KIND_ORDER[m[3]] ?? 3) + (m[4] ? +m[4]/100 : 0) } : { w:99, k:3 }; };
 const timesPosted = id => Object.keys((state.posted || {})[id] || {}).length;
 function sortVideos(ids, mode){
   const newest = byNewest(ids);
@@ -1476,7 +1476,7 @@ function renderSlots(){
     const d = document.createElement('div'); d.className = 'slot';
     s.kind = s.kind || 'any'; s.platforms = s.platforms || [];
     d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm ghost sm" aria-label="Remove this posting time">Remove</button>`
-      + `<div class="grp"><b>Video</b><select class="kind" aria-label="Type of video">${[['any', 'Any type'], ['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight']].map(([v, l]) => `<option value="${v}"${s.kind === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`
+      + `<div class="grp"><b>Video</b><select class="kind" aria-label="Type of video">${[['any', 'Any type'], ['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run']].map(([v, l]) => `<option value="${v}"${s.kind === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`
       + `<b style="margin-left:8px">Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`;
     d.querySelector('.kind').onchange = e => { s.kind = e.target.value; };
     d.querySelectorAll('.pf').forEach(b => b.onclick = () => { const all = Object.keys(NAME); let on = s.platforms.length ? [...s.platforms] : [...all]; on = on.includes(b.dataset.k) ? on.filter(x => x !== b.dataset.k) : [...on, b.dataset.k]; if (!on.length) return; s.platforms = on.length === all.length ? [] : on; d.querySelectorAll('.pf').forEach(x => x.setAttribute('aria-pressed', String(!s.platforms.length || s.platforms.includes(x.dataset.k)))); });
@@ -1604,7 +1604,8 @@ async function upcoming(count = 10){
     const why = R.blocked({ ...cfg, paused:false }, sim, parts);
     if (why){ out.push({ label, why }); continue; }
     const plats = R.slotPlatforms(slot, ready);
-    const plan = plats.length ? R.planSlot({ cfg, state:sim, queue, platforms:plats, hasMedia:v => mediaIds.has(v), slot, key }) : [];
+    const plan = plats.length ? R.planSlot({ cfg, state:sim, queue, library:[...mediaIds], platforms:plats, hasMedia:v => mediaIds.has(v), slot, key, now:t.toISOString() }) : [];
+    if (plan.cycle) sim.cycle = plan.cycle;
     if (!plan.length) out.push({ label, id:null, plats });
     for (const [id, ks] of plan){
       out.push({ label, id, plats:ks });
@@ -1612,7 +1613,7 @@ async function upcoming(count = 10){
     }
   }
   const skip = new Set(cfg.skip || []);
-  const left = queue.filter(v => !skip.has(v) && mediaIds.has(v) && ready.some(k => !((state.posted || {})[v] || {})[k])).length;
+  const left = R.poolOf(queue, [...mediaIds]).filter(v => !skip.has(v) && mediaIds.has(v) && ready.some(k => !R.usedOn(state, v, k))).length;
   return { slots:out, ready:setUp ? ready : [], left };
 }
 let upPage = 0;
@@ -1813,12 +1814,12 @@ let worlds = null;
 async function videoInfo(id){
   if (id.startsWith('u-')){ const c = customs[id] || {}; return { custom:true, title:c.title || 'Your video', about:c.about || '', blurb:c.about || c.title || '' }; }
   worlds = worlds || (await readFile('src/worlds.json')).data;
-  const m = /^w(\d+)-([a-z]+)-(\w+)$/.exec(id);
+  const m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id);
   if (!m){ const f = (await aiModule()).featureInfo?.(id);   // the feature videos ("f-..."): their own title and what's in them
     if (f) return { ...f, blurb:f.title + ': ' + f.about + '.' };
     return { custom:true, title:label(id), about:'A feature video showing ' + label(id).toLowerCase() + ' in Monkey Vine Rush.', blurb:label(id) }; }
   const W = worlds.find(w => w.id === m[2]) || {};
-  return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3] };
+  return { n:+m[1], worldName:W.name, blurb:W.blurb, boss:W.boss, chaser:W.chaser, kind:m[3], level:m[4] ? +m[4] : undefined };
 }
 // captions are shown for the chosen platforms only, so choose them first
 const needWhere = () => { if (picked().length) return false; goStep(2); say($('#stepStatus'), 'First choose where to post: the captions for those platforms then appear in step 3.', true); setTimeout(() => wherePanel(true), 0); return true; };
