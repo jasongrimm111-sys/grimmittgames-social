@@ -129,9 +129,9 @@ details.how{margin-top:6px}
 .foot p{margin:0;flex:1 1 320px}.foot a{color:var(--muted)}
 .slot .grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;width:100%;padding-top:6px;border-top:1px dashed var(--line)}
 .slot .grp b{font-size:.82rem;color:var(--muted);font-weight:600;margin-right:2px}
-.pf{border-radius:99px;padding:3px 10px;font-size:.82rem}
-.pf[aria-pressed="true"]{background:var(--chip);border-color:var(--accent);color:var(--fg)}
-.pf[aria-pressed="false"]{opacity:.55}
+.pf,.fmt{border-radius:99px;padding:3px 10px;font-size:.82rem}
+.pf[aria-pressed="true"],.fmt[aria-pressed="true"]{background:var(--chip);border-color:var(--accent);color:var(--fg)}
+.pf[aria-pressed="false"],.fmt[aria-pressed="false"]{opacity:.55}
 input[type=number],input[type=date]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);max-width:100%}
 li.skipslot .t{opacity:.6}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;padding:4px;border:1px solid var(--line);border-radius:12px;margin-top:4px}
@@ -1470,6 +1470,9 @@ async function renderHistory(){
 }
 
 // ---------- schedule, platforms, captions, order ----------
+// the kinds of post a posting time can use (as on New post); unset = the Platforms tab defaults
+const SLOT_FORMATS = [['youtube', 'shorts', 'YouTube Shorts'], ['youtube', 'video', 'YouTube video'], ['facebook', 'reels', 'Facebook Reels'], ['facebook', 'video', 'Facebook video'], ['facebook', 'story', 'Facebook Story'], ['instagram', 'reels', 'Instagram Reels'], ['instagram', 'story', 'Instagram Story']];
+const slotPlaces = (s, k) => (s.places && s.places[k]) || ((cfg[k] || {}).places) || [k === 'youtube' ? 'shorts' : 'reels'];
 function renderSlots(){
   const box = $('#slots'); box.innerHTML = ''; $('#noSlots').hidden = cfg.slots.length > 0;
   cfg.slots.forEach((s, i) => {
@@ -1477,8 +1480,13 @@ function renderSlots(){
     s.kind = s.kind || 'any'; s.platforms = s.platforms || [];
     d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm ghost sm" aria-label="Remove this posting time">Remove</button>`
       + `<div class="grp"><b>Video</b><select class="kind" aria-label="Type of video">${[['any', 'Any type'], ['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run']].map(([v, l]) => `<option value="${v}"${s.kind === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`
-      + `<b style="margin-left:8px">Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`;
+      + `<b style="margin-left:8px">Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`
+      + `<div class="grp"><b>Post as</b>${SLOT_FORMATS.map(([k, p, l]) => `<button type="button" class="fmt" data-k="${k}" data-p="${p}" aria-pressed="${slotPlaces(s, k).includes(p)}">${l}</button>`).join('')}</div>`;
     d.querySelector('.kind').onchange = e => { s.kind = e.target.value; };
+    // each platform keeps at least one kind of post; a posting time left as the Platforms tab defaults saves nothing of its own
+    d.querySelectorAll('.fmt').forEach(b => b.onclick = () => { const k = b.dataset.k, p = b.dataset.p, cur = slotPlaces(s, k), on = cur.includes(p) ? cur.filter(x => x !== p) : [...cur, p]; if (!on.length) return;
+      s.places = { ...(s.places || {}), [k]:on }; const dflt = slotPlaces({}, k); if (on.length === dflt.length && on.every(x => dflt.includes(x))) delete s.places[k]; if (!Object.keys(s.places).length) delete s.places;
+      d.querySelectorAll(`.fmt[data-k="${k}"]`).forEach(x => x.setAttribute('aria-pressed', String(on.includes(x.dataset.p)))); });
     d.querySelectorAll('.pf').forEach(b => b.onclick = () => { const all = Object.keys(NAME); let on = s.platforms.length ? [...s.platforms] : [...all]; on = on.includes(b.dataset.k) ? on.filter(x => x !== b.dataset.k) : [...on, b.dataset.k]; if (!on.length) return; s.platforms = on.length === all.length ? [] : on; d.querySelectorAll('.pf').forEach(x => x.setAttribute('aria-pressed', String(!s.platforms.length || s.platforms.includes(x.dataset.k)))); });
     d.querySelectorAll('.day').forEach(b => b.onclick = () => { const on = s.days.includes(b.dataset.d); s.days = on ? s.days.filter(x => x !== b.dataset.d) : [...s.days, b.dataset.d]; b.setAttribute('aria-pressed', String(!on)); });
     d.querySelector('input').onchange = e => { s.time = e.target.value.slice(0, 2) + ':00'; e.target.value = s.time; };
