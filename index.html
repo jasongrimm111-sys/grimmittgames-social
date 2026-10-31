@@ -1471,7 +1471,7 @@ async function renderHistory(){
 
 // ---------- schedule, platforms, captions, order ----------
 // the kinds of post a posting time can use (as on New post); unset = the Platforms tab defaults
-const VKINDS = [['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run']];
+const VKINDS = [['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run'], ['feature', 'Feature'], ['custom', 'Your uploads']];
 const SLOT_FORMATS = [['youtube', 'shorts', 'YouTube Shorts'], ['youtube', 'video', 'YouTube video'], ['facebook', 'reels', 'Facebook Reels'], ['facebook', 'video', 'Facebook video'], ['facebook', 'story', 'Facebook Story'], ['instagram', 'reels', 'Instagram Reels'], ['instagram', 'story', 'Instagram Story']];
 const slotPlaces = (s, k) => (s.places && s.places[k]) || ((cfg[k] || {}).places) || [k === 'youtube' ? 'shorts' : 'reels'];
 function renderSlots(){
