@@ -196,7 +196,7 @@ progress{width:100%;height:8px;accent-color:var(--accent)}
 [data-tab]:not(.on){display:none!important}
 .subhide{display:none!important}.pgsave{margin-top:14px}#activity .q{max-height:none;overflow:visible}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
-.check{display:flex;gap:8px;align-items:center;font-weight:600;margin:6px 0}
+.check{display:flex;gap:8px;align-items:center;font-weight:600;margin:6px 0}.slot .vk{margin:0 6px 0 0;font-weight:500;font-size:.88rem}
 .hint{color:var(--muted);font-size:.88rem;margin:4px 0 0}
 details.how{margin:4px 0 0;font-size:.88rem;color:var(--muted)}
 details.how summary{cursor:pointer;color:var(--accent);font-weight:600}
@@ -1471,23 +1471,30 @@ async function renderHistory(){
 
 // ---------- schedule, platforms, captions, order ----------
 // the kinds of post a posting time can use (as on New post); unset = the Platforms tab defaults
+const VKINDS = [['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run']];
 const SLOT_FORMATS = [['youtube', 'shorts', 'YouTube Shorts'], ['youtube', 'video', 'YouTube video'], ['facebook', 'reels', 'Facebook Reels'], ['facebook', 'video', 'Facebook video'], ['facebook', 'story', 'Facebook Story'], ['instagram', 'reels', 'Instagram Reels'], ['instagram', 'story', 'Instagram Story']];
 const slotPlaces = (s, k) => (s.places && s.places[k]) || ((cfg[k] || {}).places) || [k === 'youtube' ? 'shorts' : 'reels'];
 function renderSlots(){
   const box = $('#slots'); box.innerHTML = ''; $('#noSlots').hidden = cfg.slots.length > 0;
   cfg.slots.forEach((s, i) => {
     const d = document.createElement('div'); d.className = 'slot';
-    s.kind = s.kind || 'any'; s.platforms = s.platforms || [];
+    s.platforms = s.platforms || [];
+    // the types of video this time can post (ticked boxes; all or none ticked = any type). Older times kept one type in s.kind
+    if (!Array.isArray(s.kinds)){ s.kinds = s.kind && s.kind !== 'any' ? [s.kind] : []; } delete s.kind;
+    const kOn = v => !s.kinds.length || s.kinds.includes(v);
     d.innerHTML = DAYS.map(x => `<button type="button" class="day" aria-pressed="${s.days.includes(x)}" data-d="${x}">${x}</button>`).join('') + `<input type="time" value="${s.time}" step="3600" aria-label="Time"> <button type="button" class="rm ghost sm" aria-label="Remove this posting time">Remove</button>`
-      + `<div class="grp"><b>Video</b><select class="kind" aria-label="Type of video">${[['any', 'Any type'], ['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run']].map(([v, l]) => `<option value="${v}"${s.kind === v ? ' selected' : ''}>${l}</option>`).join('')}</select>`
-      + `<b style="margin-left:8px">Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`
-      + `<div class="grp"><b>Post as</b>${SLOT_FORMATS.map(([k, p, l]) => `<button type="button" class="fmt" data-k="${k}" data-p="${p}" aria-pressed="${slotPlaces(s, k).includes(p)}">${l}</button>`).join('')}</div>`;
-    d.querySelector('.kind').onchange = e => { s.kind = e.target.value; };
+      + `<div class="grp"><b>Video</b>${VKINDS.map(([v, l]) => `<label class="check vk"><input type="checkbox" data-v="${v}"${kOn(v) ? ' checked' : ''}> ${l}</label>`).join('')}</div><div class="grp">`
+      + `<b>Where</b>${Object.keys(NAME).map(k => `<button type="button" class="pf" data-k="${k}" aria-pressed="${!s.platforms.length || s.platforms.includes(k)}">${NAME[k]}</button>`).join('')}</div>`
+      + `<div class="grp fmtgrp"><b>Post as</b>${SLOT_FORMATS.map(([k, p, l]) => `<button type="button" class="fmt" data-k="${k}" data-p="${p}" aria-pressed="${slotPlaces(s, k).includes(p)}">${l}</button>`).join('')}</div>`;
+    d.querySelectorAll('.vk input').forEach(c => c.onchange = () => { const on = [...d.querySelectorAll('.vk input:checked')].map(x => x.dataset.v); if (!on.length){ c.checked = true; return; } s.kinds = on.length === VKINDS.length ? [] : on; });
+    // Post as shows only the platforms ticked under Where (none of them = the row is hidden)
+    const showFmts = () => { let any = false; d.querySelectorAll('.fmt').forEach(x => { const on = !s.platforms.length || s.platforms.includes(x.dataset.k); x.hidden = !on; any = any || on; }); d.querySelector('.fmtgrp').hidden = !any; };
+    showFmts();
     // each platform keeps at least one kind of post; a posting time left as the Platforms tab defaults saves nothing of its own
     d.querySelectorAll('.fmt').forEach(b => b.onclick = () => { const k = b.dataset.k, p = b.dataset.p, cur = slotPlaces(s, k), on = cur.includes(p) ? cur.filter(x => x !== p) : [...cur, p]; if (!on.length) return;
       s.places = { ...(s.places || {}), [k]:on }; const dflt = slotPlaces({}, k); if (on.length === dflt.length && on.every(x => dflt.includes(x))) delete s.places[k]; if (!Object.keys(s.places).length) delete s.places;
       d.querySelectorAll(`.fmt[data-k="${k}"]`).forEach(x => x.setAttribute('aria-pressed', String(on.includes(x.dataset.p)))); });
-    d.querySelectorAll('.pf').forEach(b => b.onclick = () => { const all = Object.keys(NAME); let on = s.platforms.length ? [...s.platforms] : [...all]; on = on.includes(b.dataset.k) ? on.filter(x => x !== b.dataset.k) : [...on, b.dataset.k]; if (!on.length) return; s.platforms = on.length === all.length ? [] : on; d.querySelectorAll('.pf').forEach(x => x.setAttribute('aria-pressed', String(!s.platforms.length || s.platforms.includes(x.dataset.k)))); });
+    d.querySelectorAll('.pf').forEach(b => b.onclick = () => { const all = Object.keys(NAME); let on = s.platforms.length ? [...s.platforms] : [...all]; on = on.includes(b.dataset.k) ? on.filter(x => x !== b.dataset.k) : [...on, b.dataset.k]; if (!on.length) return; s.platforms = on.length === all.length ? [] : on; d.querySelectorAll('.pf').forEach(x => x.setAttribute('aria-pressed', String(!s.platforms.length || s.platforms.includes(x.dataset.k)))); showFmts(); });
     d.querySelectorAll('.day').forEach(b => b.onclick = () => { const on = s.days.includes(b.dataset.d); s.days = on ? s.days.filter(x => x !== b.dataset.d) : [...s.days, b.dataset.d]; b.setAttribute('aria-pressed', String(!on)); });
     d.querySelector('input').onchange = e => { s.time = e.target.value.slice(0, 2) + ':00'; e.target.value = s.time; };
     d.querySelector('.rm').onclick = () => { cfg.slots.splice(i, 1); renderSlots(); };
