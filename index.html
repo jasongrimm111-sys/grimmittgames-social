@@ -505,7 +505,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="shead libhead"><h2>Videos</h2><button type="button" class="primary" id="openUp">⬆ Upload video</button></div>
     <div class="vfilters">
       <div class="f"><label for="vSort">Sort by</label><select id="vSort">
-      <option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option>
+      <option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option><option value="name">Level name (A to Z)</option>
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
     </select></div>
       <div class="f"><label for="vWorld">World</label><select id="vWorld"><option value="">All worlds</option></select></div>
@@ -983,6 +983,7 @@ function sortVideos(ids, mode){
   const newest = byNewest(ids);
   const by = f => [...newest].sort((a, b) => f(a, b) || newest.indexOf(a) - newest.indexOf(b));
   if (mode === 'oldest') return [...newest].reverse();
+  if (mode === 'name') return by((a, b) => label(a).localeCompare(label(b), undefined, { numeric:true, sensitivity:'base' }));   // by the name shown, so Level 2 comes before Level 10
   if (mode === 'world') return by((a, b) => vParts(a).w - vParts(b).w || vParts(a).k - vParts(b).k);
   if (mode === 'type') return by((a, b) => vParts(a).k - vParts(b).k || vParts(a).w - vParts(b).w);
   if (mode === 'unposted') return by((a, b) => (timesPosted(a) > 0) - (timesPosted(b) > 0));
