@@ -2135,7 +2135,7 @@ $('#oSubject').addEventListener('input', () => { const n = $('#oSubject').value.
 function renderLinks(){
   // the website, the App Store, posted YouTube videos, and any added here
   const yt = []; for (const [vid, p] of Object.entries(state.posted || {})){ const y = p.youtube; if (y && y.url) yt.push({ label:'Watch: ' + label(vid), url:y.url }); if (y && y.video && y.video.url) yt.push({ label:'Watch: ' + label(vid) + ' (video)', url:y.video.url }); }
-  const base = [{ label:'Download on the App Store', url:'https://apps.apple.com/app/id6825472830', on:true }, { label:'Visit the website', url:'https://monkeyvinerush.com/', on:true }, ...yt.slice(0, 12), ...outreachLinks];
+  const base = [{ label:'Get the game (iPhone, iPad and Android)', url:'https://monkeyvinerush.com/get/?src=email', on:true }, { label:'Download on the App Store', url:'https://apps.apple.com/app/id6825472830', on:false }, { label:'Get it on Google Play', url:'https://play.google.com/store/apps/details?id=com.grimmittgames.monkeyvinerush', on:false }, { label:'Visit the website', url:'https://monkeyvinerush.com/', on:true }, ...yt.slice(0, 12), ...outreachLinks];
   const was = new Map([...document.querySelectorAll('#oLinks input')].map(c => [c.dataset.url, c.checked]));
   $('#oLinks').innerHTML = base.map((l, i) => `<label><input type="checkbox" data-url="${esc(l.url)}" data-label="${esc(l.label)}"${(was.has(l.url) ? was.get(l.url) : l.on) ? ' checked' : ''}> ${esc(l.label)} <small>${esc(l.url)}</small></label>`).join('');
 }
