@@ -1152,6 +1152,32 @@ async function mixInto(v, id, t){
   v.addEventListener('timeupdate', check); v.addEventListener('volumechange', vol);
   return { ctx };
 }
+// The ending a post gets (user, 2026-11-08: "only have the ending once, the correct one depending on which app stores are on"):
+// library videos are made with the App Store end card, and for Google Play or both stores the posting step lays that
+// setting's ending clip over the last seconds (media/end/<stores>/<id>.mp4 from the time in media/end/index.json).
+// The preview does the same: the clip plays on top of the video from that moment, so only one ending is ever seen.
+let endIndex = null;
+async function storeEnding(v, id){
+  const stores = cfg && ['google', 'both'].includes(cfg.stores) ? cfg.stores : 'apple';
+  if (stores === 'apple' || !v || !v.parentNode) return;
+  try { if (!endIndex) endIndex = JSON.parse(await (await fetch(await raw('media/end/index.json'))).text()); } catch(err){ return; }
+  const at = endIndex[id]; if (at == null) return;
+  let src; try { src = await raw(`media/end/${stores}/${id}.mp4`); } catch(err){ return; }
+  const t = document.createElement('video'); t.muted = true; t.playsInline = true; t.setAttribute('playsinline', ''); t.preload = 'auto'; t.src = src;
+  const box = v.parentNode; if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+  Object.assign(t.style, { position:'absolute', pointerEvents:'none', visibility:'hidden', objectFit:getComputedStyle(v).objectFit || 'contain', borderRadius:getComputedStyle(v).borderRadius });
+  v.after(t);
+  const place = () => Object.assign(t.style, { left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:v.offsetWidth + 'px', height:v.offsetHeight + 'px' });
+  const sync = () => {
+    if (!t.isConnected) return;
+    const on = v.currentTime >= at && !v.ended; place();
+    if (on){ t.style.visibility = 'visible'; const want = v.currentTime - at; if (Math.abs(t.currentTime - want) > 0.15) t.currentTime = want; if (!v.paused && t.paused) t.play().catch(() => {}); if (v.paused) t.pause(); }
+    else { t.style.visibility = v.ended && v.currentTime >= at ? 'visible' : 'hidden'; if (!v.ended) t.pause(); }
+  };
+  for (const e of ['timeupdate', 'seeked', 'play', 'pause', 'ended']) v.addEventListener(e, sync);
+  addEventListener('resize', sync);
+  if (v.requestVideoFrameCallback){ const tick = () => { if (!t.isConnected) return; sync(); v.requestVideoFrameCallback(tick); }; v.requestVideoFrameCallback(tick); }   // every frame, so the swap lands on the right one
+}
 // Plays a video with the audio it will post with: its chosen track and game sounds (or, plain, its own sound).
 // Call it straight from a tap (iPhone). put(v) places the video once it has loaded (put(null) if it couldn't).
 function playVideo(id, put, plain, over, spinEl){
@@ -1165,7 +1191,7 @@ function playVideo(id, put, plain, over, spinEl){
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
       let mix = null; if (mt && mt.file){ try { mix = await mixInto(v, id, mt); } catch(err){ v.muted = false; /* a track that won't load: its own sound */ } }
       v.addEventListener('playing', () => spin(false), { once:true });
-      put(v);
+      put(v); storeEnding(v, id);
       // if the phone blocks it (iPhones can, once the tap is a few seconds old), it waits for one more tap, which always works
       // with a track the video itself is muted, so it always plays; check the mix is really sounding, else ask for a tap
       const start = async () => { if (mix){ await Promise.race([mix.ctx.resume().catch(() => {}), new Promise(r => setTimeout(r, 800))]);
