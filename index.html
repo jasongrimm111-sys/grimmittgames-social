@@ -44,12 +44,13 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
-.nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.ad-form{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 16px;background:rgba(255,255,255,.015)}.ad-form .rp-card{margin-top:14px}.ad-form .rp-grid2{margin-top:14px}.ad-form .rp-grid2 .rp-card{margin-top:0}
+.nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.dk-new{display:none}}
+.ad-form{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 16px;background:rgba(255,255,255,.015)}.ad-form .rp-card{margin-top:14px}.ad-form .rp-grid2{margin-top:14px}.ad-form .rp-grid2 .rp-card{margin-top:0}
 .ad-form h3{margin-top:0}.ad-sum{margin:14px 0 0;color:var(--muted)}.ad-vid{display:flex;gap:12px;align-items:flex-start;margin-top:8px}.ad-vid img{width:72px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:var(--chip);flex:none}.ad-vid p{margin:0}
 #adVideo{width:100%}.ad-budgets input{max-width:220px}.ad-ages input{width:70px;display:inline-block;margin:0 4px}.ad-budgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.ad-budgets input{width:100%}
 .ad-total{font-weight:700;margin:10px 0 0}.ad-tips{margin:14px 0 0;padding-left:18px;color:var(--muted)}.ad-tips:empty{display:none}.ad-acts{margin-top:6px}.ad-det ul{margin:6px 0 0;padding-left:18px}.rp-chip:disabled{opacity:.45;cursor:not-allowed}
 .pk-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-size:1rem}.pk-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.pk-or{text-align:center;margin:10px 0 0}.pk-state{font-weight:600;margin:6px 0 10px}
-.dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
+.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 #rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
 .dk-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.dk-grid>section,.dk-side>section{margin:0}.dk-side{display:flex;flex-direction:column;gap:16px}
@@ -366,6 +367,8 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
 /* ---- full-width app ---- */
+@media (max-width:999.98px),(pointer:coarse){input,select,textarea{font-size:16px!important}}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
 main,#app,section{min-width:0;max-width:100%}
 .navtoggle{display:none;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:12px;flex:none}.navtoggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -419,7 +422,7 @@ main{max-width:none}
 
   <section id="login" class="gate" hidden>
     <h2>Sign in</h2>
-    <div id="pkLogin" hidden><button type="button" class="primary pk-btn" id="pkSignIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11c0 3-1 6-3 8M8 6.5A6 6 0 0 1 18 11c0 1.5-.2 3-.6 4.4M6 9.5c-.3.5-.5 1-.5 1.5 0 2.5-.6 4.7-1.7 6.5M12 7a4 4 0 0 1 4 4c0 3.6-.9 6.6-2.4 9M8.5 11a3.5 3.5 0 0 1 7 0"/></svg>Sign in with Face ID or fingerprint</button><p class="hint pk-or">or use your password</p></div>
+    <div id="pkLogin" hidden><button type="button" class="primary pk-btn" id="pkSignIn">Sign in with biometric</button><p class="hint pk-or">or use your password</p></div>
     <form id="loginForm">
       <label for="lEmail">Email</label><input id="lEmail" type="text" inputmode="email" autocomplete="username" required>
       <label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password" required>
@@ -909,7 +912,7 @@ main{max-width:none}
   </section>
 
   <section data-tab="account">
-    <div class="shead"><h2>Face ID and fingerprint sign-in</h2></div>
+    <div class="shead"><h2>Biometric sign-in</h2></div>
     <p class="hint">Sign in on this device with Face ID, Touch ID, your fingerprint or Windows Hello instead of typing the password. It’s set up separately on each device, and the sign-in stays locked unless your face or fingerprint unlocks it.</p>
     <p id="pkState" class="pk-state"></p>
     <div class="row"><button type="button" class="primary" id="pkOn">Turn on for this device</button><button type="button" id="pkOff" hidden>Turn off on this device</button></div>
@@ -2684,7 +2687,7 @@ $('#pkOn').onclick = async () => {
     say(st, 'One more time, to lock your sign-in to it…');
     const key = await pkSecret(rec.id, rec.salt);
     await pkLock(key, rec); pkKey = key; pkRender();
-    say(st, 'Done. Next time, press “Sign in with Face ID or fingerprint” on this device.');
+    say(st, 'Done. Next time, press “Sign in with biometric” on this device.');
   } catch (e) {
     say(st, e.message === 'nosupport' ? 'This device or browser can’t lock a sign-in to a passkey yet (it needs iPhone/iPad iOS 18+, a Mac with macOS 15+, Android, or Windows 11 with Chrome or Edge). Your password still works.'
       : e.name === 'NotAllowedError' ? 'Cancelled, nothing changed.' : 'Couldn’t turn it on: ' + (e.message || e), true);
@@ -2693,7 +2696,7 @@ $('#pkOn').onclick = async () => {
 $('#pkOff').onclick = () => { pkSet(null); pkKey = null; pkRender(); say($('#pkStatus'), 'Turned off on this device. (You can also delete the “Grimmitt Social” passkey in your device’s password settings.)'); };
 $('#pkSignIn').onclick = async () => {
   const st = $('#loginStatus'), rec = pkGet(); if (!rec) return;
-  say(st, 'Waiting for Face ID or fingerprint…');
+  say(st, 'Waiting for your face or fingerprint…');
   try {
     const key = await pkSecret(rec.id, rec.salt);
     const sec = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name:'AES-GCM', iv:fromB64(rec.iv) }, key, fromB64(rec.ct))));
