@@ -641,7 +641,8 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       </div>
       <div class="pcard">
         <div class="phd"><span class="pi ptt">♪</span><b>TikTok</b><input class="switch" type="checkbox" data-p="tiktok" aria-label="Post to TikTok"></div>
-        <div class="setting"><div><b>TikTok app</b><small>Which sign-in is used for posting and the Reports tab: Production (Credentials → TikTok) or Sandbox (Credentials → TikTok sandbox).</small></div><select id="ttApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
+        <div class="setting"><div><b>TikTok app for posting</b><small>Production uses Credentials → TikTok; Sandbox uses Credentials → TikTok sandbox (sandbox posts are private).</small></div><select id="ttApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
+        <div class="setting"><div><b>TikTok app for reports</b><small>Which sign-in the Reports tab reads followers and views with. Sandbox until the production app's read permissions are approved.</small></div><select id="ttReportApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
         <div class="setting"><div><b>Who can see scheduled posts</b><small>Only me until TikTok approves the app.</small></div><select id="ttPrivacy"><option value="SELF_ONLY">Only me</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option></select></div>
         <div class="setting"><div><b>Allow comments</b></div><input class="switch" id="tdCom" type="checkbox" aria-label="Allow comments"></div>
         <div class="setting"><div><b>Allow Duet</b></div><input class="switch" id="tdDuet" type="checkbox" aria-label="Allow Duet"></div>
@@ -828,7 +829,7 @@ const CREDS = [
     ['IG_USER_ID', 'Instagram account ID', `<li>In the Graph API Explorer (with the Page token), run <code>GET {your-page-id}?fields=instagram_business_account</code>.</li>
       <li>Copy the <code>id</code> inside <code>instagram_business_account</code> (a long number starting 1784…) into this box.</li>`],
   ]],
-  ['TikTok', 'Your TikTok app’s Production sign-in, used when Settings → Platforms → TikTok → TikTok app is set to Production. TikTok needs a developer app. Until TikTok audits and approves it, posts can only be private ("Only me"): apply for the audit in the developer portal, then set TikTok visibility to Everyone below.', [
+  ['TikTok', 'Your TikTok app’s Production sign-in, used wherever Settings → Platforms → TikTok is set to Production. TikTok needs a developer app. Until TikTok audits and approves it, posts can only be private ("Only me"): apply for the audit in the developer portal, then set TikTok visibility to Everyone below.', [
     ['TIKTOK_CLIENT_KEY', 'Client key', `<li>Go to <a href="https://developers.tiktok.com/" target="_blank" rel="noopener">developers.tiktok.com</a>, sign in with your TikTok business account → <b>Manage apps</b> → <b>Connect an app</b>.</li>
       <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>, plus <code>user.info.stats</code> and <code>video.list</code> (they let the Reports tab read followers and views). Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
       <li>On the app page copy the <b>Client key</b> into this box.</li>`],
@@ -870,7 +871,7 @@ CREDS.push(['App Store reporting', 'Lets the Reports tab read downloads, sales a
     ['ASC_KEY_P8', 'Private key (.p8 file)', `<li>Download the key's <b>.p8</b> file (Apple only lets you download it once).</li><li>Open it in Notepad, select everything (including the BEGIN and END lines) and paste it here.</li>`],
     ['ASC_VENDOR_NUMBER', 'Vendor number', `<li>App Store Connect → <b>Payments and Financial Reports</b>: the vendor number is shown at the top left under your name (8 digits, starts with 8 or 9).</li>`],
   ]]);
-CREDS.push(['TikTok sandbox', 'Your TikTok app’s Sandbox sign-in. Used for posting and the Reports tab when Settings → Platforms → TikTok → TikTok app is set to Sandbox.', [
+CREDS.push(['TikTok sandbox', 'Your TikTok app’s Sandbox sign-in. Used wherever Settings → Platforms → TikTok is set to Sandbox (for reports, and for posting if chosen).', [
     ['TIKTOK_STATS_CLIENT_KEY', 'Sandbox client key', `<li>developers.tiktok.com → your app → switch to <b>Sandbox</b> at the top → copy the <b>Client key</b> (starts <code>sbaw</code>).</li>`],
     ['TIKTOK_STATS_CLIENT_SECRET', 'Sandbox client secret', `<li>Same Sandbox page: copy the <b>Client secret</b>.</li>`],
     ['TIKTOK_STATS_REFRESH_TOKEN', 'Sandbox refresh token', `<li>In Sandbox: add your TikTok account under <b>Target users</b>, scopes <code>user.info.basic</code>, <code>user.info.stats</code>, <code>video.list</code> (plus <code>video.publish</code> and <code>video.upload</code> to post), redirect URI <code>https://monkeyvinerush.com/</code>.</li><li>Ask Claude for the sign-in link, sign in, and give Claude the code: it swaps it for this refresh token.</li>`],
@@ -1680,7 +1681,7 @@ function render(){
   $('#paused').checked = !!cfg.paused;
   $('#tz').innerHTML = [...new Set([cfg.timezone, ...ZONES])].map(z => `<option${z === cfg.timezone ? ' selected' : ''}>${z}</option>`).join('');
   document.querySelectorAll('[data-p]').forEach(c => c.checked = cfg.platforms[c.dataset.p] !== false);
-  $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy; $('#ttApp').value = cfg.tiktok.app || 'production';
+  $('#ytPrivacy').value = cfg.youtube.privacy; $('#ytKids').checked = !!cfg.youtube.madeForKids; $('#ttPrivacy').value = cfg.tiktok.privacy; $('#ttApp').value = cfg.tiktok.app || 'production'; $('#ttReportApp').value = cfg.tiktok.reportApp || 'sandbox';
   $('#ask').checked = cfg.askQuestion !== false; $('#extra').value = cfg.extraHashtags || '';
   const pl = k => ((cfg[k] || {}).places || ['reels']);
   const yp = (cfg.youtube || {}).places || ['shorts']; $('#stores').value = ['google', 'both'].includes(cfg.stores) ? cfg.stores : 'apple'; $('#dYtShorts').checked = yp.includes('shorts'); $('#dYtVideo').checked = yp.includes('video');
@@ -1697,7 +1698,7 @@ function collect(){
   document.querySelectorAll('[data-p]').forEach(c => cfg.platforms[c.dataset.p] = c.checked);
   cfg.stores = $('#stores').value;
   cfg.youtube.places = [...($('#dYtShorts').checked ? ['shorts'] : []), ...($('#dYtVideo').checked ? ['video'] : [])]; if (!cfg.youtube.places.length) cfg.youtube.places = ['shorts'];
-  cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value; cfg.tiktok.app = $('#ttApp').value;
+  cfg.youtube.privacy = $('#ytPrivacy').value; cfg.youtube.madeForKids = $('#ytKids').checked; cfg.tiktok.privacy = $('#ttPrivacy').value; cfg.tiktok.app = $('#ttApp').value; cfg.tiktok.reportApp = $('#ttReportApp').value;
   cfg.askQuestion = $('#ask').checked; cfg.extraHashtags = $('#extra').value.trim();
   cfg.ai = { ...(cfg.ai || {}), enabled:$('#aiOn').checked, voice:$('#aiVoice').value.trim() };
   const places = (r, st) => [...($(r).checked ? ['reels'] : []), ...($(st).checked ? ['story'] : [])];
