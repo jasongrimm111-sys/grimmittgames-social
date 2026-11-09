@@ -45,6 +45,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
 .nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
+#rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
 .dk-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.dk-grid>section,.dk-side>section{margin:0}.dk-side{display:flex;flex-direction:column;gap:16px}
 @media (max-width:1100px){.dk-grid{grid-template-columns:1fr}}
@@ -984,7 +985,7 @@ const CREDS = [
       <li><b>Settings</b> → <b>Billing</b>: add a small amount of credit (e.g. £5 lasts a long time at a few pence a post). Optionally set a monthly spend limit under <b>Limits</b>.</li>
       <li><b>Settings</b> → <b>API keys</b> → <b>Create key</b>, name it "Grimmitt Social", and copy it (it starts <code>sk-ant-</code>; it's only shown once) into this box.</li>`],
   ]],
-  ['X', 'X needs a free developer account and an app allowed to post. All four values come from the app\'s <b>Keys and tokens</b> page. The free plan allows a limited number of posts a month, plenty for one a day.', [
+  ['X', 'X needs a developer account and an app allowed to post. All four values come from the app’s <b>Keys and tokens</b> page. The same keys also let the Reports tab read your followers and post views. X charges per API call from prepaid credit: add some at <a href="https://console.x.com/" target="_blank" rel="noopener">console.x.com</a> → <b>Billing</b> (reading costs about $1–2 a month; each post costs a little more).', [
     ['X_API_KEY', 'API key', `<li>Go to <a href="https://developer.x.com/" target="_blank" rel="noopener">developer.x.com</a> and sign in with the X account you want to post from. Choose the <b>Free</b> plan and describe your use (e.g. "Posting my own game's promo videos to my own account").</li>
       <li>In the <b>Developer Portal</b> → <b>Projects &amp; Apps</b>, open your app (one is made for you) → <b>Settings</b> → <b>User authentication settings</b> → <b>Set up</b>.</li>
       <li>App permissions: <b>Read and write</b>. Type of app: <b>Web App, Automated App or Bot</b>. Callback URI and Website: <code>https://www.grimmittgames.com/</code>. <b>Save</b>.</li>
@@ -2650,7 +2651,7 @@ const RP_COL = { coins:'#199e70', amIos:'#3987e5', amAnd:'#d95926', admob:'#3987
 const RP_NAME = { coins:'Coin sales', amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
 const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads', apple:'App Store', google:'Google Play' };
 const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
-const SOC = ['youtube', 'instagram', 'facebook', 'tiktok'];
+const SOC = ['youtube', 'instagram', 'facebook', 'tiktok', 'x'];
 const rpN = v => v == null || !isFinite(v) ? '–' : Math.abs(v) >= 1e6 ? (v/1e6).toFixed(1).replace(/\.0$/, '') + 'M' : Math.abs(v) >= 1e4 ? (v/1e3).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v).toLocaleString('en-GB');
 const rpDate = d => new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
 const rpMoney = (v, c) => { try { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c || 'GBP', maximumFractionDigits:Math.abs(v) < 100 ? 2 : 0 }).format(v); } catch (e) { return (c || '') + ' ' + (+v).toFixed(2); } };
