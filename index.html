@@ -27,18 +27,57 @@ label{display:block;font-weight:600;margin:10px 0 4px}
 input[type=text],input[type=password],input[type=time],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);max-width:100%}
 input[type=text],input[type=password],textarea{width:100%}
 textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);resize:vertical}
-.dashhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-when{color:var(--muted);font-size:.85rem;margin-left:auto}
-.stats.rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}@media (max-width:640px){.stats.rp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}.rp-chart{margin:18px 0 0}.rp-chart h3{margin:0 0 2px}.rp-plot{position:relative}.rp-plot svg{display:block;touch-action:pan-y}
-.rp-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:6px 0}.rp-legend i,.rp-tip i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
-.rp-tip{position:absolute;pointer-events:none;background:#0e1118;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.85rem;box-shadow:0 8px 24px -10px rgba(0,0,0,.6);min-width:130px}.rp-tip div{white-space:nowrap}
+.dashhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.rp-head h2{margin:0}
+.rp-seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:2px}.rp-seg button{border:0;background:none;padding:5px 12px;border-radius:8px;color:var(--muted);font-weight:600}.rp-seg button[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
+.rp-when{color:var(--muted);font-size:.85rem;margin-left:auto}
+.rp-tabs{margin:8px 0 14px}
+.rp-panel>*+*{margin-top:14px}
+.rp-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(255,255,255,.015)}
+.rp-ch{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.rp-ch h3{margin:0;font-size:1rem}.rp-ch .hint{margin:0;font-size:.82rem}
+.rp-grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.rp-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.rp-k3{grid-template-columns:repeat(3,minmax(0,1fr))}.rp-small{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.rp-kpi{position:relative;background:var(--chip);border-radius:14px;padding:12px 14px 10px;min-height:96px;display:flex;flex-direction:column;overflow:hidden}
+.rp-kl{color:var(--muted);font-size:.8rem;font-weight:600}.rp-kpi b{font-size:1.5rem;line-height:1.25;margin:2px 0;font-variant-numeric:tabular-nums}
+.rp-kd{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;font-size:.78rem}.rp-kd small{color:var(--muted)}
+.rp-small .rp-kpi{min-height:0}.rp-small .rp-kpi b{font-size:1.25rem}
+.rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
+.rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
+.rp-plat{border-left:3px solid var(--pc)}
+.rp-ai{border:1px solid rgba(198,244,50,.28);border-radius:16px;padding:16px 18px;background:linear-gradient(160deg,rgba(198,244,50,.07),rgba(198,244,50,0) 55%)}
+.rp-ai-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-ai-top small{color:var(--muted)}
+.rp-ai-badge{background:var(--accent);color:var(--accentfg);font-weight:800;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:2px 9px}
+.rp-ai-head{font-size:1.15rem;font-weight:700;margin:10px 0 4px;line-height:1.4}.rp-ai-sum{color:var(--muted);margin:0 0 12px}
+.rp-ai-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rp-ai-col{background:rgba(0,0,0,.18);border-radius:12px;padding:10px 12px}.rp-ai-col h4{margin:0 0 6px;font-size:.88rem}
+.rp-ai-good h4{color:#0ca30c}.rp-ai-warn h4{color:#fab219}.rp-ai-plan h4,.rp-ai-idea h4{color:var(--accent)}
+.rp-ai-col summary{list-style:none;cursor:pointer}.rp-ai-col summary::-webkit-details-marker{display:none}.rp-ai-col h4 small{color:var(--muted);font-weight:600;margin-left:4px}.rp-ai-col:not([open]) h4{margin:0}.rp-ai-col:not([open]) h4::after{content:' ▸ tap to open';color:var(--muted);font-weight:500;font-size:.78rem}
+.rp-ai-col ul{list-style:none;margin:0;padding:0}.rp-ai-col li{padding:6px 0;border-top:1px solid var(--line)}.rp-ai-col li:first-child{border-top:0}
+.rp-ai-col li b{display:block;font-size:.9rem}.rp-ai-col li span{color:var(--muted);font-size:.85rem}
+.rp-plot{position:relative}.rp-plot svg{display:block;touch-action:pan-y}
+.rp-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:2px 0 6px}.rp-legend i,.rp-tip i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.rp-tip{position:absolute;pointer-events:none;background:#0e1118;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.85rem;box-shadow:0 8px 24px -10px rgba(0,0,0,.6);min-width:130px;z-index:2}.rp-tip div{white-space:nowrap}
 .rp-tbl{margin-top:6px;font-size:.85rem}.rp-tbl summary{cursor:pointer;color:var(--muted)}
 .rp-tablewrap{overflow-x:auto}.rp-table{width:100%;border-collapse:collapse;font-size:.9rem}.rp-table th,.rp-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.rp-table th{color:var(--muted);font-weight:600;font-size:.8rem}.rp-table .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 .rp-table td small{display:block;color:var(--muted);font-size:.78rem}.rp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.rp-pn{color:var(--muted);font-size:.78rem;margin-right:4px}
-.rp-plat{border-left:3px solid var(--pc)}.rp-plat small{display:block;color:var(--warn);font-size:.75rem}
+.rp-vbar{position:relative;min-width:84px}.rp-vbar span{position:absolute;right:8px;bottom:3px;height:3px;border-radius:2px;opacity:.75;max-width:calc(100% - 16px)}
+.rp-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-left:auto}.rp-chips{display:flex;gap:6px;flex-wrap:wrap}
+.rp-chip{border:1px solid var(--line);background:none;color:var(--muted);border-radius:99px;padding:3px 11px;font-size:.82rem;font-weight:600}.rp-chip[aria-pressed="true"]{background:var(--chip);color:var(--fg);border-color:#39415a}
+.rp-sort{font-size:.82rem;color:var(--muted)}.rp-sort select{padding:4px 8px;font-size:.82rem}
+.rp-hb,.rp-fun{display:flex;flex-direction:column;gap:8px}
+.rp-hbr,.rp-funr{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto;gap:10px;align-items:center;font-size:.88rem}
+.rp-hbl{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.rp-hbl small{color:var(--muted);margin-left:6px}
+.rp-hbt{height:14px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden}.rp-hbt span{display:block;height:100%;border-radius:0 4px 4px 0}
+.rp-hbr b,.rp-funr b{font-variant-numeric:tabular-nums;min-width:48px;text-align:right}
+.rp-funp{grid-column:2/4;color:var(--muted);font-size:.78rem;margin-top:-4px}
+.rp-heat{display:grid;grid-template-columns:34px repeat(8,1fr);gap:3px;font-size:.72rem;color:var(--muted)}
+.rp-hx{text-align:left}.rp-hy{align-self:center}.rp-hc{aspect-ratio:1.6;border-radius:4px;background:rgba(57,135,229,var(--a))}.rp-h0{background:rgba(255,255,255,.035)}
+.rp-hleg{display:flex;gap:6px;align-items:center;flex-wrap:wrap;font-size:.75rem;color:var(--muted);margin-top:8px}.rp-hleg i{display:inline-block;width:60px;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(57,135,229,.18),#3987e5)}
 .rp-reviews,.rp-conn{list-style:none;margin:0;padding:0}.rp-reviews li,.rp-conn li{padding:10px 0;border-bottom:1px solid var(--line)}.rp-reviews p,.rp-conn p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
 .rp-stars{color:#fab219;letter-spacing:1px}.rp-stars span{color:#3a4152}.rp-rh small{color:var(--muted)}
-.rp-st{font-size:.78rem;font-weight:600;white-space:nowrap}.rp-st.good{color:#0ca30c}.rp-st.mid{color:var(--muted)}.rp-st.bad{color:#ec835a}.rp-empty{color:var(--muted);padding:14px 0}
-@media (max-width:640px){.rp-when{margin-left:0;width:100%}.rp-table .rp-pn{display:none}}
+.rp-st{font-size:.78rem;font-weight:600;white-space:nowrap}.rp-st.good{color:#0ca30c}.rp-st.mid{color:var(--muted)}.rp-st.bad{color:#ec835a}.rp-empty{color:var(--muted);padding:14px 0;margin:0}
+@media (max-width:760px){.rp-grid2,.rp-ai-cols{grid-template-columns:1fr}.rp-when{margin-left:0;width:100%}.rp-table .rp-pn{display:none}.rp-kpis,.rp-k3{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-filters{margin-left:0}}
+.rp-more{margin-top:8px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin:0 0 12px}
 .stats div{background:var(--chip);border-radius:12px;padding:10px 12px}.stats b{display:block;font-size:1.15rem;line-height:1.3}.stats span{color:var(--muted);font-size:.8rem}
 .tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:99px;padding:1px 8px;margin-left:4px;background:var(--chip);color:var(--muted)}
@@ -368,6 +407,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
       <div class="menu" id="moreMenu" role="menu" hidden>
         <button type="button" role="menuitem" data-go="platforms">Platforms</button>
         <button type="button" role="menuitem" data-go="credentials">Credentials</button>
+        <button type="button" role="menuitem" data-go="connections">Connections</button>
         <button type="button" role="menuitem" data-go="ai">AI &amp; captions</button>
         <button type="button" role="menuitem" data-go="account">Account</button>
       </div>
@@ -381,40 +421,68 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <h3 class="schedh" hidden>Set for a time by you</h3><ul class="q schedlist" hidden></ul>
     <p class="hint">The next 10 posting times from your Schedule, in its time zone. Captions are written by AI just before each one goes out.</p>
   </section>
-  <section id="reports" data-tab="reports">
-    <div class="dashhead"><h2>How the app is doing</h2><span class="rp-when" id="rpWhen"></span><button type="button" id="rpRefresh">Refresh now</button></div>
+  <section id="reports" data-tab="reports" class="rp">
+    <div class="rp-head">
+      <h2>Reports</h2>
+      <div class="rp-seg" role="group" aria-label="Period"><button type="button" data-per="7">7 days</button><button type="button" data-per="30">30 days</button></div>
+      <span class="rp-when" id="rpWhen"></span>
+      <button type="button" id="rpRefresh">Refresh now</button>
+    </div>
     <p id="rpStatus" class="status" role="status"></p>
-    <div class="stats rp-tiles" id="rpTiles"><div><b>…</b><span>Loading</span></div></div>
-    <div class="rp-chart"><h3>Downloads per day</h3><p class="hint">First-time downloads on the App Store and installs on Google Play, last 30 days.</p><div id="rpDl"></div></div>
-    <div class="rp-chart"><h3>Video views over time</h3><p class="hint">Total views across each account's recent videos, one reading a day.</p><div id="rpViews"></div></div>
+    <div class="subtabs rp-tabs" role="tablist" aria-label="Report sections">
+      <button type="button" role="tab" data-rt="overview">Overview</button><button type="button" role="tab" data-rt="stores">Stores</button><button type="button" role="tab" data-rt="social">Social</button><button type="button" role="tab" data-rt="ads">Ads</button><button type="button" role="tab" data-rt="reviews">Reviews</button>
+    </div>
+
+    <div class="rp-panel" data-rp="overview">
+      <div class="rp-ai" id="rpAi"></div>
+      <div class="rp-kpis" id="rpKpis"></div>
+      <div class="rp-card"><div class="rp-ch"><h3>Downloads per day</h3><span class="hint" id="rpDlHint"></span></div><div id="rpDl"></div></div>
+    </div>
+
+    <div class="rp-panel" data-rp="stores" hidden>
+      <div class="rp-kpis" id="rpStoreKpis"></div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>App Store funnel</h3><span class="hint">from seeing the app to downloading it</span></div><div id="rpFunnel"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Top countries</h3><span class="hint">App Store downloads</span></div><div id="rpCountries"></div></div>
+      </div>
+      <div class="rp-card"><div class="rp-ch"><h3>Downloads per day</h3></div><div id="rpDl2"></div></div>
+      <div class="rp-card"><div class="rp-ch"><h3>App health</h3><span class="hint">Google flags apps above its limits in Play search</span></div><div class="rp-kpis rp-small" id="rpHealth"></div></div>
+    </div>
+
+    <div class="rp-panel" data-rp="social" hidden>
+      <div class="rp-kpis" id="rpSocialKpis"></div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>What works</h3><span class="hint">average views per video, by kind</span></div><div id="rpKinds"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Best time to post</h3><span class="hint">average views by the UK day and time a video went out</span></div><div id="rpHeat"></div></div>
+      </div>
+      <div class="rp-card"><div class="rp-ch"><h3>Followers over time</h3><span class="hint">one reading a day</span></div><div id="rpFol"></div></div>
+      <div class="rp-card"><div class="rp-ch"><h3>Videos</h3>
+        <div class="rp-filters"><div class="rp-chips" id="rpVidPlat"></div><label class="rp-sort">Sort <select id="rpVidSort"><option value="views">Most views</option><option value="watched">Most watched</option><option value="likes">Most likes</option><option value="new">Newest</option></select></label></div></div>
+        <div class="rp-tablewrap"><table class="rp-table" id="rpVideos"></table></div></div>
+    </div>
+
+    <div class="rp-panel" data-rp="ads" hidden>
+      <div class="rp-kpis rp-k3" id="rpAdKpis"></div>
+      <div class="rp-card"><div class="rp-ch"><h3>Ad spend per day</h3></div><div id="rpAdSpend"></div></div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>Cost per install</h3><span class="hint">lower is better</span></div><div id="rpCpi"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Installs from ads</h3></div><div id="rpAdInst"></div></div>
+      </div>
+      <div class="rp-card"><div class="rp-ch"><h3>Campaigns and boosts</h3></div><div class="rp-tablewrap"><table class="rp-table" id="rpAds"></table></div></div>
+    </div>
+
+    <div class="rp-panel" data-rp="reviews" hidden>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>Ratings</h3></div><div class="rp-kpis rp-small" id="rpRatings"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Stars in recent reviews</h3></div><div id="rpStars"></div></div>
+      </div>
+      <div class="rp-card"><div class="rp-ch"><h3>Latest reviews</h3><div class="rp-chips" id="rpRevStore"></div></div><ul class="rp-reviews" id="rpReviews"></ul></div>
+    </div>
   </section>
-  <section data-tab="reports">
-    <h3>Social accounts</h3>
-    <div class="stats" id="rpSocial"></div>
-    <h3>Top videos</h3>
-    <p class="hint">Recent videos on each account, most viewed first. "Watched" is how much of the video people watch on average (YouTube), or the average watch time (Instagram, Facebook): the higher, the more people stay to the end.</p>
-    <div class="rp-tablewrap"><table class="rp-table" id="rpVideos"></table></div>
-  </section>
-  <section data-tab="reports">
-    <h3>Paid ads &amp; boosts</h3>
-    <p class="hint">Last 30 days across Facebook &amp; Instagram (boosted posts included), Apple Search Ads, TikTok Ads Manager and Google Ads. Installs are what each ad platform counts as an app install.</p>
-    <div class="stats" id="rpAdTiles"></div>
-    <div class="rp-chart"><h3>Ad spend per day</h3><div id="rpAdSpend"></div></div>
-    <h3>Campaigns</h3>
-    <div class="rp-tablewrap"><table class="rp-table" id="rpAds"></table></div>
-  </section>
-  <section data-tab="reports">
-    <h3>App Store and Google Play</h3>
-    <div class="stats" id="rpStores"></div>
-    <h3>App health</h3>
-    <div class="stats" id="rpHealth"></div>
-    <h3>Latest reviews</h3>
-    <ul class="rp-reviews" id="rpReviews"></ul>
-  </section>
-  <section data-tab="reports">
-    <h3>Connections</h3>
-    <p class="hint">Each source reports on its own. Anything not connected yet says what it needs; add it under Settings → Credentials, then press Refresh now.</p>
-    <ul class="rp-conn" id="rpConn"></ul>
+  <section data-tab="connections">
+    <h2>Connections</h2>
+    <p class="hint">What the Reports tab can read from each store, social account and ad platform. Anything not connected says what it needs: add it under Settings → Credentials, then press Refresh now on the Reports tab.</p>
+    <ul class="rp-conn" id="rpConn"><li class="rp-empty">Loading…</li></ul>
   </section>
   <section id="compose" data-tab="new">
     <div class="composehead"><h2>New post</h2><button type="button" class="dlgx" data-go="dashboard" aria-label="Close">✕</button></div>
@@ -1839,19 +1907,20 @@ function edited(){
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
   return p;
 }
-const TABS = ['dashboard', 'reports', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
+const TABS = ['dashboard', 'reports', 'connections', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
 function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
   stopAllMedia();
   document.body.classList.toggle('fullnew', t === 'new');
   document.querySelectorAll('[data-tab]').forEach(el => el.classList.toggle('on', el.dataset.tab.split(' ').includes(t)));
   document.querySelectorAll('.tabs [data-go]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.go === t)));
-  $('#moreBtn').classList.toggle('on', ['platforms', 'credentials', 'ai', 'account'].includes(t));
-  $('#moreBtn').firstChild.textContent = ({ platforms:'Platforms', credentials:'Credentials', ai:'AI & captions', account:'Account' })[t] ? ({ platforms:'Platforms', credentials:'Credentials', ai:'AI & captions', account:'Account' })[t] + ' ' : 'Settings ';
+  $('#moreBtn').classList.toggle('on', ['platforms', 'credentials', 'connections', 'ai', 'account'].includes(t));
+  $('#moreBtn').firstChild.textContent = ({ platforms:'Platforms', credentials:'Credentials', connections:'Connections', ai:'AI & captions', account:'Account' })[t] ? ({ platforms:'Platforms', credentials:'Credentials', connections:'Connections', ai:'AI & captions', account:'Account' })[t] + ' ' : 'Settings ';
   if (push && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
   if (t === 'activity') renderHistory();
   if (t === 'outreach') loadOutreach();
   if (t === 'reports') loadReports();
+  if (t === 'connections') loadConnections();
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
@@ -2487,175 +2556,338 @@ $('#btnRefresh').onclick = renderHistory;
   try { vault = await getVault(); } catch(e){}
   if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
 })();
-// ---------- Reports tab (user, 2026-11-09): how the app and the social accounts are doing ----------
-// Data: reports/latest.json and reports/trend.json, written once a day by the "Update reports" workflow (src/report.js).
-// Colours: platform identity in fixed order (validated for this dark surface with the dataviz validator, all checks pass).
-const RP_COL = { youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926' };
-const RP_NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play' };
-const rpN = v => v == null ? '–' : Math.abs(v) >= 1e6 ? (v/1e6).toFixed(1).replace(/\.0$/, '') + 'M' : Math.abs(v) >= 1e4 ? (v/1e3).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v).toLocaleString('en-GB');
+// ---------- Reports tab (user, 2026-11-09): how the app, the social accounts and the ads are doing ----------
+// Data: reports/latest.json and reports/trend.json, written once a day by the "Update reports" workflow (src/report.js,
+// src/ads.js, src/insights.js for the AI overview). Layout follows what the good analytics tools do: an insights summary
+// first, a few KPI cards with the change against the previous period and a sparkline, a period switch, then one tab per
+// area. Colours: platform identity in a fixed order, validated for this dark surface with the dataviz validator.
+const RP_COL = { youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
+const RP_NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
+const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads', apple:'App Store', google:'Google Play' };
+const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
+const SOC = ['youtube', 'instagram', 'facebook', 'tiktok'];
+const rpN = v => v == null || !isFinite(v) ? '–' : Math.abs(v) >= 1e6 ? (v/1e6).toFixed(1).replace(/\.0$/, '') + 'M' : Math.abs(v) >= 1e4 ? (v/1e3).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v).toLocaleString('en-GB');
 const rpDate = d => new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
-let rpData = null, rpTrend = [];
+const rpMoney = (v, c) => { try { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c || 'GBP', maximumFractionDigits:Math.abs(v) < 100 ? 2 : 0 }).format(v); } catch (e) { return (c || '') + ' ' + (+v).toFixed(2); } };
+const rpPct = v => v == null || !isFinite(v) ? '–' : (v >= 10 ? v.toFixed(0) : v.toFixed(1)) + '%';
+let rpData = null, rpTrend = [], rpTab = 'overview', rpPer = 30, rpVidPlat = 'all', rpRevStore = 'all', rpVidMax = 15;
+try { rpPer = +localStorage.getItem('rpPer') || 30; rpTab = localStorage.getItem('rpTab') || 'overview'; } catch (e) {}
 
 async function loadReports(force){
-  if (rpData && !force) return renderReports();
+  if (rpData && !force){ renderReports(); return; }
   say($('#rpStatus'), '');
   try { rpData = (await readFile('reports/latest.json')).data; }
-  catch (e) { rpData = null; $('#rpTiles').innerHTML = ''; say($('#rpStatus'), 'No report yet. Press Refresh now: the first one takes about a minute.'); return; }
+  catch (e) { rpData = null; $('#rpKpis').innerHTML = ''; say($('#rpStatus'), 'No report yet. Press Refresh now: the first one takes about two minutes.'); return; }
   try { rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) { rpTrend = []; }
   renderReports();
 }
 $('#rpRefresh').onclick = async () => {
-  const b = $('#rpRefresh'); b.disabled = true; say($('#rpStatus'), 'Collecting the latest figures… (about a minute)');
+  const b = $('#rpRefresh'); b.disabled = true; say($('#rpStatus'), 'Collecting the latest figures and writing the overview… (about two minutes)');
   try { const before = rpData && rpData.at;
     await gh('/actions/workflows/report.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main' }) });
-    for (let i = 0; i < 30; i++){ await new Promise(r => setTimeout(r, 8000)); try { const d = (await readFile('reports/latest.json')).data; if (d.at !== before){ rpData = null; await loadReports(true); say($('#rpStatus'), 'Updated.'); b.disabled = false; return; } } catch (e) {} }
+    for (let i = 0; i < 40; i++){ await new Promise(r => setTimeout(r, 8000)); try { const d = (await readFile('reports/latest.json')).data; if (d.at !== before){ rpData = null; await loadReports(true); say($('#rpStatus'), 'Updated.'); b.disabled = false; return; } } catch (e) {} }
     say($('#rpStatus'), 'Still running: check back in a few minutes.');
   } catch (e) { say($('#rpStatus'), 'Could not start it: ' + e.message, true); }
   b.disabled = false;
 };
+document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { rpPer = +b.dataset.per; try { localStorage.setItem('rpPer', rpPer); } catch (e) {} if (rpData) renderReports(); });
+document.querySelectorAll('[data-rt]').forEach(b => b.onclick = () => { rpTab = b.dataset.rt; try { localStorage.setItem('rpTab', rpTab); } catch (e) {} showRpTab(); });
+$('#rpVidSort').onchange = () => { rpVidMax = 15; if (rpData) renderVideos(); };
+function showRpTab(){
+  document.querySelectorAll('[data-rp]').forEach(p => p.hidden = p.dataset.rp !== rpTab);
+  document.querySelectorAll('[data-rt]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.rt === rpTab)));
+  if (rpData) renderTab(rpTab);
+}
+
+// ---------- period maths ----------
+const daysOf = (arr, key) => (arr || []).map(d => ({ date:d.date, v:+d[key] || 0 }));
+function window2(series, n){   // last n days and the n before, from a [{date, v}] list ending yesterday
+  const s = [...series].sort((a, b) => a.date.localeCompare(b.date)), cur = s.slice(-n), prev = s.slice(-2*n, -n);
+  return { cur, prev, sum:cur.reduce((a, x) => a + x.v, 0), prevSum:prev.length >= n*.6 ? prev.reduce((a, x) => a + x.v, 0) : null };
+}
+const snapAgo = n => { if (!rpTrend.length) return null; const t = new Date(rpTrend[rpTrend.length - 1].date + 'T12:00:00') - n*864e5; let best = null; for (const s of rpTrend) if (new Date(s.date + 'T12:00:00') <= t) best = s; return best; };
+const sumObj = o => o ? Object.values(o).filter(v => v != null).reduce((a, b) => a + b, 0) : null;
+function delta(now, before, lowerIsBetter){
+  if (now == null || before == null) return '<span class="rp-d rp-d-none">no earlier data</span>';
+  if (before === 0) return now === 0 ? '<span class="rp-d rp-d-flat">no change</span>' : '<span class="rp-d rp-d-up">▲ new</span>';
+  const p = (now - before)/Math.abs(before)*100, good = lowerIsBetter ? p < 0 : p > 0;   // lowerIsBetter 'neutral': spend, neither good nor bad
+  if (Math.abs(p) < .5) return '<span class="rp-d rp-d-flat">no change</span>';
+  return `<span class="rp-d ${lowerIsBetter === 'neutral' ? 'rp-d-n' : good ? 'rp-d-up' : 'rp-d-down'}">${p > 0 ? '▲' : '▼'} ${Math.abs(p) >= 100 ? Math.round(Math.abs(p)) : Math.abs(p).toFixed(0)}%</span>`;
+}
+function kpi(label, value, d, spark, note){
+  return `<div class="rp-kpi"><span class="rp-kl">${label}</span><b>${value}</b><div class="rp-kd">${d || ''}${note ? `<small>${note}</small>` : ''}</div>${spark || ''}</div>`;
+}
+function rpSpark(vals, color){
+  vals = vals.filter(v => v != null); if (vals.length < 2) return '';
+  const w = 120, h = 30, mx = Math.max(...vals), mn = Math.min(...vals), r = mx - mn || 1;
+  const pts = vals.map((v, i) => `${(i*(w - 4)/(vals.length - 1) + 2).toFixed(1)},${(h - 3 - (v - mn)/r*(h - 6)).toFixed(1)}`).join(' ');
+  return `<svg class="rp-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`;
+}
 
 function renderReports(){
-  const R = rpData, S = R.summary || {};
-  try { renderAds(); } catch (e) { console.warn('ads', e); }
+  const R = rpData;
   $('#rpWhen').textContent = 'Updated ' + new Date(R.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-  const d7 = S.downloads7 || {}, d30 = S.downloads30 || {}, aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
-  const dl = (o, k) => (aOk || gOk) ? rpN((aOk ? o.apple || 0 : 0) + (gOk ? o.google || 0 : 0)) : '–';
-  const views = Object.values(S.views || {}).filter(v => v != null), fol = Object.values(S.followers || {}).filter(v => v != null);
-  const ar = S.ratings?.apple, gr = S.ratings?.google;
-  const money = Object.entries(S.proceeds30 || {}).map(([c, v]) => new Intl.NumberFormat('en-GB', { style:'currency', currency:c, maximumFractionDigits:0 }).format(v)).join(' + ');
-  $('#rpTiles').innerHTML = [
-    [dl(d7), 'downloads, last 7 days'], [dl(d30), 'downloads, last 30 days'],
-    [aOk ? rpN(S.purchases30) : '–', 'coin purchases, 30 days (iPhone)'], [money || (aOk ? '£0' : '–'), 'proceeds, 30 days (iPhone)'],
-    [ar && ar.count ? `${ar.average.toFixed(1)}★` : '–', ar && ar.count ? `App Store rating · ${rpN(ar.count)} ratings` : 'App Store rating'],
-    [gr ? `${(+gr.total).toFixed(1)}★` : '–', 'Google Play rating'],
-    [views.length ? rpN(views.reduce((a, b) => a + b, 0)) : '–', 'video views (recent videos)'], [fol.length ? rpN(fol.reduce((a, b) => a + b, 0)) : '–', 'followers, all accounts'],
-  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  document.querySelectorAll('[data-per]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.per === rpPer)));
+  showRpTab();
+  renderConnections();
+}
+function renderTab(t){
+  try { ({ overview:renderOverview, stores:renderStores, social:renderSocial, ads:renderAds, reviews:renderReviews })[t](); }
+  catch (e) { console.warn('report tab', t, e); }
+}
 
-  // downloads per day: App Store and Google Play
-  const days = [...new Set([...(R.apple?.sales?.days || []).map(d => d.date), ...(R.google?.installs?.days || []).map(d => d.date)])].sort().slice(-30);
-  const dser = [];
-  if (aOk) { const m = new Map(R.apple.sales.days.map(d => [d.date, d.downloads])); dser.push({ key:'apple', pts:days.map(d => ({ x:d, y:m.get(d) ?? null })) }); }
-  if (gOk) { const m = new Map(R.google.installs.days.map(d => [d.date, d.installs])); dser.push({ key:'google', pts:days.map(d => ({ x:d, y:m.get(d) ?? null })) }); }
-  rpLine($('#rpDl'), dser, 'Connect the App Store and Google Play under Credentials to see downloads here.');
-  // video views over time: the daily snapshots, one line per platform
-  const tdays = rpTrend.map(t => t.date), vser = [];
-  for (const k of ['youtube', 'instagram', 'facebook', 'tiktok']) if (rpTrend.some(t => t.views && t.views[k] != null)) vser.push({ key:k, pts:rpTrend.map(t => ({ x:t.date, y:t.views ? t.views[k] ?? null : null })) });
-  rpLine($('#rpViews'), tdays.length > 1 ? vser : [], tdays.length > 1 ? 'No social account is connected for views yet.' : 'This builds up from one reading a day: the line appears after the second day.');
+// ---------- shared figures ----------
+function figures(){
+  const R = rpData, n = rpPer, aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
+  const a = window2(daysOf(R.apple?.sales?.days, 'downloads'), n), g = window2(daysOf(R.google?.installs?.days, 'installs'), n);
+  const dl = (aOk ? a.sum : 0) + (gOk ? g.sum : 0), dlPrev = (aOk && a.prevSum == null) || (gOk && g.prevSum == null) ? null : (aOk ? a.prevSum : 0) + (gOk ? g.prevSum : 0);
+  const eng = R.apple?.analytics?.engagement || [], evs = (rows, re) => rows.reduce((s, d) => s + Object.entries(d).filter(([k]) => re.test(k)).reduce((x, [, v]) => x + (+v || 0), 0), 0);
+  const engS = [...eng].sort((x, y) => x.date.localeCompare(y.date)), ec = engS.slice(-n), ep = engS.slice(-2*n, -n);
+  const ads = R.ads || {}, adLive = AD_KEYS.filter(([, k]) => ads[k]?.status === 'ok');
+  const adCur = [...new Set(adLive.map(([, k]) => ads[k].currency || 'GBP'))];
+  const adDays = {}; for (const [, k] of adLive) for (const d of ads[k].days || []){ const x = adDays[d.date] = adDays[d.date] || { date:d.date, spend:0, installs:0 }; x.spend += d.spend; x.installs += d.installs; }
+  const sp = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.spend })), n), ai = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.installs })), n);
+  const sNow = rpTrend[rpTrend.length - 1], sAgo = snapAgo(n), s2Ago = snapAgo(2*n);
+  return { R, n, aOk, gOk, a, g, dl, dlPrev, dlAny:aOk || gOk,
+    impressions:ec.length ? evs(ec, /impression/i) : null, pageViews:ec.length ? evs(ec, /page view/i) : null, pageViewsPrev:ep.length ? evs(ep, /page view/i) : null,
+    adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
+    fol:sumObj(sNow?.followers || R.summary?.followers), folAgo:sAgo ? sumObj(sAgo.followers) : null,
+    viewsGained:sNow && sAgo ? sumObj(sNow.views) - sumObj(sAgo.views) : null, viewsGainedPrev:sAgo && s2Ago ? sumObj(sAgo.views) - sumObj(s2Ago.views) : null,
+    viewsTotal:sumObj(R.summary?.views) };
+}
 
-  // social accounts
-  $('#rpSocial').innerHTML = ['youtube', 'instagram', 'facebook', 'tiktok'].map(k => { const s = R[k] || {}, f = S.followers?.[k], v = S.views?.[k];
-    return `<div class="rp-plat" style="--pc:${RP_COL[k]}"><b>${f != null ? rpN(f) : '–'}</b><span>${RP_NAME[k]} ${k === 'youtube' ? 'subscribers' : 'followers'}${v != null ? ` · ${rpN(v)} views` : ''}</span>${s.status && s.status !== 'ok' ? `<small>${s.status === 'partial' ? 'partly connected' : 'not connected'}</small>` : ''}</div>`; }).join('');
-  // top videos across every account
-  const vids = [];
-  for (const k of ['youtube', 'instagram', 'facebook', 'tiktok']) for (const v of (R[k]?.videos || [])) vids.push({ ...v, k });
-  vids.sort((a, b) => (b.views || 0) - (a.views || 0));
-  $('#rpVideos').innerHTML = vids.length ? `<thead><tr><th>Video</th><th class="n">Views</th><th class="n">Likes</th><th class="n">Comments</th><th class="n">Watched</th></tr></thead><tbody>` + vids.slice(0, 40).map(v =>
-    `<tr><td><span class="rp-dot" style="background:${RP_COL[v.k]}" title="${RP_NAME[v.k]}"></span><span class="rp-pn">${RP_NAME[v.k]}</span> ${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title || 'Untitled')}</a>` : esc(v.title || 'Untitled')}<small>${v.at ? rpDate(v.at.slice(0, 10)) : ''}</small></td>
-     <td class="n">${v.views != null ? rpN(v.views) : '–'}</td><td class="n">${v.likes != null ? rpN(v.likes) : '–'}</td><td class="n">${v.comments != null ? rpN(v.comments) : '–'}</td>
-     <td class="n">${v.avgPercent != null ? Math.round(v.avgPercent) + '%' : v.avgSeconds != null ? v.avgSeconds + ' s' : '–'}</td></tr>`).join('') + '</tbody>'
-    : '<tbody><tr><td class="rp-empty">No video figures yet: connect the social accounts for reading (see Connections below).</td></tr></tbody>';
+// ---------- overview ----------
+function renderOverview(){
+  const F = figures(), R = F.R, I = R.insights;
+  $('#rpAi').innerHTML = I ? `<div class="rp-ai-top"><span class="rp-ai-badge">AI overview</span><small>written ${new Date(I.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })} from that day's figures</small></div>
+    <p class="rp-ai-head">${esc(I.headline)}</p><p class="rp-ai-sum">${esc(I.summary)}</p>
+    <div class="rp-ai-cols">${(open => [['wins', '✓ Working well', 'good'], ['watch', '⚠ Worth a look', 'warn'], ['schedule', '🕑 Schedule', 'plan'], ['ideas', '🎬 Videos to make', 'idea']].map(([k, t, c]) =>
+      `<details class="rp-ai-col rp-ai-${c}"${open ? ' open' : ''}><summary><h4>${t} <small>${(I[k] || []).length}</small></h4></summary><ul>${(I[k] || []).map(x => `<li><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></li>`).join('') || '<li><span>Nothing yet.</span></li>'}</ul></details>`).join(''))(!matchMedia('(max-width:760px)').matches)}</div>`
+    : '<p class="rp-empty">The AI overview appears after the next report (it needs the Anthropic key under Credentials → AI).</p>';
+  const dlSpark = rpSpark([...F.a.cur.map((x, i) => (F.aOk ? x.v : 0) + (F.gOk ? (F.g.cur[i]?.v || 0) : 0))], '#3987e5');
+  const conv = F.pageViews && F.aOk ? 100*F.a.sum/F.pageViews : null, convPrev = F.pageViewsPrev && F.aOk && F.a.prevSum != null ? 100*F.a.prevSum/F.pageViewsPrev : null;
+  const cpi = F.adInstalls ? F.spend/F.adInstalls : null, cpiPrev = F.adInstallsPrev ? F.spendPrev/F.adInstallsPrev : null, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP';
+  const ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
+  const folSpark = rpSpark(rpTrend.slice(-F.n - 1).map(s => sumObj(s.followers)), '#199e70');
+  const per = `last ${F.n} days`;
+  $('#rpKpis').innerHTML = [
+    kpi('Downloads', F.dlAny ? rpN(F.dl) : '–', F.dlAny ? delta(F.dl, F.dlPrev) : '', dlSpark, F.dlAny ? per : 'stores not connected'),
+    kpi('Store page → download', conv != null ? rpPct(conv) : '–', conv != null ? delta(conv, convPrev) : '', '', conv != null ? 'App Store, ' + per : 'needs App Store analytics'),
+    kpi('Video views gained', F.viewsGained != null ? rpN(F.viewsGained) : rpN(F.viewsTotal), F.viewsGained != null ? delta(F.viewsGained, F.viewsGainedPrev) : '', '', F.viewsGained != null ? per : 'total on recent videos'),
+    kpi('Followers', rpN(F.fol), F.folAgo != null ? delta(F.fol, F.folAgo) : '', folSpark, 'all accounts'),
+    kpi('Ad spend', F.adLive.length ? rpMoney(F.spend, cur) : '–', F.adLive.length ? delta(F.spend, F.spendPrev, 'neutral') : '', '', F.adLive.length ? per : 'no ad account connected'),
+    kpi('Cost per install', cpi != null ? rpMoney(cpi, cur) : '–', cpi != null ? delta(cpi, cpiPrev, true) : '', '', 'from ads'),
+    kpi('Proceeds', (() => { const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-F.n)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v; return Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk ? rpMoney(0, 'GBP') : '–'; })(), '', '', F.aOk ? 'coin sales, ' + per : 'starts with App Store sales'),
+    kpi('Rating', ar?.count ? ar.average.toFixed(1) + '★' : gr ? (+gr.total).toFixed(1) + '★' : '–', '', '', ar?.count ? `App Store · ${rpN(ar.count)} ratings` + (gr ? ` · Play ${(+gr.total).toFixed(1)}★` : '') : 'no ratings yet'),
+  ].join('');
+  dlBars($('#rpDl'));
+  $('#rpDlHint').textContent = F.dlAny ? `last ${F.n} days` : '';
+}
+function dlBars(el){
+  const F = figures(), dates = [...new Set([...F.a.cur, ...F.g.cur].map(x => x.date))].sort();
+  const ser = []; if (F.aOk) ser.push({ key:'apple', vals:dates.map(d => F.a.cur.find(x => x.date === d)?.v || 0) }); if (F.gOk) ser.push({ key:'google', vals:dates.map(d => F.g.cur.find(x => x.date === d)?.v || 0) });
+  rpBars(el, dates, ser, rpN, F.dlAny ? 'No downloads in this period yet.' : 'Connect the App Store and Google Play under Credentials to see downloads here. App Store sales start the day after the first download.');
+}
 
-  // stores: App Store funnel and Google Play installs
-  const eng = R.apple?.analytics?.engagement || [], evSum = re => eng.reduce((s, d) => s + Object.entries(d).filter(([k]) => re.test(k)).reduce((a, [, v]) => a + (+v || 0), 0), 0);
-  const imp = evSum(/impression/i), pv = evSum(/page view/i), aDl = aOk ? (d30.apple || 0) : null;
-  const gd = R.google?.installs?.days || [], gLast = gd[gd.length - 1];
-  $('#rpStores').innerHTML = [
-    [eng.length ? rpN(imp) : '–', 'App Store impressions, 30 days'], [eng.length ? rpN(pv) : '–', 'App Store page views, 30 days'],
-    [eng.length && pv && aDl != null ? (100*aDl/pv).toFixed(1) + '%' : '–', 'page views that became downloads'],
-    [aOk ? rpN(R.apple.sales.days.slice(-30).reduce((s, d) => s + d.redownloads, 0)) : '–', 'App Store re-downloads, 30 days'],
-    [gOk ? rpN(d30.google) : '–', 'Google Play installs, 30 days'], [gLast ? rpN(gLast.active) : '–', 'Google Play active installs'],
-    [gOk ? rpN(gd.slice(-30).reduce((s, d) => s + d.uninstalls, 0)) : '–', 'Google Play uninstalls, 30 days'],
-  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
-  // health: crash and ANR rates (Google's bad-behaviour lines are 1.09% crashes and 0.47% ANRs)
+// ---------- stores ----------
+function renderStores(){
+  const F = figures(), R = F.R, ad = R.apple?.sales?.days || [], gd = R.google?.installs?.days || [];
+  const cut = ad.slice(-F.n), red = cut.reduce((s, d) => s + d.redownloads, 0), pur = cut.reduce((s, d) => s + d.purchases, 0);
+  const money = {}; for (const d of cut) for (const [c, v] of Object.entries(d.proceeds || {})) money[c] = (money[c] || 0) + v;
+  const gLast = gd[gd.length - 1], unin = gd.slice(-F.n).reduce((s, d) => s + d.uninstalls, 0);
+  const per = `last ${F.n} days`;
+  $('#rpStoreKpis').innerHTML = [
+    kpi('App Store downloads', F.aOk ? rpN(F.a.sum) : '–', F.aOk ? delta(F.a.sum, F.a.prevSum) : '', rpSpark(F.a.cur.map(x => x.v), '#3987e5'), F.aOk ? per : 'starts after the first download'),
+    kpi('Google Play installs', F.gOk ? rpN(F.g.sum) : '–', F.gOk ? delta(F.g.sum, F.g.prevSum) : '', rpSpark(F.g.cur.map(x => x.v), '#d95926'), F.gOk ? per : 'waiting for Google'),
+    kpi('Coin purchases', F.aOk ? rpN(pur) : '–', '', '', 'iPhone and iPad'),
+    kpi('Proceeds', Object.keys(money).length ? Object.entries(money).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk ? rpMoney(0, 'GBP') : '–', '', '', 'after Apple\'s cut'),
+    kpi('Store page views', F.pageViews != null ? rpN(F.pageViews) : '–', F.pageViews != null ? delta(F.pageViews, F.pageViewsPrev) : '', '', F.pageViews != null ? 'App Store, ' + per : 'needs App Store analytics'),
+    kpi('Re-downloads', F.aOk ? rpN(red) : '–', '', '', 'App Store'),
+    kpi('Active installs', gLast ? rpN(gLast.active) : '–', '', '', 'Google Play devices'),
+    kpi('Uninstalls', F.gOk ? rpN(unin) : '–', '', '', 'Google Play, ' + per),
+  ].join('');
+  rpFunnel($('#rpFunnel'), F.impressions != null ? [['Saw the app', F.impressions], ['Opened its page', F.pageViews], ['Downloaded', F.aOk ? F.a.sum : null]] : null);
+  const cc = {}; for (const d of cut) for (const [c, v] of Object.entries(d.countries || {})) cc[c] = (cc[c] || 0) + v;
+  const cname = c => { try { return new Intl.DisplayNames(['en-GB'], { type:'region' }).of(c); } catch (e) { return c; } };
+  rpHBars($('#rpCountries'), Object.entries(cc).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([c, v]) => ({ label:cname(c), value:v, color:'#3987e5' })), rpN, F.aOk ? 'No downloads in this period yet.' : 'Shows once App Store sales reports start.');
+  dlBars($('#rpDl2'));
   const vit = R.google?.vitals || {}, avg = a => a && a.length ? a.slice(-7).reduce((s, x) => s + x.rate, 0)/Math.min(7, a.length) : null;
-  const cr = avg(vit.crashRate), anr = avg(vit.anrRate), aCr = (R.apple?.analytics?.crashes || []).slice(-30).reduce((s, d) => s + Object.values(d).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0), 0);
-  const health = (v, bad) => v == null ? '' : v*100 >= bad ? ' <span class="rp-st bad">⚠ above Google\'s limit</span>' : ' <span class="rp-st good">✓ fine</span>';
+  const cr = avg(vit.crashRate), anr = avg(vit.anrRate);
+  const aCr = (R.apple?.analytics?.crashes || []).slice(-F.n).reduce((s, d) => s + Object.values(d).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0), 0);
+  const st = (v, bad) => v == null ? 'no data yet' : v*100 >= bad ? `<span class="rp-st bad">⚠ above Google's ${bad}% limit</span>` : `<span class="rp-st good">✓ under Google's ${bad}% limit</span>`;
   $('#rpHealth').innerHTML = [
-    [cr != null ? (cr*100).toFixed(2) + '%' : '–', 'Android users with a crash (7-day avg)' + health(cr, 1.09)],
-    [anr != null ? (anr*100).toFixed(2) + '%' : '–', 'Android users with a freeze/ANR (7-day avg)' + health(anr, 0.47)],
-    [R.apple?.analytics?.crashes ? rpN(aCr) : '–', 'iPhone/iPad crashes, 30 days'],
-  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${l}</span></div>`).join('');
-  // reviews from both stores, newest first
-  const revs = [...(R.apple?.reviews || []), ...(R.google?.reviews || [])].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 15);
+    kpi('Android crash rate', cr != null ? (cr*100).toFixed(2) + '%' : '–', '', '', st(cr, 1.09)),
+    kpi('Android freeze (ANR) rate', anr != null ? (anr*100).toFixed(2) + '%' : '–', '', '', st(anr, 0.47)),
+    kpi('iPhone/iPad crashes', R.apple?.analytics?.crashes?.length ? rpN(aCr) : '–', '', '', per),
+  ].join('');
+}
+
+// ---------- social ----------
+function allVideos(){ const R = rpData, v = []; for (const k of SOC) for (const x of (R[k]?.videos || [])) v.push({ ...x, k }); return v; }
+function renderSocial(){
+  const F = figures(), R = F.R, sNow = rpTrend[rpTrend.length - 1], sAgo = snapAgo(F.n);
+  $('#rpSocialKpis').innerHTML = SOC.map(k => { const f = R.summary?.followers?.[k], fa = sAgo?.followers?.[k], v = R.summary?.views?.[k], s = R[k] || {};
+    return `<div class="rp-kpi rp-plat" style="--pc:${RP_COL[k]}"><span class="rp-kl">${RP_NAME[k]} ${k === 'youtube' ? 'subscribers' : 'followers'}</span><b>${f != null ? rpN(f) : '–'}</b><div class="rp-kd">${f != null && fa != null ? delta(f, fa) : ''}<small>${v != null ? rpN(v) + ' views on recent videos' : s.status === 'ok' ? '' : 'not connected for reading'}</small></div>${rpSpark(rpTrend.slice(-F.n - 1).map(t => t.followers?.[k] ?? null), RP_COL[k])}</div>`; }).join('');
+  const vids = allVideos().filter(v => v.views != null);
+  const kinds = {}; for (const v of vids){ const b = kinds[v.kindName || 'Other'] = kinds[v.kindName || 'Other'] || { n:0, views:0 }; b.n++; b.views += v.views; }
+  rpHBars($('#rpKinds'), Object.entries(kinds).map(([label, b]) => ({ label, value:b.views/b.n, sub:`${b.n} video${b.n === 1 ? '' : 's'}`, color:'#3987e5' })).sort((a, b) => b.value - a.value), rpN, 'Appears once videos with view counts are posted.');
+  rpHeat($('#rpHeat'), vids.filter(v => v.at));
+  const ser = SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-Math.max(F.n, 2)).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) }));
+  rpLine($('#rpFol'), rpTrend.length > 1 ? ser : [], 'This builds up from one reading a day: the lines appear after the second day.');
+  $('#rpVidPlat').innerHTML = ['all', ...SOC].map(k => `<button type="button" class="rp-chip" data-vp="${k}" aria-pressed="${rpVidPlat === k}">${k === 'all' ? 'All' : RP_NAME[k]}</button>`).join('');
+  document.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { rpVidPlat = b.dataset.vp; rpVidMax = 15; renderSocial(); });
+  renderVideos();
+}
+function renderVideos(){
+  const sort = $('#rpVidSort').value, w = v => v.avgPercent != null ? v.avgPercent : v.avgSeconds != null ? v.avgSeconds : -1;
+  const vids = allVideos().filter(v => rpVidPlat === 'all' || v.k === rpVidPlat).sort((a, b) => sort === 'new' ? String(b.at).localeCompare(String(a.at)) : sort === 'likes' ? (b.likes || 0) - (a.likes || 0) : sort === 'watched' ? w(b) - w(a) : (b.views || 0) - (a.views || 0));
+  const top = Math.max(1, ...vids.map(v => v.views || 0));
+  $('#rpVideos').innerHTML = vids.length ? `<thead><tr><th>Video</th><th class="n">Views</th><th class="n">Likes</th><th class="n">Comments</th><th class="n">Watched</th></tr></thead><tbody>` + vids.slice(0, rpVidMax).map(v =>
+    `<tr><td><span class="rp-dot" style="background:${RP_COL[v.k]}" title="${RP_NAME[v.k]}"></span><span class="rp-pn">${RP_NAME[v.k]}</span> ${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title || 'Untitled')}</a>` : esc(v.title || 'Untitled')}<small>${v.kindName ? esc(v.kindName) + ' · ' : ''}${v.at ? rpDate(v.at.slice(0, 10)) : ''}</small></td>
+     <td class="n rp-vbar"><span style="width:${Math.round(100*(v.views || 0)/top)}%;background:${RP_COL[v.k]}"></span>${v.views != null ? rpN(v.views) : '–'}</td><td class="n">${v.likes != null ? rpN(v.likes) : '–'}</td><td class="n">${v.comments != null ? rpN(v.comments) : '–'}</td>
+     <td class="n">${v.avgPercent != null ? Math.round(v.avgPercent) + '%' : v.avgSeconds != null ? v.avgSeconds + ' s' : '–'}</td></tr>`).join('') + '</tbody>'
+    : '<tbody><tr><td class="rp-empty">No videos to show for this account yet.</td></tr></tbody>';
+  const wrap = $('#rpVideos').parentElement; let more = wrap.querySelector('.rp-more');
+  if (vids.length > rpVidMax){ if (!more){ more = document.createElement('button'); more.type = 'button'; more.className = 'rp-more'; wrap.appendChild(more); } more.textContent = `Show more (${vids.length - rpVidMax} more)`; more.onclick = () => { rpVidMax += 25; renderVideos(); }; }
+  else if (more) more.remove();
+}
+
+// ---------- ads ----------
+function renderAds(){
+  const F = figures(), A = F.R.ads || {}, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP', per = `last ${F.n} days`;
+  const tot = { clicks:0, impressions:0, views:0 }; const cutoff = new Date(Date.now() - F.n*864e5).toISOString().slice(0, 10);
+  for (const [, k] of F.adLive) for (const d of A[k].days || []) if (d.date >= cutoff) for (const m of Object.keys(tot)) tot[m] += d[m] || 0;
+  const cpi = F.adInstalls ? F.spend/F.adInstalls : null;
+  $('#rpAdKpis').innerHTML = F.adLive.length ? [
+    kpi('Spent', rpMoney(F.spend, cur), delta(F.spend, F.spendPrev, 'neutral'), rpSpark(Object.values(F.adDays).sort((a, b) => a.date.localeCompare(b.date)).slice(-F.n).map(d => d.spend), '#199e70'), per),
+    kpi('Installs from ads', rpN(F.adInstalls), delta(F.adInstalls, F.adInstallsPrev), '', per),
+    kpi('Cost per install', cpi != null ? rpMoney(cpi, cur) : '–', cpi != null && F.adInstallsPrev ? delta(cpi, F.spendPrev/F.adInstallsPrev, true) : '', '', 'lower is better'),
+    kpi('Clicks and taps', rpN(tot.clicks), '', '', per), kpi('Impressions', rpN(tot.impressions), '', '', per), kpi('Ad video views', rpN(tot.views), '', '', per),
+  ].join('') : '<p class="rp-empty">No ad account connected yet. Connect them under Settings → Credentials (the Ads tabs). Boosted Facebook and Instagram posts count as ads there.</p>';
+  const dates = [...new Set(F.adLive.flatMap(([, k]) => (A[k].days || []).map(d => d.date)))].filter(d => d >= cutoff).sort();
+  rpBars($('#rpAdSpend'), dates, F.adLive.map(([key, k]) => ({ key, vals:dates.map(d => (A[k].days.find(x => x.date === d) || {}).spend || 0) })).filter(s => s.vals.some(v => v)), v => rpMoney(v, cur), F.adLive.length ? 'No ad spend in this period.' : 'Connect an ad account to see spend here.');
+  const perPlat = F.adLive.map(([key, k]) => { let s = 0, i = 0; for (const d of A[k].days || []) if (d.date >= cutoff){ s += d.spend; i += d.installs; } return { key, s, i, cur:A[k].currency }; });
+  rpHBars($('#rpCpi'), perPlat.filter(p => p.i).map(p => ({ label:RP_NAME[p.key], value:p.s/p.i, color:RP_COL[p.key], fmt:v => rpMoney(v, p.cur) })).sort((a, b) => a.value - b.value), rpN, 'Shows once ads record installs.');
+  rpHBars($('#rpAdInst'), perPlat.filter(p => p.i).map(p => ({ label:RP_NAME[p.key], value:p.i, color:RP_COL[p.key] })).sort((a, b) => b.value - a.value), rpN, 'No installs from ads in this period.');
+  const camps = F.adLive.flatMap(([key, k]) => (A[k].campaigns || []).map(c => ({ ...c, key, cur:A[k].currency })));
+  $('#rpAds').innerHTML = camps.length ? '<thead><tr><th>Campaign</th><th class="n">Spend</th><th class="n">Impressions</th><th class="n">Clicks</th><th class="n">Installs</th><th class="n">Per install</th></tr></thead><tbody>' + camps.map(c =>
+    `<tr><td><span class="rp-dot" style="background:${RP_COL[c.key]}"></span><span class="rp-pn">${RP_NAME[c.key]}</span> ${esc(c.name || 'Campaign')}${c.kind ? `<small>${esc(String(c.kind).replace(/_/g, ' ').toLowerCase())} · last 60 days</small>` : '<small>last 60 days</small>'}</td>
+     <td class="n">${rpMoney(c.spend, c.cur)}</td><td class="n">${rpN(c.impressions)}</td><td class="n">${rpN(c.clicks)}</td><td class="n">${rpN(c.installs)}</td><td class="n">${c.installs ? rpMoney(c.spend/c.installs, c.cur) : '–'}</td></tr>`).join('') + '</tbody>'
+    : '<tbody><tr><td class="rp-empty">No campaigns yet.</td></tr></tbody>';
+}
+
+// ---------- reviews ----------
+function renderReviews(){
+  const R = rpData, ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
+  $('#rpRatings').innerHTML = [kpi('App Store', ar?.count ? ar.average.toFixed(1) + '★' : '–', '', '', ar?.count ? rpN(ar.count) + ' ratings' : 'no ratings yet'), kpi('Google Play', gr ? (+gr.total).toFixed(1) + '★' : '–', '', '', gr ? 'all-time average' : 'no ratings yet')].join('');
+  const all = [...(R.apple?.reviews || []), ...(R.google?.reviews || [])].sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  rpHBars($('#rpStars'), all.length ? [5, 4, 3, 2, 1].map(s => ({ label:s + '★', value:all.filter(r => r.stars === s).length, color:'#3987e5' })) : [], rpN, 'No written reviews yet.');
+  $('#rpRevStore').innerHTML = ['all', 'apple', 'google'].map(k => `<button type="button" class="rp-chip" data-rs="${k}" aria-pressed="${rpRevStore === k}">${k === 'all' ? 'All' : RP_NAME[k]}</button>`).join('');
+  document.querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { rpRevStore = b.dataset.rs; renderReviews(); });
+  const revs = all.filter(r => rpRevStore === 'all' || r.store === rpRevStore).slice(0, 30);
   $('#rpReviews').innerHTML = revs.length ? revs.map(r => `<li><div class="rp-rh"><span class="rp-stars" aria-label="${r.stars} out of 5 stars">${'★'.repeat(r.stars || 0)}<span>${'★'.repeat(5 - (r.stars || 0))}</span></span> <b>${esc(r.title || '')}</b> <small>${RP_NAME[r.store]}${r.country ? ' · ' + esc(r.country.toUpperCase()) : ''}${r.at ? ' · ' + rpDate(r.at.slice(0, 10)) : ''}${r.version ? ' · v' + esc(r.version) : ''}</small></div><p>${esc(r.text)}</p></li>`).join('')
     : '<li class="rp-empty">No written reviews yet.</li>';
-  // connections
-  const conn = [['apple', 'App Store: ratings and reviews', R.apple && { status:R.apple.ratings?.count ? 'ok' : 'partial', note:R.apple.ratings?.count ? '' : 'Shows once the app is live on the App Store and has ratings.' }],
+}
+
+// ---------- connections (Settings → Connections) ----------
+async function loadConnections(){ if (!rpData) await loadReports(true); renderConnections(); }
+function renderConnections(){
+  const R = rpData; if (!R) return;
+  const conn = [['apple', 'App Store: ratings and reviews', { status:R.apple?.ratings?.count ? 'ok' : 'partial', note:R.apple?.ratings?.count ? '' : 'Shows once the app is live on the App Store and has ratings.' }],
     ['apple', 'App Store: downloads and sales', R.apple?.sales], ['apple', 'App Store: impressions, page views, sessions, crashes', R.apple?.analytics],
-    ['google', 'Google Play: installs and ratings', R.google?.installs || R.google], ['google', 'Google Play: reviews', R.google && { status:R.google.reviewsNote ? 'needs' : R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.reviewsNote || (R.google.status === 'needs' ? R.google.note : '') }],
+    ['google', 'Google Play: installs and ratings', R.google?.installs || R.google], ['google', 'Google Play: reviews', R.google && { status:R.google.reviewsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.reviewsNote || (R.google.status === 'needs' ? R.google.note : '') }],
     ['google', 'Google Play: crashes and freezes', R.google && { status:R.google.vitalsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.vitalsNote || (R.google.status === 'needs' ? R.google.note : '') }],
-    ['youtube', 'YouTube', R.youtube], ['instagram', 'Instagram', R.instagram], ['facebook', 'Facebook', R.facebook], ['tiktok', 'TikTok', R.tiktok], ['x', 'X', R.x]];
-  if (R.ads) for (const [key, k] of AD_KEYS) conn.push([key, 'Ads: ' + RP_NAME[key], R.ads[k]]);
+    ['youtube', 'YouTube', R.youtube], ['instagram', 'Instagram', R.instagram], ['facebook', 'Facebook', R.facebook], ['tiktok', 'TikTok' + (R.tiktokApp ? ` (${R.tiktokApp} app)` : ''), R.tiktok], ['x', 'X', R.x],
+    ...(R.ads ? AD_KEYS.map(([key, k]) => [key, 'Ads: ' + RP_NAME[key], R.ads[k]]) : []),
+    ['apple', 'AI overview', { status:R.insights ? 'ok' : 'needs', note:R.insights ? '' : 'Needs the Anthropic key under Credentials → AI.' }]];
   const lab = { ok:['✓', 'Connected'], partial:['◐', 'Partly connected'], needs:['○', 'Needs connecting'], error:['⚠', 'Problem'] };
   $('#rpConn').innerHTML = conn.map(([k, name, s]) => { s = s || { status:'needs' }; const [ic, t] = lab[s.status] || lab.needs;
-    return `<li class="rp-c-${s.status}"><span class="rp-dot" style="background:${RP_COL[k]}"></span><b>${esc(name)}</b> <span class="rp-st ${s.status === 'ok' ? 'good' : s.status === 'error' ? 'bad' : 'mid'}">${ic} ${t}</span>${s.note ? `<p>${esc(s.note)}</p>` : ''}</li>`; }).join('');
+    return `<li><span class="rp-dot" style="background:${RP_COL[k]}"></span><b>${esc(name)}</b> <span class="rp-st ${s.status === 'ok' ? 'good' : s.status === 'error' ? 'bad' : 'mid'}">${ic} ${t}</span>${s.note ? `<p>${esc(s.note)}</p>` : ''}</li>`; }).join('');
 }
 
-
-// ---------- paid ads & boosts ----------
-Object.assign(RP_COL, { meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' });
-Object.assign(RP_NAME, { meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' });
-const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads' };   // end labels on the charts
-const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
-const rpMoney = (v, c) => { try { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c || 'GBP', maximumFractionDigits:v < 100 ? 2 : 0 }).format(v); } catch (e) { return (c || '') + ' ' + v.toFixed(2); } };
-function renderAds(){
-  const A = rpData.ads || {}, live = AD_KEYS.filter(([, k]) => A[k] && A[k].status === 'ok');
-  const T = A.totals || {}, cur = Object.keys(T);
-  const sumT = m => cur.reduce((s, c) => s + (T[c][m] || 0), 0), inst = sumT('installs');
-  const spend = cur.map(c => rpMoney(T[c].spend, c)).join(' + ');
-  $('#rpAdTiles').innerHTML = live.length ? [
-    [spend || rpMoney(0, 'GBP'), 'spent on ads, 30 days'], [rpN(inst), 'app installs from ads'],
-    [cur.length === 1 && inst ? rpMoney(T[cur[0]].spend/inst, cur[0]) : '–', 'cost per install'],
-    [rpN(sumT('clicks')), 'clicks and taps'], [rpN(sumT('impressions')), 'ad impressions'], [rpN(sumT('views')), 'ad video views'],
-  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('') : '<div><b>–</b><span>no ad account connected yet</span></div>';
-  const days = [...new Set(live.flatMap(([, k]) => A[k].days.map(d => d.date)))].sort();
-  const all = []; const from = A.from || days[0], to = A.to || days[days.length - 1];
-  if (from && to) for (let d = new Date(from + 'T12:00:00'); d.toISOString().slice(0, 10) <= to; d = new Date(+d + 864e5)) all.push(d.toISOString().slice(0, 10));
-  const ser = live.map(([key, k]) => { const m = new Map(A[k].days.map(d => [d.date, d.spend])); return { key, pts:all.map(x => ({ x, y:m.get(x) ?? 0 })) }; }).filter(s => s.pts.some(p => p.y));
-  rpLine($('#rpAdSpend'), ser, live.length ? 'No ad spend in the last 30 days.' : 'Connect an ad account (Settings → Credentials, the Ads tabs) to see spend here.');
-  const camps = live.flatMap(([key, k]) => (A[k].campaigns || []).map(c => ({ ...c, key, cur:A[k].currency })));
-  $('#rpAds').innerHTML = camps.length ? '<thead><tr><th>Campaign</th><th class="n">Spend</th><th class="n">Impressions</th><th class="n">Clicks</th><th class="n">Installs</th><th class="n">Per install</th><th class="n">Views</th></tr></thead><tbody>' + camps.map(c =>
-    `<tr><td><span class="rp-dot" style="background:${RP_COL[c.key]}"></span><span class="rp-pn">${RP_NAME[c.key]}</span> ${esc(c.name || 'Campaign')}${c.kind ? `<small>${esc(String(c.kind).replace(/_/g, ' ').toLowerCase())}</small>` : ''}</td>
-     <td class="n">${rpMoney(c.spend, c.cur)}</td><td class="n">${rpN(c.impressions)}</td><td class="n">${rpN(c.clicks)}</td><td class="n">${rpN(c.installs)}</td><td class="n">${c.installs ? rpMoney(c.spend/c.installs, c.cur) : '–'}</td><td class="n">${c.views ? rpN(c.views) : '–'}</td></tr>`).join('') + '</tbody>'
-    : '<tbody><tr><td class="rp-empty">No ad campaigns in the last 30 days.</td></tr></tbody>';
+// ---------- charts ----------
+function rpTipAt(host, html, x){ let tip = host.querySelector('.rp-tip'); if (!tip){ tip = document.createElement('div'); tip.className = 'rp-tip'; host.appendChild(tip); }
+  tip.innerHTML = html; tip.hidden = false; const w = host.clientWidth; tip.style.left = Math.min(Math.max(0, x + 12), w - tip.offsetWidth - 4) + 'px'; tip.style.top = '6px'; }
+const rpTipHide = host => { const t = host.querySelector('.rp-tip'); if (t) t.hidden = true; };
+const rpLegend = keys => keys.length > 1 ? `<div class="rp-legend">${keys.map(k => `<span><i style="background:${RP_COL[k]}"></i>${RP_NAME[k]}</span>`).join('')}</div>` : '';
+const rpTable = (dates, ser, fmt) => `<details class="rp-tbl"><summary>Show as a table</summary><table class="rp-table"><thead><tr><th>Date</th>${ser.map(s => `<th class="n">${RP_NAME[s.key]}</th>`).join('')}</tr></thead><tbody>${dates.map((d, i) => `<tr><td>${rpDate(d)}</td>${ser.map(s => `<td class="n">${fmt(s.vals[i])}</td>`).join('')}</tr>`).join('')}</tbody></table></details>`;
+function rpTicks(max){ const raw = max/4, mag = Math.pow(10, Math.floor(Math.log10(raw || 1))), step = [1, 2, 2.5, 5, 10].map(m => m*mag).find(v => v >= raw) || 1, top = Math.max(step, Math.ceil(max/step)*step); return { step, top }; }
+// stacked bars, one per day: identity by colour plus legend; 2px surface gap between segments; hover shows the day
+function rpBars(el, dates, ser, fmt, empty){
+  if (!ser.length || !dates.length || !ser.some(s => s.vals.some(v => v))){ el.innerHTML = `<p class="rp-empty">${esc(empty)}</p>`; return; }
+  const W = Math.max(300, el.clientWidth || 600), H = 210, L = 44, Rm = 8, T = 10, B = 24, pw = W - L - Rm, ph = H - T - B;
+  const totals = dates.map((_, i) => ser.reduce((s, x) => s + (x.vals[i] || 0), 0)), { step, top } = rpTicks(Math.max(1, ...totals));
+  const slot = pw/dates.length, bw = Math.max(2, Math.min(28, slot*.7)), Y = v => T + ph - v/top*ph;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${esc(ser.map(s => RP_NAME[s.key]).join(' and '))} per day">`;
+  for (let t = 0; t <= top + 1e-9; t += step) svg += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="#262c3a"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" fill="#a8adba" font-size="11">${fmt(t)}</text>`;
+  const every = Math.max(1, Math.ceil(dates.length/Math.max(2, Math.floor(pw/62))));
+  dates.forEach((d, i) => { const x = L + slot*i + (slot - bw)/2; let base = 0;
+    for (const s of ser){ const v = s.vals[i] || 0; if (!v) continue;
+      const yTop = Y(base + v), yBot = Y(base) - (base ? 2 : 0), h = Math.max(1, yBot - yTop);   // 2px surface gap between stacked segments
+      svg += `<rect x="${x.toFixed(1)}" y="${(yBot - h).toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(3, bw/3).toFixed(1)}" fill="${RP_COL[s.key]}"/>`; base += v; }
+    if ((i % every === 0 && dates.length - 1 - i >= every*.8) || i === dates.length - 1) svg += `<text x="${(x + bw/2).toFixed(1)}" y="${H - 6}" text-anchor="middle" fill="#a8adba" font-size="11">${rpDate(d)}</text>`; });
+  svg += `<rect class="rp-hit" x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent"/></svg>`;
+  el.innerHTML = rpLegend(ser.map(s => s.key)) + `<div class="rp-plot">${svg}</div>` + rpTable(dates, ser, fmt);
+  const host = el.querySelector('.rp-plot'), sv = host.querySelector('svg');
+  sv.addEventListener('pointermove', e => { const r = sv.getBoundingClientRect(), sx = (e.clientX - r.left)*W/r.width, i = Math.max(0, Math.min(dates.length - 1, Math.floor((sx - L)/slot)));
+    rpTipAt(host, `<b>${rpDate(dates[i])}</b>` + ser.map(s => `<div><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]} <b>${fmt(s.vals[i] || 0)}</b></div>`).join('') + (ser.length > 1 ? `<div>Total <b>${fmt(totals[i])}</b></div>` : ''), (L + slot*i)*r.width/W); });
+  sv.addEventListener('pointerleave', () => rpTipHide(host));
 }
-// a line chart: one value axis, 2px lines, a legend for 2+ series and direct end labels, crosshair + tooltip on hover,
-// and a table view for screen readers and exact numbers
+// horizontal bars for ranking: label on the left, value at the end; sorted by the caller
+function rpHBars(el, rows, fmt, empty){
+  rows = rows.filter(r => r.value != null && isFinite(r.value));
+  if (!rows.length || !rows.some(r => r.value)){ el.innerHTML = `<p class="rp-empty">${esc(empty)}</p>`; return; }
+  const max = Math.max(...rows.map(r => r.value));
+  el.innerHTML = `<div class="rp-hb">${rows.map(r => `<div class="rp-hbr" title="${esc(r.label)}: ${(r.fmt || fmt)(r.value)}"><span class="rp-hbl">${esc(r.label)}${r.sub ? `<small>${esc(r.sub)}</small>` : ''}</span><span class="rp-hbt"><span style="width:${Math.max(1.5, 100*r.value/max)}%;background:${r.color || '#3987e5'}"></span></span><b>${(r.fmt || fmt)(r.value)}</b></div>`).join('')}</div>`;
+}
+// funnel: each step as a bar relative to the first, with the share that made it from the step before
+function rpFunnel(el, steps){
+  if (!steps || steps[0][1] == null){ el.innerHTML = '<p class="rp-empty">Needs App Store analytics (connected under Credentials; Apple starts the reports a day or two after the first request, once the app is live).</p>'; return; }
+  const first = steps[0][1] || 1;
+  el.innerHTML = `<div class="rp-fun">${steps.map(([l, v], i) => `<div class="rp-funr"><span class="rp-hbl">${esc(l)}</span><span class="rp-hbt"><span style="width:${v == null ? 0 : Math.max(1.5, 100*v/first)}%;background:#3987e5"></span></span><b>${v == null ? '–' : rpN(v)}</b>${i ? `<small class="rp-funp">${v != null && steps[i - 1][1] ? rpPct(100*v/steps[i - 1][1]) + ' of the step before' : ''}</small>` : ''}</div>`).join('')}</div>`;
+}
+// best time to post: UK day × 3-hour block, average views; one hue, light (few) to strong (many); empty cells blank
+function rpHeat(el, vids){
+  if (!vids.length){ el.innerHTML = '<p class="rp-empty">Appears once videos with view counts are posted.</p>'; return; }
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], blocks = 8, cell = {};
+  const fmtP = new Intl.DateTimeFormat('en-GB', { timeZone:'Europe/London', weekday:'short', hour:'2-digit', hour12:false });
+  for (const v of vids){ const p = fmtP.formatToParts(new Date(v.at)), d = p.find(x => x.type === 'weekday').value, h = +p.find(x => x.type === 'hour').value % 24, k = d + '|' + Math.floor(h/3); const c = cell[k] = cell[k] || { n:0, views:0 }; c.n++; c.views += v.views || 0; }
+  const max = Math.max(1, ...Object.values(cell).map(c => c.views/c.n));
+  const lab = b => `${String(b*3).padStart(2, '0')}–${String(b*3 + 3).padStart(2, '0')}`;
+  el.innerHTML = `<div class="rp-heat"><span></span>${Array.from({ length:blocks }, (_, b) => `<span class="rp-hx">${b % 2 ? '' : String(b*3).padStart(2, '0')}</span>`).join('')}` + days.map(d => `<span class="rp-hy">${d}</span>` + Array.from({ length:blocks }, (_, b) => { const c = cell[d + '|' + b];
+    return c ? `<span class="rp-hc" style="--a:${(.18 + .82*(c.views/c.n)/max).toFixed(2)}" title="${d} ${lab(b)}: ${rpN(c.views/c.n)} average views from ${c.n} video${c.n === 1 ? '' : 's'}"></span>` : '<span class="rp-hc rp-h0"></span>'; }).join('')).join('') + '</div>'
+    + `<div class="rp-hleg"><span>fewer views</span><i></i><span>more views</span> · hover a square for the numbers · ${vids.length} video${vids.length === 1 ? '' : 's'} so far</div>`;
+}
+// a line chart: one value axis, 2px lines, a legend for 2+ series and direct end labels, crosshair + tooltip, table view
 function rpLine(el, series, empty){
   series = series.filter(s => s.pts.some(p => p.y != null));
   if (!series.length){ el.innerHTML = `<p class="rp-empty">${esc(empty)}</p>`; return; }
-  const xs = series[0].pts.map(p => p.x), W = Math.max(300, el.clientWidth || 600), H = 220, L = 44, Rm = 118, T = 12, B = 26, pw = W - L - Rm, ph = H - T - B;
-  const maxY = Math.max(1, ...series.flatMap(s => s.pts.map(p => p.y || 0))), raw = maxY/4, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1, 2, 2.5, 5, 10].map(m => m*mag).find(v => v >= raw), top = Math.max(step, Math.ceil(maxY/step)*step);   // round tick values (0, 25, 50…)
+  const xs = series[0].pts.map(p => p.x), W = Math.max(300, el.clientWidth || 600), H = 210, L = 44, Rm = 104, T = 12, B = 26, pw = W - L - Rm, ph = H - T - B;
+  const { step, top } = rpTicks(Math.max(1, ...series.flatMap(s => s.pts.map(p => p.y || 0))));
   const X = i => L + (xs.length < 2 ? pw/2 : i*pw/(xs.length - 1)), Y = v => T + ph - (v/top)*ph;
-  const ticks = Array.from({ length:Math.round(top/step) + 1 }, (_, i) => i*step);
-  const every = Math.max(1, Math.ceil(xs.length/Math.max(2, Math.floor(pw/62))));   // a date label about every 62 px
+  const every = Math.max(1, Math.ceil(xs.length/Math.max(2, Math.floor(pw/62))));
   let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${esc(series.map(s => RP_NAME[s.key]).join(' and '))} over time">`;
-  for (const t of ticks) svg += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="#262c3a" stroke-width="1"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" fill="#a8adba" font-size="11">${rpN(t)}</text>`;
+  for (let t = 0; t <= top + 1e-9; t += step) svg += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="#262c3a"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" fill="#a8adba" font-size="11">${rpN(t)}</text>`;
   xs.forEach((x, i) => { if ((i % every === 0 && xs.length - 1 - i >= every*.8) || i === xs.length - 1) svg += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle" fill="#a8adba" font-size="11">${rpDate(x)}</text>`; });
   const ends = [];
   for (const s of series){
     let d = '', pen = false; s.pts.forEach((p, i) => { if (p.y == null){ pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.y).toFixed(1); pen = true; });
     svg += `<path d="${d}" fill="none" stroke="${RP_COL[s.key]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-    const li = s.pts.map(p => p.y).lastIndexOf(s.pts.filter(p => p.y != null).slice(-1)[0].y);
-    if (xs.length === 1 || s.pts.filter(p => p.y != null).length === 1) svg += `<circle cx="${X(li)}" cy="${Y(s.pts[li].y)}" r="4" fill="${RP_COL[s.key]}" stroke="#131722" stroke-width="2"/>`;
-    ends.push({ key:s.key, y:Y(s.pts[li].y), x:X(li), v:s.pts[li].y });
+    let li = s.pts.length - 1; while (li > 0 && s.pts[li].y == null) li--;
+    if (s.pts.filter(p => p.y != null).length === 1) svg += `<circle cx="${X(li)}" cy="${Y(s.pts[li].y)}" r="4" fill="${RP_COL[s.key]}" stroke="#131722" stroke-width="2"/>`;
+    ends.push({ key:s.key, y:Y(s.pts[li].y), v:s.pts[li].y });
   }
-  // direct labels at the line ends, nudged apart so they never overlap
   ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
-  for (const e of ends) svg += `<text x="${L + pw + 8}" y="${e.y + 4}" fill="#f4f1ea" font-size="11">${(RP_SHORT[e.key] || RP_NAME[e.key])} ${rpN(e.v)}</text>`;
-  svg += `<line class="rp-x" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="#a8adba" stroke-width="1" visibility="hidden"/><rect x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent" class="rp-hit"/></svg>`;
-  const legend = series.length > 1 ? `<div class="rp-legend">${series.map(s => `<span><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]}</span>`).join('')}</div>` : '';
-  const table = `<details class="rp-tbl"><summary>Show as a table</summary><table class="rp-table"><thead><tr><th>Date</th>${series.map(s => `<th class="n">${RP_NAME[s.key]}</th>`).join('')}</tr></thead><tbody>${xs.map((x, i) => `<tr><td>${rpDate(x)}</td>${series.map(s => `<td class="n">${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></details>`;
-  el.innerHTML = legend + `<div class="rp-plot">${svg}<div class="rp-tip" hidden></div></div>` + table;
-  const plot = el.querySelector('.rp-plot'), tip = plot.querySelector('.rp-tip'), cross = plot.querySelector('.rp-x'), svgEl = plot.querySelector('svg');
-  const show = ev => { const r = svgEl.getBoundingClientRect(), sx = (ev.clientX - r.left)*W/r.width, i = Math.max(0, Math.min(xs.length - 1, Math.round((sx - L)/(xs.length < 2 ? 1 : pw/(xs.length - 1)))));
+  if (series.length <= 4) for (const e of ends) svg += `<text x="${L + pw + 8}" y="${e.y + 4}" fill="#f4f1ea" font-size="11">${RP_SHORT[e.key] || RP_NAME[e.key]} ${rpN(e.v)}</text>`;
+  svg += `<line class="rp-x" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="#a8adba" visibility="hidden"/><rect x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent"/></svg>`;
+  el.innerHTML = rpLegend(series.map(s => s.key)) + `<div class="rp-plot">${svg}</div>` + rpTable(xs, series.map(s => ({ key:s.key, vals:s.pts.map(p => p.y) })), v => v == null ? '–' : rpN(v));
+  const host = el.querySelector('.rp-plot'), sv = host.querySelector('svg'), cross = sv.querySelector('.rp-x');
+  sv.addEventListener('pointermove', e => { const r = sv.getBoundingClientRect(), sx = (e.clientX - r.left)*W/r.width, i = Math.max(0, Math.min(xs.length - 1, Math.round((sx - L)/(xs.length < 2 ? 1 : pw/(xs.length - 1)))));
     cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
-    tip.innerHTML = `<b>${rpDate(xs[i])}</b>` + series.map(s => `<div><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]} <b>${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</b></div>`).join('');
-    tip.hidden = false; const px = X(i)*r.width/W; tip.style.left = Math.min(Math.max(0, px + 12), r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px'; };
-  const hide = () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); };
-  svgEl.addEventListener('pointermove', show); svgEl.addEventListener('pointerleave', hide);
+    rpTipAt(host, `<b>${rpDate(xs[i])}</b>` + series.map(s => `<div><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]} <b>${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</b></div>`).join(''), X(i)*r.width/W); });
+  sv.addEventListener('pointerleave', () => { rpTipHide(host); cross.setAttribute('visibility', 'hidden'); });
 }
-window.addEventListener('resize', () => { if (rpData && document.querySelector('#reports.on')) renderReports(); });
+window.addEventListener('resize', () => { if (rpData && document.querySelector('#reports.on')) renderTab(rpTab); });
 
 </script>
 </body>
