@@ -44,7 +44,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
-.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
+.nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 .dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
 .dk-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.dk-grid>section,.dk-side>section{margin:0}.dk-side{display:flex;flex-direction:column;gap:16px}
 @media (max-width:1100px){.dk-grid{grid-template-columns:1fr}}
@@ -428,6 +428,7 @@ main{max-width:none}
   <div id="app" hidden>
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="dashboard"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
+    <button type="button" role="tab" data-go="new" class="nav-new"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Create new post</span></button>
     <button type="button" role="tab" data-go="reports"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span>Reports</span></button>
     <button type="button" role="tab" data-go="activity"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Activity</span></button>
     <button type="button" role="tab" data-go="videos"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Media</span></button>
