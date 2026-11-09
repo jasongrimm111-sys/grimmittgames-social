@@ -365,6 +365,27 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid 
 code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
 
 /* ---- full-width app ---- */
+html,body{overflow-x:hidden}@supports (overflow:clip){html,body{overflow-x:clip}}
+main,#app,section{min-width:0;max-width:100%}
+.navtoggle{display:none;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:12px;flex:none}.navtoggle svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+@media (max-width:999.98px){
+  body:has(#app:not([hidden])) .navtoggle{display:flex}
+  #app .tabs{position:fixed!important;top:0;left:0;bottom:0;width:min(280px,84vw);z-index:60!important;margin:0;padding:18px 12px 28px;display:flex;flex-direction:column;flex-wrap:nowrap;justify-content:flex-start;gap:2px;overflow-x:hidden;overflow-y:auto;background:var(--card);border:0;border-right:1px solid var(--line);transform:translateX(-105%);transition:transform .2s ease;visibility:hidden}
+  body.navopen #app .tabs{transform:none;visibility:visible;box-shadow:12px 0 40px rgba(0,0,0,.5)}
+  body.navopen::after{content:'';position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:59}
+  body.navopen{overflow:hidden}
+  #app .tabs button{display:flex;align-items:center;gap:14px;width:calc(100% + 12px);margin-left:-12px;text-align:left;padding:11px 14px;border-radius:0 99px 99px 0;font-size:1rem;font-weight:500;color:var(--fg);border:0;min-width:0;background:none}
+  #app .tabs button[aria-selected="true"]{background:rgba(198,244,50,.13);color:var(--accent)}
+  #app .tabs .nic{display:block}
+  #app .tabs .wide-only{display:inline}#app .tabs .phone-only{display:none}
+  #app .tabs .nav-new{display:flex!important}.dk-new{display:none}
+  #app .navmore{margin:14px 0 0;position:static}
+  #app #moreBtn{display:none}
+  #app .navlabel{display:block;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:10px 14px 6px;border-top:1px solid var(--line)}
+  #app #moreMenu,#app #moreMenu[hidden]{display:flex!important;position:static!important;box-shadow:none;border:0;background:none;padding:0;min-width:0;gap:2px;flex-direction:column}
+  .brand{flex-wrap:nowrap}.brand .who{min-width:0}
+  @media (prefers-reduced-motion:reduce){#app .tabs{transition:none}}
+}
 main{max-width:none}
 .nic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;display:none}
 .navlabel{display:none}
@@ -393,7 +414,7 @@ main{max-width:none}
 </head>
 <body>
 <main>
-  <div class="brand"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button">Sign out</button></div></div>
+  <div class="brand"><button type="button" id="navToggle" class="navtoggle" aria-label="Open the menu" aria-expanded="false" aria-controls="sideNav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button">Sign out</button></div></div>
 
   <section id="login" class="gate" hidden>
     <h2>Sign in</h2>
@@ -431,7 +452,7 @@ main{max-width:none}
   <p id="connStatus" class="status" role="status"></p>
 
   <div id="app" hidden>
-  <nav class="tabs" role="tablist" aria-label="Sections">
+  <nav class="tabs" id="sideNav" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="dashboard"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
     <button type="button" role="tab" data-go="new" class="nav-new"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Create new post</span></button>
     <button type="button" role="tab" data-go="reports"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span>Reports</span></button>
@@ -2073,6 +2094,10 @@ function showTab(t, push = true){
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
+const navOpen = open => { document.body.classList.toggle('navopen', open); $('#navToggle').setAttribute('aria-expanded', String(open)); $('#navToggle').setAttribute('aria-label', open ? 'Close the menu' : 'Open the menu'); };
+$('#navToggle').onclick = e => { e.stopPropagation(); navOpen(!document.body.classList.contains('navopen')); };
+document.addEventListener('click', e => { if (!document.body.classList.contains('navopen')) return; if (e.target.closest('[data-go]') || !e.target.closest('#sideNav')) navOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('navopen')){ navOpen(false); $('#navToggle').focus(); } });
 const moreMenu = open => { const m = $('#moreMenu'); m.hidden = !open; $('#moreBtn').setAttribute('aria-expanded', String(open));
   if (open && innerWidth <= 640){ const r = $('#moreBtn').getBoundingClientRect(); Object.assign(m.style, { position:'fixed', top:(r.bottom + 6) + 'px', right:'12px', left:'auto' }); } else if (open) m.style.position = m.style.top = m.style.right = m.style.left = ''; };
 $('#moreBtn').onclick = e => { e.stopPropagation(); moreMenu($('#moreMenu').hidden); };
