@@ -44,6 +44,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
+.rp-tease{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:.9rem;margin:0}.rp-tease:empty{display:none}
 .rp-ai{border:1px solid rgba(198,244,50,.28);border-radius:16px;padding:16px 18px;background:linear-gradient(160deg,rgba(198,244,50,.07),rgba(198,244,50,0) 55%)}
 .rp-ai-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-ai-top small{color:var(--muted)}
 .rp-ai-badge{background:var(--accent);color:var(--accentfg);font-weight:800;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;border-radius:99px;padding:2px 9px}
@@ -457,13 +458,24 @@ main{max-width:none}
     </div>
     <p id="rpStatus" class="status" role="status"></p>
     <div class="subtabs rp-tabs" role="tablist" aria-label="Report sections">
-      <button type="button" role="tab" data-rt="overview">Overview</button><button type="button" role="tab" data-rt="stores">Stores</button><button type="button" role="tab" data-rt="social">Social</button><button type="button" role="tab" data-rt="admob">AdMob</button><button type="button" role="tab" data-rt="ads">Ads</button><button type="button" role="tab" data-rt="reviews">Reviews</button>
+      <button type="button" role="tab" data-rt="overview">Overview</button><button type="button" role="tab" data-rt="suggest">Suggestions</button><button type="button" role="tab" data-rt="stores">Stores</button><button type="button" role="tab" data-rt="social">Social</button><button type="button" role="tab" data-rt="admob">AdMob</button><button type="button" role="tab" data-rt="ads">Ads</button><button type="button" role="tab" data-rt="reviews">Reviews</button>
     </div>
 
     <div class="rp-panel" data-rp="overview">
-      <div class="rp-ai" id="rpAi"></div>
       <div class="rp-kpis" id="rpKpis"></div>
-      <div class="rp-card"><div class="rp-ch"><h3>Downloads per day</h3><span class="hint" id="rpDlHint"></span></div><div id="rpDl"></div></div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>Downloads per day</h3><span class="hint" id="rpDlHint"></span></div><div id="rpDl"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Money in per day</h3><span class="hint">coin sales and AdMob</span></div><div id="rpMoney"></div></div>
+      </div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>Followers</h3><span class="hint">one reading a day</span></div><div id="rpFol0"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Views by platform</h3><span class="hint">recent videos</span></div><div id="rpViews"></div></div>
+      </div>
+      <p class="rp-tease" id="rpTease"></p>
+    </div>
+
+    <div class="rp-panel" data-rp="suggest" hidden>
+      <div class="rp-ai" id="rpAi"></div>
     </div>
 
     <div class="rp-panel" data-rp="stores" hidden>
@@ -2604,8 +2616,8 @@ $('#btnRefresh').onclick = renderHistory;
 // src/ads.js, src/insights.js for the AI overview). Layout follows what the good analytics tools do: an insights summary
 // first, a few KPI cards with the change against the previous period and a sparkline, a period switch, then one tab per
 // area. Colours: platform identity in a fixed order, validated for this dark surface with the dataviz validator.
-const RP_COL = { amIos:'#3987e5', amAnd:'#d95926', admob:'#3987e5', youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
-const RP_NAME = { amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
+const RP_COL = { coins:'#199e70', amIos:'#3987e5', amAnd:'#d95926', admob:'#3987e5', youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
+const RP_NAME = { coins:'Coin sales', amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
 const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads', apple:'App Store', google:'Google Play' };
 const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
 const SOC = ['youtube', 'instagram', 'facebook', 'tiktok'];
@@ -2675,7 +2687,7 @@ function renderReports(){
   renderConnections();
 }
 function renderTab(t){
-  try { ({ overview:renderOverview, stores:renderStores, social:renderSocial, admob:renderAdmob, ads:renderAds, reviews:renderReviews })[t](); }
+  try { ({ overview:renderOverview, suggest:renderSuggest, stores:renderStores, social:renderSocial, admob:renderAdmob, ads:renderAds, reviews:renderReviews })[t](); }
   catch (e) { console.warn('report tab', t, e); }
 }
 
@@ -2703,11 +2715,8 @@ function figures(){
 // ---------- overview ----------
 function renderOverview(){
   const F = figures(), R = F.R, I = R.insights;
-  $('#rpAi').innerHTML = I ? `<div class="rp-ai-top"><span class="rp-ai-badge">AI overview</span><small>written ${new Date(I.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })} from that day's figures</small></div>
-    <p class="rp-ai-head">${esc(I.headline)}</p><p class="rp-ai-sum">${esc(I.summary)}</p>
-    <div class="rp-ai-cols">${(open => [['wins', '✓ Working well', 'good'], ['watch', '⚠ Worth a look', 'warn'], ['schedule', '🕑 Schedule', 'plan'], ['ideas', '🎬 Videos to make', 'idea']].map(([k, t, c]) =>
-      `<details class="rp-ai-col rp-ai-${c}"${open ? ' open' : ''}><summary><h4>${t} <small>${(I[k] || []).length}</small></h4></summary><ul>${(I[k] || []).map(x => `<li><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></li>`).join('') || '<li><span>Nothing yet.</span></li>'}</ul></details>`).join(''))(!matchMedia('(max-width:760px)').matches)}</div>`
-    : '<p class="rp-empty">The AI overview appears after the next report (it needs the Anthropic key under Credentials → AI).</p>';
+  $('#rpTease').innerHTML = I ? `<button type="button" class="rp-chip" data-rt-go="suggest">✦ AI suggestions: what’s working and what to try →</button>` : '';
+  $('#rpTease').querySelector('[data-rt-go]')?.addEventListener('click', () => { rpTab = 'suggest'; try { localStorage.setItem('rpTab', rpTab); } catch (e) {} showRpTab(); window.scrollTo({ top:0 }); });
   const dlSpark = rpSpark([...F.a.cur.map((x, i) => (F.aOk ? x.v : 0) + (F.gOk ? (F.g.cur[i]?.v || 0) : 0))], '#3987e5');
   const conv = F.pageViews && F.aOk ? 100*F.a.sum/F.pageViews : null, convPrev = F.pageViewsPrev && F.aOk && F.a.prevSum != null ? 100*F.a.prevSum/F.pageViewsPrev : null;
   const cpi = F.adInstalls ? F.spend/F.adInstalls : null, cpiPrev = F.adInstallsPrev ? F.spendPrev/F.adInstallsPrev : null, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP';
@@ -2728,6 +2737,20 @@ function renderOverview(){
   ].join('');
   dlBars($('#rpDl'));
   $('#rpDlHint').textContent = F.dlAny ? `last ${F.n} days` : '';
+  { const dates = F.am.cur.length ? F.am.cur.map(x => x.date) : (R.apple?.sales?.days || []).slice(-F.n).map(d => d.date);
+    const coin = d => (R.apple?.sales?.days || []).find(x => x.date === d)?.proceeds?.GBP || 0;
+    const ser = []; if (F.aOk) ser.push({ key:'coins', vals:dates.map(coin) }); if (F.amOk) ser.push({ key:'admob', vals:F.am.cur.map(x => x.v) });
+    rpBars($('#rpMoney'), dates, ser, v => rpMoney(v, 'GBP'), F.aOk || F.amOk ? 'No money in this period yet.' : 'Starts once App Store sales and AdMob are connected.'); }
+  rpLine($('#rpFol0'), rpTrend.length > 1 ? SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-Math.max(F.n, 2)).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) })) : [], 'The lines appear after the second daily reading.');
+  rpHBars($('#rpViews'), SOC.map(k => ({ label:RP_NAME[k], value:R.summary?.views?.[k], color:RP_COL[k], sub:R.summary?.followers?.[k] != null ? rpN(R.summary.followers[k]) + (k === 'youtube' ? ' subs' : ' followers') : '' })).filter(r => r.value != null).sort((a, b) => b.value - a.value), rpN, 'Appears once the social accounts are connected.');
+}
+function renderSuggest(){
+  const R = rpData, I = R.insights;
+  $('#rpAi').innerHTML = I ? `<div class="rp-ai-top"><span class="rp-ai-badge">AI overview</span><small>written ${new Date(I.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })} from that day's figures</small></div>
+    <p class="rp-ai-head">${esc(I.headline)}</p><p class="rp-ai-sum">${esc(I.summary)}</p>
+    <div class="rp-ai-cols">${(open => [['wins', '✓ Working well', 'good'], ['watch', '⚠ Worth a look', 'warn'], ['schedule', '🕑 Schedule', 'plan'], ['ideas', '🎬 Videos to make', 'idea']].map(([k, t, c]) =>
+      `<details class="rp-ai-col rp-ai-${c}"${open ? ' open' : ''}><summary><h4>${t} <small>${(I[k] || []).length}</small></h4></summary><ul>${(I[k] || []).map(x => `<li><b>${esc(x.title)}</b><span>${esc(x.detail)}</span></li>`).join('') || '<li><span>Nothing yet.</span></li>'}</ul></details>`).join(''))(true)}</div>`
+    : '<p class="rp-empty">The AI overview appears after the next report (it needs the Anthropic key under Credentials → AI).</p>';
 }
 function dlBars(el){
   const F = figures(), dates = [...new Set([...F.a.cur, ...F.g.cur].map(x => x.date))].sort();
