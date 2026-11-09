@@ -457,7 +457,7 @@ main{max-width:none}
     </div>
     <p id="rpStatus" class="status" role="status"></p>
     <div class="subtabs rp-tabs" role="tablist" aria-label="Report sections">
-      <button type="button" role="tab" data-rt="overview">Overview</button><button type="button" role="tab" data-rt="stores">Stores</button><button type="button" role="tab" data-rt="social">Social</button><button type="button" role="tab" data-rt="ads">Ads</button><button type="button" role="tab" data-rt="reviews">Reviews</button>
+      <button type="button" role="tab" data-rt="overview">Overview</button><button type="button" role="tab" data-rt="stores">Stores</button><button type="button" role="tab" data-rt="social">Social</button><button type="button" role="tab" data-rt="admob">AdMob</button><button type="button" role="tab" data-rt="ads">Ads</button><button type="button" role="tab" data-rt="reviews">Reviews</button>
     </div>
 
     <div class="rp-panel" data-rp="overview">
@@ -486,6 +486,15 @@ main{max-width:none}
       <div class="rp-card"><div class="rp-ch"><h3>Videos</h3>
         <div class="rp-filters"><div class="rp-chips" id="rpVidPlat"></div><label class="rp-sort">Sort <select id="rpVidSort"><option value="views">Most views</option><option value="watched">Most watched</option><option value="likes">Most likes</option><option value="new">Newest</option></select></label></div></div>
         <div class="rp-tablewrap"><table class="rp-table" id="rpVideos"></table></div></div>
+    </div>
+
+    <div class="rp-panel" data-rp="admob" hidden>
+      <div class="rp-kpis" id="rpAmKpis"></div>
+      <div class="rp-card"><div class="rp-ch"><h3>Earnings per day</h3><span class="hint">AdMob’s estimate, by app</span></div><div id="rpAmEarn"></div></div>
+      <div class="rp-grid2">
+        <div class="rp-card"><div class="rp-ch"><h3>Rewarded videos watched</h3><span class="hint">players who chose to watch one, per day</span></div><div id="rpAmImp"></div></div>
+        <div class="rp-card"><div class="rp-ch"><h3>Earnings by app</h3></div><div id="rpAmApps"></div></div>
+      </div>
     </div>
 
     <div class="rp-panel" data-rp="ads" hidden>
@@ -998,6 +1007,13 @@ CREDS.push(['Ads: Google', 'Lets the Reports tab read Google Ads (YouTube and Ap
     ['GOOGLE_ADS_DEVELOPER_TOKEN', 'Developer token', `<li>API access needs a free <b>manager account</b>: create one at <a href="https://ads.google.com/home/tools/manager-accounts/" target="_blank" rel="noopener">ads.google.com/home/tools/manager-accounts</a> and link your ads account to it.</li><li>In the manager account: <b>Admin → API Center</b>, fill in the form; the developer token shows there. Apply for <b>Basic access</b> (Google reviews it in a few days). Paste the token here.</li>`],
     ['GOOGLE_ADS_LOGIN_CUSTOMER_ID', 'Manager account ID', `<li>The manager account’s 10-digit ID (top right while signed in to it).</li>`],
     ['GOOGLE_ADS_REFRESH_TOKEN', 'Refresh token', `<li>In Google Cloud (your YouTube project) turn on the <b>Google Ads API</b> (APIs &amp; Services → Library).</li><li>In the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth Playground</a> with your YouTube client ID and secret (⚙), scope <code>https://www.googleapis.com/auth/adwords</code>, <b>Authorize</b> with the Google Ads account, <b>Exchange</b>, and paste the refresh token here.</li>`],
+  ]]);
+CREDS.push(['AdMob reporting', 'Lets the Reports tab read what the rewarded videos earn in both apps (read only). Uses your YouTube OAuth client, so only one box is needed.', [
+    ['ADMOB_REFRESH_TOKEN', 'Refresh token', `<li>Go to <a href="https://console.cloud.google.com/apis/library/admob.googleapis.com" target="_blank" rel="noopener">Google Cloud → AdMob API</a> (the same project as YouTube, top left) and click <b>Enable</b>.</li>
+      <li>Still in Google Cloud: <b>APIs &amp; Services → OAuth consent screen → Audience</b>. If it says <b>Testing</b>, add the Google account that owns AdMob as a <b>test user</b>.</li>
+      <li>Open the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth 2.0 Playground</a>, click ⚙ (top right), tick <b>Use your own OAuth credentials</b> and paste the YouTube client ID and secret.</li>
+      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/admob.readonly</code> and click <b>Authorize APIs</b>. Sign in with the Google account you use for AdMob (not the YouTube channel) and allow it.</li>
+      <li>Click <b>Exchange authorization code for tokens</b>, copy the <b>Refresh token</b> and paste it here.</li>`],
   ]]);
 CREDS.push(['Google Play reporting', 'Lets the Reports tab read installs, ratings, reviews and crash rates from Google Play.', [
     ['PLAY_SERVICE_ACCOUNT_JSON', 'Service account key (JSON)', `<li>Use the same key file as the Android app's GitHub setup (the github-upload service account), or make one: Google Cloud → IAM &amp; Admin → Service accounts → your account → Keys → Add key → JSON.</li><li>Open the .json file in Notepad, select everything and paste it here.</li><li>In Google Cloud → APIs &amp; Services → Library, turn on the <b>Google Play Developer Reporting API</b> (crash rates).</li>`],
@@ -2588,8 +2604,8 @@ $('#btnRefresh').onclick = renderHistory;
 // src/ads.js, src/insights.js for the AI overview). Layout follows what the good analytics tools do: an insights summary
 // first, a few KPI cards with the change against the previous period and a sparkline, a period switch, then one tab per
 // area. Colours: platform identity in a fixed order, validated for this dark surface with the dataviz validator.
-const RP_COL = { youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
-const RP_NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
+const RP_COL = { amIos:'#3987e5', amAnd:'#d95926', admob:'#3987e5', youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
+const RP_NAME = { amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
 const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads', apple:'App Store', google:'Google Play' };
 const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
 const SOC = ['youtube', 'instagram', 'facebook', 'tiktok'];
@@ -2659,7 +2675,7 @@ function renderReports(){
   renderConnections();
 }
 function renderTab(t){
-  try { ({ overview:renderOverview, stores:renderStores, social:renderSocial, ads:renderAds, reviews:renderReviews })[t](); }
+  try { ({ overview:renderOverview, stores:renderStores, social:renderSocial, admob:renderAdmob, ads:renderAds, reviews:renderReviews })[t](); }
   catch (e) { console.warn('report tab', t, e); }
 }
 
@@ -2674,10 +2690,11 @@ function figures(){
   const adCur = [...new Set(adLive.map(([, k]) => ads[k].currency || 'GBP'))];
   const adDays = {}; for (const [, k] of adLive) for (const d of ads[k].days || []){ const x = adDays[d.date] = adDays[d.date] || { date:d.date, spend:0, installs:0 }; x.spend += d.spend; x.installs += d.installs; }
   const sp = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.spend })), n), ai = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.installs })), n);
+  const amOk = R.admob?.status === 'ok', am = window2(daysOf(R.admob?.days, 'earnings'), n);
   const sNow = rpTrend[rpTrend.length - 1], sAgo = snapAgo(n), s2Ago = snapAgo(2*n);
   return { R, n, aOk, gOk, a, g, dl, dlPrev, dlAny:aOk || gOk,
     impressions:ec.length ? evs(ec, /impression/i) : null, pageViews:ec.length ? evs(ec, /page view/i) : null, pageViewsPrev:ep.length ? evs(ep, /page view/i) : null,
-    adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
+    amOk, am, adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
     fol:sumObj(sNow?.followers || R.summary?.followers), folAgo:sAgo ? sumObj(sAgo.followers) : null,
     viewsGained:sNow && sAgo ? sumObj(sNow.views) - sumObj(sAgo.views) : null, viewsGainedPrev:sAgo && s2Ago ? sumObj(sAgo.views) - sumObj(s2Ago.views) : null,
     viewsTotal:sumObj(R.summary?.views) };
@@ -2704,7 +2721,9 @@ function renderOverview(){
     kpi('Followers', rpN(F.fol), F.folAgo != null ? delta(F.fol, F.folAgo) : '', folSpark, 'all accounts'),
     kpi('Ad spend', F.adLive.length ? rpMoney(F.spend, cur) : '–', F.adLive.length ? delta(F.spend, F.spendPrev, 'neutral') : '', '', F.adLive.length ? per : 'no ad account connected'),
     kpi('Cost per install', cpi != null ? rpMoney(cpi, cur) : '–', cpi != null ? delta(cpi, cpiPrev, true) : '', '', 'from ads'),
-    kpi('Proceeds', (() => { const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-F.n)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v; return Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk ? rpMoney(0, 'GBP') : '–'; })(), '', '', F.aOk ? 'coin sales, ' + per : 'starts with App Store sales'),
+    (() => { const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-F.n)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
+      if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum; const any = F.aOk || F.amOk, src = [F.aOk && 'coin sales', F.amOk && 'AdMob'].filter(Boolean).join(' + ');
+      return kpi('Money in', Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : any ? rpMoney(0, 'GBP') : '–', F.amOk && !F.aOk ? delta(F.am.sum, F.am.prevSum) : '', F.amOk ? rpSpark(F.am.cur.map(x => x.v), '#0ca30c') : '', any ? src + ', ' + per : 'starts with App Store sales and AdMob'); })(),
     kpi('Rating', ar?.count ? ar.average.toFixed(1) + '★' : gr ? (+gr.total).toFixed(1) + '★' : '–', '', '', ar?.count ? `App Store · ${rpN(ar.count)} ratings` + (gr ? ` · Play ${(+gr.total).toFixed(1)}★` : '') : 'no ratings yet'),
   ].join('');
   dlBars($('#rpDl'));
@@ -2803,6 +2822,28 @@ function renderAds(){
     : '<tbody><tr><td class="rp-empty">No campaigns yet.</td></tr></tbody>';
 }
 
+// ---------- AdMob ----------
+function renderAdmob(){
+  const F = figures(), A = F.R.admob, per = `last ${F.n} days`;
+  if (!F.amOk){ const msg = A?.status === 'error' ? 'AdMob couldn’t be read: ' + (A.note || 'unknown error') : 'Connect AdMob under Settings → Credentials → AdMob reporting to see what the rewarded videos earn.';
+    $('#rpAmKpis').innerHTML = `<p class="rp-empty">${esc(msg)}</p>`; for (const id of ['#rpAmEarn', '#rpAmImp', '#rpAmApps']) $(id).innerHTML = ''; return; }
+  const days = [...A.days].sort((a, b) => a.date.localeCompare(b.date)), cur = days.slice(-F.n), prev = days.slice(-2*F.n, -F.n), full = prev.length >= F.n*.6;
+  const t = (a, k) => a.reduce((s, d) => s + (d[k] || 0), 0), money = v => rpMoney(v, A.currency || 'GBP');
+  const imp = t(cur, 'impressions'), impP = full ? t(prev, 'impressions') : null, earn = t(cur, 'earnings'), earnP = full ? t(prev, 'earnings') : null;
+  const ecpm = imp ? earn/imp*1000 : null, ecpmP = full && impP ? earnP/impP*1000 : null;
+  const req = t(cur, 'requests'), fill = req ? 100*t(cur, 'matched')/req : null, fillP = full && t(prev, 'requests') ? 100*t(prev, 'matched')/t(prev, 'requests') : null;
+  $('#rpAmKpis').innerHTML = [
+    kpi('Earnings', money(earn), delta(earn, earnP), rpSpark(cur.map(d => d.earnings), '#0ca30c'), per),
+    kpi('Rewarded videos watched', rpN(imp), delta(imp, impP), rpSpark(cur.map(d => d.impressions), '#3987e5'), per),
+    kpi('Earnings per 1,000 videos', ecpm != null ? money(ecpm) : '–', ecpm != null ? delta(ecpm, ecpmP) : '', '', 'eCPM'),
+    kpi('Ads ready when asked', fill != null ? rpPct(fill) : '–', fill != null ? delta(fill, fillP) : '', '', 'fill rate: lower means players waited for a video'),
+  ].join('');
+  const dates = cur.map(d => d.date);
+  rpBars($('#rpAmEarn'), dates, [{ key:'amIos', vals:cur.map(d => d.ios || 0) }, { key:'amAnd', vals:cur.map(d => d.android || 0) }].filter(x => x.vals.some(v => v)), money, 'No earnings in this period yet.');
+  rpBars($('#rpAmImp'), dates, [{ key:'admob', vals:cur.map(d => d.impressions || 0) }], rpN, 'No rewarded videos watched in this period yet.');
+  rpHBars($('#rpAmApps'), Object.entries(A.apps || {}).map(([k, v]) => ({ label:/iOS/.test(k) ? 'iPhone & iPad' : 'Android', sub:'last 60 days', value:v.earnings, color:/iOS/.test(k) ? RP_COL.amIos : RP_COL.amAnd, fmt:money })).sort((a, b) => b.value - a.value), rpN, 'No earnings yet.');
+}
+
 // ---------- reviews ----------
 function renderReviews(){
   const R = rpData, ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
@@ -2825,6 +2866,7 @@ function renderConnections(){
     ['google', 'Google Play: installs and ratings', R.google?.installs || R.google], ['google', 'Google Play: reviews', R.google && { status:R.google.reviewsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.reviewsNote || (R.google.status === 'needs' ? R.google.note : '') }],
     ['google', 'Google Play: crashes and freezes', R.google && { status:R.google.vitalsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.vitalsNote || (R.google.status === 'needs' ? R.google.note : '') }],
     ['youtube', 'YouTube', R.youtube], ['instagram', 'Instagram', R.instagram], ['facebook', 'Facebook', R.facebook], ['tiktok', 'TikTok' + (R.tiktokApp ? ` (${R.tiktokApp} app)` : ''), R.tiktok], ['x', 'X', R.x],
+    ['amAnd', 'AdMob: rewarded video earnings', R.admob],
     ...(R.ads ? AD_KEYS.map(([key, k]) => [key, 'Ads: ' + RP_NAME[key], R.ads[k]]) : []),
     ['apple', 'AI overview', { status:R.insights ? 'ok' : 'needs', note:R.insights ? '' : 'Needs the Anthropic key under Credentials → AI.' }]];
   const lab = { ok:['✓', 'Connected'], partial:['◐', 'Partly connected'], needs:['○', 'Needs connecting'], error:['⚠', 'Problem'] };
