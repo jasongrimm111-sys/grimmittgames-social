@@ -44,7 +44,11 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
-.nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
+.nav-new{display:none!important}@media (min-width:1000px){#app .tabs .nav-new{display:flex!important}.ad-form{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:0 0 16px;background:rgba(255,255,255,.015)}.ad-form .rp-card{margin-top:14px}.ad-form .rp-grid2{margin-top:14px}.ad-form .rp-grid2 .rp-card{margin-top:0}
+.ad-form h3{margin-top:0}.ad-sum{margin:14px 0 0;color:var(--muted)}.ad-vid{display:flex;gap:12px;align-items:flex-start;margin-top:8px}.ad-vid img{width:72px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:var(--chip);flex:none}.ad-vid p{margin:0}
+#adVideo{width:100%}.ad-budgets input{max-width:220px}.ad-ages input{width:70px;display:inline-block;margin:0 4px}.ad-budgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.ad-budgets input{width:100%}
+.ad-total{font-weight:700;margin:10px 0 0}.ad-tips{margin:14px 0 0;padding-left:18px;color:var(--muted)}.ad-tips:empty{display:none}.ad-acts{margin-top:6px}.ad-det ul{margin:6px 0 0;padding-left:18px}.rp-chip:disabled{opacity:.45;cursor:not-allowed}
+.dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 #rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
 .dk-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.dk-grid>section,.dk-side>section{margin:0}.dk-side{display:flex;flex-direction:column;gap:16px}
@@ -431,6 +435,7 @@ main{max-width:none}
     <button type="button" role="tab" data-go="dashboard"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
     <button type="button" role="tab" data-go="new" class="nav-new"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Create new post</span></button>
     <button type="button" role="tab" data-go="reports"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span>Reports</span></button>
+    <button type="button" role="tab" data-go="ads"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h3l6 4V6L6 10zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><span>Ads</span></button>
     <button type="button" role="tab" data-go="activity"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Activity</span></button>
     <button type="button" role="tab" data-go="videos"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Media</span></button>
     <button type="button" role="tab" data-go="schedule"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Schedule</span></button>
@@ -539,6 +544,63 @@ main{max-width:none}
       </div>
       <div class="rp-card"><div class="rp-ch"><h3>Latest reviews</h3><div class="rp-chips" id="rpRevStore"></div></div><ul class="rp-reviews" id="rpReviews"></ul></div>
     </div>
+  </section>
+  <section data-tab="ads" id="adsPage">
+    <div class="dashhead"><h2>Ads</h2><button type="button" class="primary" id="adNewBtn" style="margin-left:auto">+ Create an ad</button></div>
+    <div id="adForm" class="ad-form" hidden>
+      <h3>Where and what for</h3>
+      <div class="rp-chips" id="adPlats"></div>
+      <label for="adBrief">What should this ad do? <span class="hint">(optional)</span></label>
+      <textarea id="adBrief" rows="2" placeholder="e.g. more UK downloads before Christmas, about £10 a day, show the boss fights"></textarea>
+      <div class="row" style="margin-top:10px"><button type="button" class="primary" id="adSuggest">Suggest the whole ad with AI</button><button type="button" id="adBlank">Fill it in myself</button></div>
+      <p id="adAiStatus" class="status" role="status"></p>
+      <div id="adFields" hidden>
+        <p class="ad-sum" id="adSummary"></p>
+        <div class="rp-grid2">
+          <div class="rp-card">
+            <h3>Ad</h3>
+            <label for="adName">Name <span class="hint">(only you see this)</span></label><input id="adName" type="text" maxlength="80">
+            <label for="adVideo">Video</label><select id="adVideo"></select>
+            <div class="ad-vid"><img id="adPoster" alt=""><p class="hint" id="adVideoWhy"></p></div>
+            <p class="hint">Every ad links to <b>download.monkeyvinerush.com</b>, which opens the right store. Apple Search Ads goes to the App Store page and uses keywords, not the video.</p>
+          </div>
+          <div class="rp-card">
+            <h3>Audience</h3>
+            <label for="adCountries">Countries <span class="hint">(2-letter codes)</span></label><input id="adCountries" type="text" placeholder="GB, IE, US">
+            <div class="ad-ages"><label>Ages <input id="adAgeMin" type="number" min="18" max="65" value="18"> to <input id="adAgeMax" type="number" min="18" max="65" value="65"></label></div>
+            <label for="adInterests">Interests <span class="hint">(comma separated)</span></label><input id="adInterests" type="text" placeholder="Mobile games, Casual games">
+            <p class="hint" id="adAudWhy"></p>
+          </div>
+        </div>
+        <div class="rp-card">
+          <h3>Budget</h3>
+          <div class="ad-budgets" id="adBudgets"></div>
+          <label for="adEnd">End date <span class="hint">(leave empty to run until you pause it)</span></label><input id="adEnd" type="date">
+          <p class="ad-total" id="adTotal"></p><p class="hint" id="adBudWhy"></p>
+        </div>
+        <div class="rp-card" data-adp="meta"><h3>Facebook &amp; Instagram wording</h3>
+          <label for="adMText">Primary text <span class="count" id="adMTextN"></span></label><textarea id="adMText" rows="2"></textarea>
+          <label for="adMHead">Headline</label><input id="adMHead" type="text" maxlength="60">
+          <label for="adMDesc">Description</label><input id="adMDesc" type="text" maxlength="60">
+          <label for="adMCta">Button</label><select id="adMCta"><option value="DOWNLOAD">Download</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select></div>
+        <div class="rp-card" data-adp="tiktok"><h3>TikTok wording</h3>
+          <label for="adTText">Ad text <span class="hint">(12–100 characters, no emojis)</span></label><input id="adTText" type="text" maxlength="100">
+          <label for="adTCta">Button</label><select id="adTCta"><option value="DOWNLOAD_NOW">Download now</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select></div>
+        <div class="rp-card" data-adp="google"><h3>Google &amp; YouTube wording</h3>
+          <label for="adGHeads">Headlines <span class="hint">(one per line, up to 5, 40 characters each)</span></label><textarea id="adGHeads" rows="5"></textarea>
+          <label for="adGLong">Long headline <span class="hint">(up to 90)</span></label><input id="adGLong" type="text" maxlength="90">
+          <label for="adGDescs">Descriptions <span class="hint">(one per line, up to 90 characters each)</span></label><textarea id="adGDescs" rows="2"></textarea>
+          <p class="hint">The video goes up to your YouTube channel as unlisted (Google only plays ads from YouTube).</p></div>
+        <div class="rp-card" data-adp="asa"><h3>Apple Search Ads keywords</h3>
+          <label for="adABid">Default bid per tap (£)</label><input id="adABid" type="number" min="0.1" step="0.05" value="0.5">
+          <label for="adAKw">Keywords <span class="hint">(one per line: keyword | exact or broad | bid)</span></label><textarea id="adAKw" rows="8" placeholder="swinging game | exact | 0.60"></textarea></div>
+        <ul class="ad-tips" id="adTips"></ul>
+        <div class="row" style="margin-top:12px"><button type="button" class="primary" id="adCreate">Create ad and go live</button><button type="button" id="adCancel">Cancel</button></div>
+        <p id="adStatus" class="status" role="status"></p>
+      </div>
+    </div>
+    <h3>Your ads</h3>
+    <ul class="rp-conn" id="adList"><li class="rp-empty">Loading…</li></ul>
   </section>
   <section data-tab="connections">
     <h2>Connections</h2>
@@ -1993,7 +2055,7 @@ function edited(){
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
   return p;
 }
-const TABS = ['dashboard', 'reports', 'connections', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
+const TABS = ['dashboard', 'reports', 'ads', 'connections', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
 function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
   stopAllMedia();
@@ -2007,6 +2069,7 @@ function showTab(t, push = true){
   if (t === 'outreach') loadOutreach();
   if (t === 'reports') loadReports();
   if (t === 'connections') loadConnections();
+  if (t === 'ads') loadAds();
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
@@ -2910,6 +2973,148 @@ function renderReviews(){
   const revs = all.filter(r => rpRevStore === 'all' || r.store === rpRevStore).slice(0, 30);
   $('#rpReviews').innerHTML = revs.length ? revs.map(r => `<li><div class="rp-rh"><span class="rp-stars" aria-label="${r.stars} out of 5 stars">${'★'.repeat(r.stars || 0)}<span>${'★'.repeat(5 - (r.stars || 0))}</span></span> <b>${esc(r.title || '')}</b> <small>${RP_NAME[r.store]}${r.country ? ' · ' + esc(r.country.toUpperCase()) : ''}${r.at ? ' · ' + rpDate(r.at.slice(0, 10)) : ''}${r.version ? ' · v' + esc(r.version) : ''}</small></div><p>${esc(r.text)}</p></li>`).join('')
     : '<li class="rp-empty">No written reviews yet.</li>';
+}
+
+// ---------- Ads page: create (AI suggests), list, pause, restart ----------
+const AD_PLATS = [['meta', 'Facebook & Instagram', 'meta'], ['tiktok', 'TikTok', 'tiktok'], ['asa', 'Apple Search Ads', 'apple'], ['google', 'Google & YouTube', 'google']];
+const AD_MIN = { meta:1, tiktok:20, asa:1, google:1 };
+let adPlats = new Set(), adLib = null, adMod = null, adBusy = false;
+async function adEnsureReport(){ if (!rpData){ try { rpData = (await readFile('reports/latest.json')).data; rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) {} } }
+const adConnected = k => rpData?.ads?.[k]?.status === 'ok';
+async function loadAds(){
+  await adEnsureReport(); renderAdPlats();
+  let list = []; try { list = (await readFile('ads/index.json')).data || []; } catch (e) {}
+  const nm = { meta:'Facebook & Instagram', tiktok:'TikTok', asa:'Apple Search Ads', google:'Google & YouTube' }, lab = { live:'● Live', paused:'❚❚ Paused', error:'⚠ Failed', failed:'⚠ Failed' };
+  $('#adList').innerHTML = list.length ? list.map(a => `<li data-ad="${esc(a.id)}"><b>${esc(a.name)}</b> <span class="rp-st ${a.status === 'live' ? 'good' : a.status === 'paused' ? 'mid' : 'bad'}">${lab[a.status] || esc(a.status)}</span> <small class="hint">${new Date(a.at).toLocaleDateString('en-GB', { day:'numeric', month:'short' })}</small>
+      <p>${Object.entries(a.platforms || {}).map(([k, v]) => `${nm[k] || k}: ${v === 'live' ? 'live' : v === 'paused' ? 'paused' : 'failed'}`).join(' · ')}</p>
+      <div class="row ad-acts">${a.status === 'live' ? '<button type="button" class="sm" data-adact="pause">Pause</button>' : a.status === 'paused' ? '<button type="button" class="sm" data-adact="resume">Restart</button>' : ''}<button type="button" class="ghost sm" data-adact="details">Details</button></div><div class="ad-det" hidden></div></li>`).join('')
+    : '<li class="rp-empty">No ads yet. Press “Create an ad” to make your first.</li>';
+  document.querySelectorAll('[data-adact]').forEach(b => b.onclick = () => adAction(b.closest('[data-ad]').dataset.ad, b.dataset.adact, b));
+}
+function renderAdPlats(){
+  $('#adPlats').innerHTML = AD_PLATS.map(([k, n, rk]) => { const ok = adConnected(rk);
+    return `<button type="button" class="rp-chip" data-adplat="${k}" aria-pressed="${adPlats.has(k)}"${ok ? '' : ' disabled title="Connect it under Settings → Credentials first"'}>${n}${ok ? '' : ' (not connected)'}</button>`; }).join('');
+  document.querySelectorAll('[data-adplat]').forEach(b => b.onclick = () => { const k = b.dataset.adplat; adPlats.has(k) ? adPlats.delete(k) : adPlats.add(k); renderAdPlats(); adShowPlats(); adTotal(); });
+}
+function adShowPlats(){
+  document.querySelectorAll('[data-adp]').forEach(el => el.hidden = !adPlats.has(el.dataset.adp));
+  const cur = {}; document.querySelectorAll('#adBudgets input').forEach(i => cur[i.dataset.k] = i.value);
+  $('#adBudgets').innerHTML = AD_PLATS.filter(([k]) => adPlats.has(k)).map(([k, n]) => `<label>${n} <span class="hint">£ a day${AD_MIN[k] > 1 ? ', at least £' + AD_MIN[k] : ''}</span><input type="number" min="${AD_MIN[k]}" step="1" data-k="${k}" value="${cur[k] || AD_MIN[k] * (k === 'tiktok' ? 1 : 5)}"></label>`).join('') || '<p class="hint">Choose at least one platform above.</p>';
+  document.querySelectorAll('#adBudgets input').forEach(i => i.oninput = adTotal);
+}
+function adTotal(){
+  const day = [...document.querySelectorAll('#adBudgets input')].reduce((a, i) => a + (+i.value || 0), 0), end = $('#adEnd').value;
+  const days = end ? Math.max(1, Math.ceil((new Date(end + 'T23:59:00') - Date.now())/864e5)) : 0;
+  $('#adTotal').textContent = day ? `Up to ${rpMoney(day, 'GBP')} a day${days ? `, about ${rpMoney(day*days, 'GBP')} in total over ${days} day${days === 1 ? '' : 's'}` : ', until you pause it'}.` : '';
+}
+async function adLibrary(){
+  if (adLib) return adLib;
+  let ids = vFiles && vFiles.length ? vFiles : []; if (!ids.length){ try { ids = ((await gh('/contents/media')) || []).filter(f => /\.(mp4|mov)$/i.test(f.name)).map(f => f.name.replace(/\.(mp4|mov)$/i, '')); } catch (e) {} }
+  if (!Object.keys(durations || {}).length){ try { durations = (await readFile('media/durations.json')).data; } catch (e) {} }
+  let gone = []; try { gone = (await readFile('media/deleted.json')).data || []; } catch (e) {}
+  return adLib = ids.filter(id => !gone.includes(id)).map(id => ({ id, title:label(id), seconds:lenOf(id) || undefined }));
+}
+async function adFillVideos(sel){
+  const lib = await adLibrary();
+  $('#adVideo').innerHTML = lib.map(v => `<option value="${esc(v.id)}">${esc(v.title)}${v.seconds ? ' · ' + Math.round(v.seconds) + 's' : ''}</option>`).join('');
+  if (sel && lib.some(v => v.id === sel)) $('#adVideo').value = sel;
+  adPoster();
+}
+function adPoster(){ const id = $('#adVideo').value, img = $('#adPoster'); img.removeAttribute('src'); if (id) poster(id).then(u => { if ($('#adVideo').value === id) img.src = u; }).catch(() => {}); }
+$('#adVideo').onchange = () => { $('#adVideoWhy').textContent = ''; adPoster(); };
+$('#adEnd').oninput = adTotal;
+$('#adMText').oninput = () => $('#adMTextN').textContent = $('#adMText').value.length + ' / 125';
+$('#adNewBtn').onclick = async () => { $('#adForm').hidden = false; await adEnsureReport();
+  if (!adPlats.size) for (const [k, , rk] of AD_PLATS) if (adConnected(rk)) adPlats.add(k);
+  renderAdPlats(); adShowPlats(); $('#adBrief').focus(); };
+$('#adCancel').onclick = () => { $('#adForm').hidden = true; $('#adFields').hidden = true; };
+$('#adBlank').onclick = async () => { if (!adPlats.size){ say($('#adAiStatus'), 'Choose at least one platform first.', true); return; } await adFillVideos(); $('#adFields').hidden = false; adShowPlats(); adTotal(); };
+$('#adSuggest').onclick = async () => {
+  const st = $('#adAiStatus');
+  if (!adPlats.size){ say(st, 'Choose at least one connected platform first.', true); return; }
+  if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials first (with your sign-in password), then try again.', true); return; }
+  say(st, 'Looking at what has worked and planning the ad… (about 30 seconds)'); $('#adSuggest').disabled = true;
+  try {
+    if (!adMod){ const res = await fetch(API + '/contents/src/ad-prompt.js', { headers:{ ...auth(), Accept:'application/vnd.github.raw' } }); if (!res.ok) throw new Error('could not load the ad AI (' + res.status + ')'); adMod = await import(URL.createObjectURL(new Blob([await res.text()], { type:'text/javascript' }))); }
+    const lib = await adLibrary(), R = rpData || {};
+    const vids = rpData ? allVideos().filter(v => v.views != null).sort((a, b) => b.views - a.views).slice(0, 25).map(v => ({ platform:v.k, title:v.title, kind:v.kindName, views:v.views, likes:v.likes, watchedPercent:v.avgPercent, library:v.lib })) : [];
+    const report = { followers:R.summary?.followers, topVideos:vids, aiOverview:R.insights ? { headline:R.insights.headline, wins:R.insights.wins } : null,
+      pastAds:['meta', 'apple', 'tiktok', 'google'].flatMap(k => (R.ads?.[k]?.campaigns || []).map(c => ({ platform:k, ...c }))).slice(0, 15) };
+    const plats = AD_PLATS.filter(([k]) => adPlats.has(k)).map(([k, n]) => n);
+    const { default:Anthropic } = await import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm');
+    const client = new Anthropic({ apiKey:aiKey, dangerouslyAllowBrowser:true });
+    const r = await client.beta.messages.create({ model:adMod.MODEL, max_tokens:16000, output_config:{ effort:'medium', format:{ type:'json_schema', schema:adMod.SCHEMA } },
+      betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:adMod.SYSTEM, messages:[{ role:'user', content:adMod.userPrompt({ brief:$('#adBrief').value.trim(), platforms:plats, library:lib, report }) }] });
+    if (r.stop_reason === 'refusal') throw new Error('the AI declined; try rewording the brief');
+    const d = JSON.parse(r.content.filter(b => b.type === 'text').map(b => b.text).join(''));
+    await adFillVideos(d.video?.id);
+    $('#adSummary').textContent = d.summary || '';
+    $('#adName').value = d.name || ''; $('#adVideoWhy').textContent = d.video?.why || '';
+    $('#adCountries').value = (d.audience?.countries || []).join(', '); $('#adAgeMin').value = Math.max(18, d.audience?.ageMin || 18); $('#adAgeMax').value = Math.min(65, d.audience?.ageMax || 65);
+    $('#adInterests').value = (d.audience?.interests || []).join(', '); $('#adAudWhy').textContent = d.audience?.why || '';
+    adShowPlats(); for (const i of document.querySelectorAll('#adBudgets input')) i.value = Math.max(AD_MIN[i.dataset.k], Math.round(d.budget?.[i.dataset.k] || 0));
+    $('#adEnd').value = d.budget?.days ? new Date(Date.now() + d.budget.days*864e5).toISOString().slice(0, 10) : ''; $('#adBudWhy').textContent = d.budget?.why || '';
+    $('#adMText').value = d.meta?.primaryText || ''; $('#adMText').oninput(); $('#adMHead').value = d.meta?.headline || ''; $('#adMDesc').value = d.meta?.description || ''; $('#adMCta').value = d.meta?.cta || 'DOWNLOAD';
+    $('#adTText').value = d.tiktok?.adText || ''; $('#adTCta').value = d.tiktok?.cta || 'DOWNLOAD_NOW';
+    $('#adGHeads').value = (d.google?.headlines || []).join('\n'); $('#adGLong').value = d.google?.longHeadline || ''; $('#adGDescs').value = (d.google?.descriptions || []).join('\n');
+    $('#adABid').value = d.asa?.defaultBid || 0.5; $('#adAKw').value = (d.asa?.keywords || []).map(k => `${k.text} | ${String(k.matchType).toLowerCase()} | ${(+k.bid || 0.5).toFixed(2)}`).join('\n');
+    $('#adTips').innerHTML = (d.tips || []).map(t => `<li>${esc(t)}</li>`).join('');
+    $('#adFields').hidden = false; adTotal();
+    say(st, 'Here’s the plan. Change anything you like, then create it.');
+  } catch (e) { say(st, 'Couldn’t plan the ad: ' + (e.message || e), true); }
+  $('#adSuggest').disabled = false;
+};
+$('#adCreate').onclick = async () => {
+  if (adBusy) return; const st = $('#adStatus');
+  const plats = AD_PLATS.filter(([k]) => adPlats.has(k)).map(([k]) => k);
+  const budget = {}; for (const i of document.querySelectorAll('#adBudgets input')) budget[i.dataset.k] = +i.value || 0;
+  const countries = $('#adCountries').value.toUpperCase().split(/[^A-Z]+/).filter(c => c.length === 2);
+  const r = { name:$('#adName').value.trim(), platforms:plats, video:$('#adVideo').value, url:'https://download.monkeyvinerush.com/', endDate:$('#adEnd').value || null,
+    audience:{ countries, ageMin:+$('#adAgeMin').value || 18, ageMax:+$('#adAgeMax').value || 65, interests:$('#adInterests').value.split(',').map(x => x.trim()).filter(Boolean) }, budget,
+    meta:{ primaryText:$('#adMText').value.trim(), headline:$('#adMHead').value.trim(), description:$('#adMDesc').value.trim(), cta:$('#adMCta').value },
+    tiktok:{ adText:$('#adTText').value.trim(), cta:$('#adTCta').value },
+    google:{ headlines:$('#adGHeads').value.split('\n').map(x => x.trim()).filter(Boolean), longHeadline:$('#adGLong').value.trim(), descriptions:$('#adGDescs').value.split('\n').map(x => x.trim()).filter(Boolean) },
+    asa:{ defaultBid:+$('#adABid').value || 0.5, keywords:$('#adAKw').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(p => p[0]).map(([text, m, b]) => ({ text, matchType:/exact/i.test(m || '') ? 'EXACT' : 'BROAD', bid:+b || +$('#adABid').value || 0.5 })) } };
+  const bad = !plats.length ? 'Choose at least one platform.' : !r.name ? 'Give the ad a name.' : !countries.length ? 'Add at least one country code (e.g. GB).'
+    : plats.some(p => budget[p] < AD_MIN[p]) ? 'A budget is below that platform’s minimum.' : r.endDate && r.endDate < new Date().toISOString().slice(0, 10) ? 'The end date is in the past.'
+    : plats.includes('meta') && !(r.meta.primaryText && r.meta.headline) ? 'Add the Facebook & Instagram text and headline.' : plats.includes('tiktok') && r.tiktok.adText.length < 12 ? 'The TikTok ad text needs at least 12 characters.'
+    : plats.includes('google') && !(r.google.headlines.length && r.google.descriptions.length) ? 'Add Google headlines and descriptions.' : plats.includes('asa') && !r.asa.keywords.length ? 'Add some Apple Search Ads keywords.' : '';
+  if (bad){ say(st, bad, true); return; }
+  const day = plats.reduce((a, p) => a + budget[p], 0);
+  if (!confirm(`This ad goes live straight away and starts spending up to ${rpMoney(day, 'GBP')} a day${r.endDate ? ' until ' + new Date(r.endDate + 'T12:00:00').toLocaleDateString('en-GB', { day:'numeric', month:'long' }) : ' until you pause it'} on ${AD_PLATS.filter(([k]) => adPlats.has(k)).map(([, n]) => n).join(', ')}. Each platform reviews it first, usually within a day.\n\nGo ahead?`)) return;
+  adBusy = true; $('#adCreate').disabled = true;
+  const id = 'ad-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
+  try {
+    say(st, 'Saving the ad…');
+    await writeFile(`ads/requests/${id}.json`, { id, at:new Date().toISOString(), ...r }, undefined, 'Ad request: ' + r.name);
+    await gh('/actions/workflows/ads.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ action:'create', id } }) });
+    say(st, 'Creating it on each platform (uploading the video takes a few minutes)…');
+    let done = null; for (let i = 0; i < 90 && !done; i++){ await new Promise(res => setTimeout(res, 10000)); try { done = (await readFile(`ads/created/${id}.json`)).data; } catch (e) {} }
+    if (!done){ say(st, 'Still working on it: check “Your ads” below in a few minutes.'); }
+    else { const fails = Object.entries(done.results).filter(([, v]) => v.status !== 'live');
+      say(st, done.status === 'failed' ? 'It couldn’t be created: ' + fails.map(([k, v]) => k + ': ' + v.error).join(' | ') : fails.length ? 'Live, except: ' + fails.map(([k, v]) => k + ': ' + v.error).join(' | ') : 'Done: the ad is live (each platform reviews it before it shows).', done.status === 'failed' || fails.length > 0);
+      if (done.status !== 'failed'){ $('#adFields').hidden = true; $('#adForm').hidden = true; } }
+    loadAds();
+  } catch (e) { say(st, 'Couldn’t create it: ' + (e.message || e), true); }
+  adBusy = false; $('#adCreate').disabled = false;
+};
+async function adAction(id, act, btn){
+  const li = btn.closest('[data-ad]'), det = li.querySelector('.ad-det');
+  if (act === 'details'){
+    if (!det.hidden){ det.hidden = true; return; }
+    try { const c = (await readFile(`ads/created/${id}.json`)).data, nm = { meta:'Facebook & Instagram', tiktok:'TikTok', asa:'Apple Search Ads', google:'Google & YouTube' };
+      det.innerHTML = `<p>${esc(label(c.video || ''))} · ${esc((c.audience?.countries || []).join(', '))} · ages ${c.audience?.ageMin}–${c.audience?.ageMax}${c.endDate ? ' · ends ' + esc(c.endDate) : ''}</p><ul>${Object.entries(c.results).map(([k, v]) => `<li><b>${nm[k] || k}</b>: ${v.status}${c.budget?.[k] ? ' · ' + rpMoney(c.budget[k], 'GBP') + ' a day' : ''}${v.link ? ` · <a href="${esc(v.link)}" target="_blank" rel="noopener">open in ${nm[k] || k}</a>` : ''}${v.error ? '<br><small class="prob">' + esc(v.error) + '</small>' : ''}${v.statusError ? '<br><small class="prob">' + esc(v.statusError) + '</small>' : ''}</li>`).join('')}</ul>`; det.hidden = false; }
+    catch (e) { det.textContent = 'Couldn’t load the details: ' + e.message; det.hidden = false; }
+    return;
+  }
+  if (act === 'pause' && !confirm('Pause this ad on every platform? It stops spending until you restart it.')) return;
+  btn.disabled = true; btn.textContent = act === 'pause' ? 'Pausing…' : 'Restarting…';
+  try {
+    const before = (await readFile('ads/index.json')).data.find(x => x.id === id)?.status;
+    await gh('/actions/workflows/ads.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ action:act, id } }) });
+    for (let i = 0; i < 30; i++){ await new Promise(res => setTimeout(res, 6000)); try { const now = (await readFile('ads/index.json')).data.find(x => x.id === id)?.status; if (now !== before) break; } catch (e) {} }
+  } catch (e) { alert('Couldn’t ' + act + ' it: ' + e.message); }
+  loadAds();
 }
 
 // ---------- connections (Settings → Connections) ----------
