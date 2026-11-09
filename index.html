@@ -44,6 +44,10 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-d{font-weight:700;white-space:nowrap}.rp-d-up{color:#0ca30c}.rp-d-down{color:#ec835a}.rp-d-flat,.rp-d-none{color:var(--muted);font-weight:500}.rp-d-n{color:var(--fg)}
 .rp-spark{display:block;width:100%;height:30px;margin-top:auto;padding-top:6px}
 .rp-plat{border-left:3px solid var(--pc)}
+.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
+.dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
+.dk-grid{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:16px;align-items:start}.dk-grid>section,.dk-side>section{margin:0}.dk-side{display:flex;flex-direction:column;gap:16px}
+@media (max-width:1100px){.dk-grid{grid-template-columns:1fr}}
 .rp-tease{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-size:.9rem;margin:0}.rp-tease:empty{display:none}
 .rp-ai{border:1px solid rgba(198,244,50,.28);border-radius:16px;padding:16px 18px;background:linear-gradient(160deg,rgba(198,244,50,.07),rgba(198,244,50,0) 55%)}
 .rp-ai-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-ai-top small{color:var(--muted)}
@@ -441,14 +445,21 @@ main{max-width:none}
       </div>
     </div>
   </nav>
-  <div class="dashtop" data-tab="dashboard"><button type="button" class="primary" data-go="new">+ Create new post</button></div>
-  <section id="dash" data-tab="dashboard">
-    <div class="dashhead"><h2>Coming up</h2></div>
+  <div class="dk" data-tab="dashboard">
+  <div class="rp-kpis dk-kpis" id="dkKpis" title="Open Reports"></div>
+  <div class="dk-grid">
+  <section id="dash">
+    <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary dk-new" data-go="new">+ Create new post</button></div>
     <div class="stats" id="stats"></div>
     <ul id="upcoming" class="q"><li class="loadrow"><span class="spin"></span>Loading…</li></ul><div class="pager" id="upPager" hidden></div>
     <h3 class="schedh" hidden>Set for a time by you</h3><ul class="q schedlist" hidden></ul>
-    <p class="hint">The next 10 posting times from your Schedule, in its time zone. Captions are written by AI just before each one goes out.</p>
   </section>
+  <div class="dk-side">
+    <section class="dk-card"><div class="rp-ch"><h3>Followers</h3></div><div id="dkFol"></div></section>
+    <section class="dk-card"><div class="rp-ch"><h3>Views by platform</h3><span class="hint">recent videos</span></div><div id="dkViews"></div></section>
+  </div>
+  </div>
+  </div>
   <section id="reports" data-tab="reports" class="rp">
     <div class="rp-head">
       <h2>Reports</h2>
@@ -1932,6 +1943,24 @@ async function renderDash(){
     : byTime.slice(upPage*5, upPage*5 + 5).map(g => `<li class="ugrp${g.rows.every(r => r.why) ? ' skipslot' : ''}">${dateBlock(g.label)}<div class="uvs">${g.rows.map(line).join('')}</div></li>`).join('') || '<li><span></span><span class="t">No posting times set (Schedule).</span><span></span></li>';
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => compose(b.dataset.edit));
   document.querySelectorAll('#upcoming [data-poster]').forEach(el => poster(el.dataset.poster).then(u => el.style.backgroundImage = `url(${u})`).catch(() => {}));
+  renderDashStats().catch(e => console.warn('dash stats', e));
+}
+// key figures from the latest report (the same numbers as Reports → Overview, last 30 days)
+async function renderDashStats(){
+  if (!rpData){ try { rpData = (await readFile('reports/latest.json')).data; rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) {} }
+  if (!rpData){ $('#dkKpis').innerHTML = ''; $('#dkFol').innerHTML = $('#dkViews').innerHTML = '<p class="rp-empty">Shows after the first report (Reports → Refresh now).</p>'; return; }
+  const keep = rpPer; rpPer = 30; const F = figures(), R = F.R; rpPer = keep;
+  const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-30)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
+  if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum;
+  const ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
+  $('#dkKpis').innerHTML = [
+    kpi('Downloads', F.dlAny ? rpN(F.dl) : '–', F.dlAny ? delta(F.dl, F.dlPrev) : '', rpSpark(F.a.cur.map((x, i) => (F.aOk ? x.v : 0) + (F.gOk ? (F.g.cur[i]?.v || 0) : 0)), '#3987e5'), F.dlAny ? 'last 30 days' : 'stores not connected'),
+    kpi('Followers', rpN(F.fol), F.folAgo != null ? delta(F.fol, F.folAgo) : '', rpSpark(rpTrend.slice(-31).map(t => sumObj(t.followers)), '#199e70'), 'all accounts'),
+    kpi(F.viewsGained != null ? 'Video views gained' : 'Video views', rpN(F.viewsGained != null ? F.viewsGained : F.viewsTotal), F.viewsGained != null ? delta(F.viewsGained, F.viewsGainedPrev) : '', '', F.viewsGained != null ? 'last 30 days' : 'recent videos'),
+    kpi('Money in', Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : '–', '', F.amOk ? rpSpark(F.am.cur.map(x => x.v), '#0ca30c') : '', F.aOk || F.amOk ? 'last 30 days' : 'not connected yet'),
+  ].join('');
+  rpLine($('#dkFol'), rpTrend.length > 1 ? SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-30).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) })) : [], 'The lines appear after the second daily reading.');
+  rpHBars($('#dkViews'), SOC.map(k => ({ label:RP_NAME[k], value:R.summary?.views?.[k], color:RP_COL[k] })).filter(r => r.value != null).sort((a, b) => b.value - a.value), rpN, 'Appears once the social accounts are connected.');
 }
 
 // ---------- composer: AI suggestions, editing, saving captions for a scheduled post ----------
@@ -2647,6 +2676,7 @@ $('#rpRefresh').onclick = async () => {
 };
 document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { rpPer = +b.dataset.per; try { localStorage.setItem('rpPer', rpPer); } catch (e) {} if (rpData) renderReports(); });
 document.querySelectorAll('[data-rt]').forEach(b => b.onclick = () => { rpTab = b.dataset.rt; try { localStorage.setItem('rpTab', rpTab); } catch (e) {} showRpTab(); });
+$('#dkKpis').onclick = () => showTab('reports');
 $('#rpVidSort').onchange = () => { rpVidMax = 15; if (rpData) rpRenderVideos(); };
 function showRpTab(){
   document.querySelectorAll('[data-rp]').forEach(p => p.hidden = p.dataset.rp !== rpTab);
