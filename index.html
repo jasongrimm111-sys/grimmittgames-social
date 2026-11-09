@@ -2592,7 +2592,7 @@ $('#rpRefresh').onclick = async () => {
 };
 document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { rpPer = +b.dataset.per; try { localStorage.setItem('rpPer', rpPer); } catch (e) {} if (rpData) renderReports(); });
 document.querySelectorAll('[data-rt]').forEach(b => b.onclick = () => { rpTab = b.dataset.rt; try { localStorage.setItem('rpTab', rpTab); } catch (e) {} showRpTab(); });
-$('#rpVidSort').onchange = () => { rpVidMax = 15; if (rpData) renderVideos(); };
+$('#rpVidSort').onchange = () => { rpVidMax = 15; if (rpData) rpRenderVideos(); };
 function showRpTab(){
   document.querySelectorAll('[data-rp]').forEach(p => p.hidden = p.dataset.rp !== rpTab);
   document.querySelectorAll('[data-rt]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.rt === rpTab)));
@@ -2734,11 +2734,11 @@ function renderSocial(){
   rpHeat($('#rpHeat'), vids.filter(v => v.at));
   const ser = SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-Math.max(F.n, 2)).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) }));
   rpLine($('#rpFol'), rpTrend.length > 1 ? ser : [], 'This builds up from one reading a day: the lines appear after the second day.');
-  $('#rpVidPlat').innerHTML = ['all', ...SOC].map(k => `<button type="button" class="rp-chip" data-vp="${k}" aria-pressed="${rpVidPlat === k}">${k === 'all' ? 'All' : RP_NAME[k]}</button>`).join('');
-  document.querySelectorAll('[data-vp]').forEach(b => b.onclick = () => { rpVidPlat = b.dataset.vp; rpVidMax = 15; renderSocial(); });
-  renderVideos();
+  $('#rpVidPlat').innerHTML = ['all', ...SOC].map(k => `<button type="button" class="rp-chip" data-rvp="${k}" aria-pressed="${rpVidPlat === k}">${k === 'all' ? 'All' : RP_NAME[k]}</button>`).join('');
+  document.querySelectorAll('[data-rvp]').forEach(b => b.onclick = () => { rpVidPlat = b.dataset.rvp; rpVidMax = 15; renderSocial(); });
+  rpRenderVideos();
 }
-function renderVideos(){
+function rpRenderVideos(){
   const sort = $('#rpVidSort').value, w = v => v.avgPercent != null ? v.avgPercent : v.avgSeconds != null ? v.avgSeconds : -1;
   const vids = allVideos().filter(v => rpVidPlat === 'all' || v.k === rpVidPlat).sort((a, b) => sort === 'new' ? String(b.at).localeCompare(String(a.at)) : sort === 'likes' ? (b.likes || 0) - (a.likes || 0) : sort === 'watched' ? w(b) - w(a) : (b.views || 0) - (a.views || 0));
   const top = Math.max(1, ...vids.map(v => v.views || 0));
@@ -2748,7 +2748,7 @@ function renderVideos(){
      <td class="n">${v.avgPercent != null ? Math.round(v.avgPercent) + '%' : v.avgSeconds != null ? v.avgSeconds + ' s' : '–'}</td></tr>`).join('') + '</tbody>'
     : '<tbody><tr><td class="rp-empty">No videos to show for this account yet.</td></tr></tbody>';
   const wrap = $('#rpVideos').parentElement; let more = wrap.querySelector('.rp-more');
-  if (vids.length > rpVidMax){ if (!more){ more = document.createElement('button'); more.type = 'button'; more.className = 'rp-more'; wrap.appendChild(more); } more.textContent = `Show more (${vids.length - rpVidMax} more)`; more.onclick = () => { rpVidMax += 25; renderVideos(); }; }
+  if (vids.length > rpVidMax){ if (!more){ more = document.createElement('button'); more.type = 'button'; more.className = 'rp-more'; wrap.appendChild(more); } more.textContent = `Show more (${vids.length - rpVidMax} more)`; more.onclick = () => { rpVidMax += 25; rpRenderVideos(); }; }
   else if (more) more.remove();
 }
 
