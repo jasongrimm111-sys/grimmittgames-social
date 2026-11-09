@@ -396,6 +396,14 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <div class="rp-tablewrap"><table class="rp-table" id="rpVideos"></table></div>
   </section>
   <section data-tab="reports">
+    <h3>Paid ads &amp; boosts</h3>
+    <p class="hint">Last 30 days across Facebook &amp; Instagram (boosted posts included), Apple Search Ads, TikTok Ads Manager and Google Ads. Installs are what each ad platform counts as an app install.</p>
+    <div class="stats" id="rpAdTiles"></div>
+    <div class="rp-chart"><h3>Ad spend per day</h3><div id="rpAdSpend"></div></div>
+    <h3>Campaigns</h3>
+    <div class="rp-tablewrap"><table class="rp-table" id="rpAds"></table></div>
+  </section>
+  <section data-tab="reports">
     <h3>App Store and Google Play</h3>
     <div class="stats" id="rpStores"></div>
     <h3>App health</h3>
@@ -875,6 +883,26 @@ CREDS.push(['TikTok sandbox', 'Your TikTok app’s Sandbox sign-in. Used whereve
     ['TIKTOK_STATS_CLIENT_KEY', 'Sandbox client key', `<li>developers.tiktok.com → your app → switch to <b>Sandbox</b> at the top → copy the <b>Client key</b> (starts <code>sbaw</code>).</li>`],
     ['TIKTOK_STATS_CLIENT_SECRET', 'Sandbox client secret', `<li>Same Sandbox page: copy the <b>Client secret</b>.</li>`],
     ['TIKTOK_STATS_REFRESH_TOKEN', 'Sandbox refresh token', `<li>In Sandbox: add your TikTok account under <b>Target users</b>, scopes <code>user.info.basic</code>, <code>user.info.stats</code>, <code>video.list</code> (plus <code>video.publish</code> and <code>video.upload</code> to post), redirect URI <code>https://monkeyvinerush.com/</code>.</li><li>Ask Claude for the sign-in link, sign in, and give Claude the code: it swaps it for this refresh token.</li>`],
+  ]]);
+CREDS.push(['Ads: Facebook & Instagram', 'Lets the Reports tab read your ad spend and results, boosted posts included (they run through your ad account).', [
+    ['META_AD_ACCOUNT_ID', 'Ad account ID', `<li>Open <a href="https://adsmanager.facebook.com/" target="_blank" rel="noopener">Ads Manager</a>: the ad account ID is the number after <code>act=</code> in the address bar (or in the account dropdown at the top left).</li>`],
+    ['META_ADS_TOKEN', 'Ads token', `<li>Best (never expires): <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener">Business settings → Users → System users</a> → <b>Add</b> (role Admin) → <b>Assign assets</b>: your ad account (View performance) → <b>Generate new token</b> for your Meta app with the <code>ads_read</code> permission, expiry <b>Never</b>. Copy it here.</li><li>Quicker: in the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> generate a User token with <code>ads_read</code>, extend it in the Access Token Debugger (it then lasts about 60 days) and paste it here.</li><li>If <code>ads_read</code> isn’t offered: your app → Use cases → add <b>Measure ad performance</b> (Marketing API) first.</li>`],
+  ]]);
+CREDS.push(['Ads: Apple Search Ads', 'Lets the Reports tab read Apple Search Ads spend, taps and installs.', [
+    ['ASA_PRIVATE_KEY', 'Private key', `<li>Ask Claude to make the key pair (or on your PC: <code>openssl ecparam -genkey -name prime256v1 -noout -out asa-private.pem</code> then <code>openssl ec -in asa-private.pem -pubout -out asa-public.pem</code>).</li><li>Paste the whole of <b>asa-private.pem</b> here.</li>`],
+    ['ASA_CLIENT_ID', 'Client ID', `<li>In <a href="https://app.searchads.apple.com/" target="_blank" rel="noopener">Apple Search Ads</a>: Account Settings → User Management → invite a user (another email you own) with the role <b>API Account Read Only</b>, and accept the invite.</li><li>Signed in as that user: Account Settings → <b>API</b> → paste the contents of <b>asa-public.pem</b> → <b>Save</b>. Apple shows a <b>clientId</b>, <b>teamId</b> and <b>keyId</b>: copy the clientId here.</li>`],
+    ['ASA_TEAM_ID', 'Team ID', `<li>Same Apple page: copy the <b>teamId</b>.</li>`],
+    ['ASA_KEY_ID', 'Key ID', `<li>Same Apple page: copy the <b>keyId</b>.</li>`],
+  ]]);
+CREDS.push(['Ads: TikTok', 'Lets the Reports tab read TikTok Ads Manager campaigns. Boosts made with Promote inside the TikTok app can’t be read by any API.', [
+    ['TIKTOK_ADVERTISER_ID', 'Advertiser ID', `<li>Open <a href="https://ads.tiktok.com/" target="_blank" rel="noopener">TikTok Ads Manager</a>: the advertiser ID is the number under your account name at the top (or <code>aadvid=</code> in the address bar).</li>`],
+    ['TIKTOK_ADS_TOKEN', 'Access token', `<li>Go to <a href="https://business-api.tiktok.com/portal/apps" target="_blank" rel="noopener">TikTok API for Business → My apps</a> → <b>Create</b> an app (TikTok approves it, usually in 1–2 days) with read access to <b>Reporting</b> and <b>Ad Account Management</b>, redirect URL <code>https://monkeyvinerush.com/</code>.</li><li>When approved, open the app’s <b>Advertiser authorization URL</b>, authorise your ad account, and give Claude the <code>auth_code</code> from the address you land on: Claude swaps it for this long-term access token.</li>`],
+  ]]);
+CREDS.push(['Ads: Google', 'Lets the Reports tab read Google Ads (YouTube and App campaigns). Google first has to give you an API developer token, which can take a few days.', [
+    ['GOOGLE_ADS_CUSTOMER_ID', 'Customer ID', `<li>Sign in to <a href="https://ads.google.com/" target="_blank" rel="noopener">Google Ads</a>: your customer ID is the 10-digit number at the top right (like 123-456-7890).</li>`],
+    ['GOOGLE_ADS_DEVELOPER_TOKEN', 'Developer token', `<li>API access needs a free <b>manager account</b>: create one at <a href="https://ads.google.com/home/tools/manager-accounts/" target="_blank" rel="noopener">ads.google.com/home/tools/manager-accounts</a> and link your ads account to it.</li><li>In the manager account: <b>Admin → API Center</b>, fill in the form; the developer token shows there. Apply for <b>Basic access</b> (Google reviews it in a few days). Paste the token here.</li>`],
+    ['GOOGLE_ADS_LOGIN_CUSTOMER_ID', 'Manager account ID', `<li>The manager account’s 10-digit ID (top right while signed in to it).</li>`],
+    ['GOOGLE_ADS_REFRESH_TOKEN', 'Refresh token', `<li>In Google Cloud (your YouTube project) turn on the <b>Google Ads API</b> (APIs &amp; Services → Library).</li><li>In the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth Playground</a> with your YouTube client ID and secret (⚙), scope <code>https://www.googleapis.com/auth/adwords</code>, <b>Authorize</b> with the Google Ads account, <b>Exchange</b>, and paste the refresh token here.</li>`],
   ]]);
 CREDS.push(['Google Play reporting', 'Lets the Reports tab read installs, ratings, reviews and crash rates from Google Play.', [
     ['PLAY_SERVICE_ACCOUNT_JSON', 'Service account key (JSON)', `<li>Use the same key file as the Android app's GitHub setup (the github-upload service account), or make one: Google Cloud → IAM &amp; Admin → Service accounts → your account → Keys → Add key → JSON.</li><li>Open the .json file in Notepad, select everything and paste it here.</li><li>In Google Cloud → APIs &amp; Services → Library, turn on the <b>Google Play Developer Reporting API</b> (crash rates).</li>`],
@@ -2488,6 +2516,7 @@ $('#rpRefresh').onclick = async () => {
 
 function renderReports(){
   const R = rpData, S = R.summary || {};
+  try { renderAds(); } catch (e) { console.warn('ads', e); }
   $('#rpWhen').textContent = 'Updated ' + new Date(R.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
   const d7 = S.downloads7 || {}, d30 = S.downloads30 || {}, aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
   const dl = (o, k) => (aOk || gOk) ? rpN((aOk ? o.apple || 0 : 0) + (gOk ? o.google || 0 : 0)) : '–';
@@ -2556,11 +2585,40 @@ function renderReports(){
     ['google', 'Google Play: installs and ratings', R.google?.installs || R.google], ['google', 'Google Play: reviews', R.google && { status:R.google.reviewsNote ? 'needs' : R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.reviewsNote || (R.google.status === 'needs' ? R.google.note : '') }],
     ['google', 'Google Play: crashes and freezes', R.google && { status:R.google.vitalsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.vitalsNote || (R.google.status === 'needs' ? R.google.note : '') }],
     ['youtube', 'YouTube', R.youtube], ['instagram', 'Instagram', R.instagram], ['facebook', 'Facebook', R.facebook], ['tiktok', 'TikTok', R.tiktok], ['x', 'X', R.x]];
+  if (R.ads) for (const [key, k] of AD_KEYS) conn.push([key, 'Ads: ' + RP_NAME[key], R.ads[k]]);
   const lab = { ok:['✓', 'Connected'], partial:['◐', 'Partly connected'], needs:['○', 'Needs connecting'], error:['⚠', 'Problem'] };
   $('#rpConn').innerHTML = conn.map(([k, name, s]) => { s = s || { status:'needs' }; const [ic, t] = lab[s.status] || lab.needs;
     return `<li class="rp-c-${s.status}"><span class="rp-dot" style="background:${RP_COL[k]}"></span><b>${esc(name)}</b> <span class="rp-st ${s.status === 'ok' ? 'good' : s.status === 'error' ? 'bad' : 'mid'}">${ic} ${t}</span>${s.note ? `<p>${esc(s.note)}</p>` : ''}</li>`; }).join('');
 }
 
+
+// ---------- paid ads & boosts ----------
+Object.assign(RP_COL, { meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' });
+Object.assign(RP_NAME, { meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' });
+const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads' };   // end labels on the charts
+const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
+const rpMoney = (v, c) => { try { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c || 'GBP', maximumFractionDigits:v < 100 ? 2 : 0 }).format(v); } catch (e) { return (c || '') + ' ' + v.toFixed(2); } };
+function renderAds(){
+  const A = rpData.ads || {}, live = AD_KEYS.filter(([, k]) => A[k] && A[k].status === 'ok');
+  const T = A.totals || {}, cur = Object.keys(T);
+  const sumT = m => cur.reduce((s, c) => s + (T[c][m] || 0), 0), inst = sumT('installs');
+  const spend = cur.map(c => rpMoney(T[c].spend, c)).join(' + ');
+  $('#rpAdTiles').innerHTML = live.length ? [
+    [spend || rpMoney(0, 'GBP'), 'spent on ads, 30 days'], [rpN(inst), 'app installs from ads'],
+    [cur.length === 1 && inst ? rpMoney(T[cur[0]].spend/inst, cur[0]) : '–', 'cost per install'],
+    [rpN(sumT('clicks')), 'clicks and taps'], [rpN(sumT('impressions')), 'ad impressions'], [rpN(sumT('views')), 'ad video views'],
+  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('') : '<div><b>–</b><span>no ad account connected yet</span></div>';
+  const days = [...new Set(live.flatMap(([, k]) => A[k].days.map(d => d.date)))].sort();
+  const all = []; const from = A.from || days[0], to = A.to || days[days.length - 1];
+  if (from && to) for (let d = new Date(from + 'T12:00:00'); d.toISOString().slice(0, 10) <= to; d = new Date(+d + 864e5)) all.push(d.toISOString().slice(0, 10));
+  const ser = live.map(([key, k]) => { const m = new Map(A[k].days.map(d => [d.date, d.spend])); return { key, pts:all.map(x => ({ x, y:m.get(x) ?? 0 })) }; }).filter(s => s.pts.some(p => p.y));
+  rpLine($('#rpAdSpend'), ser, live.length ? 'No ad spend in the last 30 days.' : 'Connect an ad account (Settings → Credentials, the Ads tabs) to see spend here.');
+  const camps = live.flatMap(([key, k]) => (A[k].campaigns || []).map(c => ({ ...c, key, cur:A[k].currency })));
+  $('#rpAds').innerHTML = camps.length ? '<thead><tr><th>Campaign</th><th class="n">Spend</th><th class="n">Impressions</th><th class="n">Clicks</th><th class="n">Installs</th><th class="n">Per install</th><th class="n">Views</th></tr></thead><tbody>' + camps.map(c =>
+    `<tr><td><span class="rp-dot" style="background:${RP_COL[c.key]}"></span><span class="rp-pn">${RP_NAME[c.key]}</span> ${esc(c.name || 'Campaign')}${c.kind ? `<small>${esc(String(c.kind).replace(/_/g, ' ').toLowerCase())}</small>` : ''}</td>
+     <td class="n">${rpMoney(c.spend, c.cur)}</td><td class="n">${rpN(c.impressions)}</td><td class="n">${rpN(c.clicks)}</td><td class="n">${rpN(c.installs)}</td><td class="n">${c.installs ? rpMoney(c.spend/c.installs, c.cur) : '–'}</td><td class="n">${c.views ? rpN(c.views) : '–'}</td></tr>`).join('') + '</tbody>'
+    : '<tbody><tr><td class="rp-empty">No ad campaigns in the last 30 days.</td></tr></tbody>';
+}
 // a line chart: one value axis, 2px lines, a legend for 2+ series and direct end labels, crosshair + tooltip on hover,
 // and a table view for screen readers and exact numbers
 function rpLine(el, series, empty){
@@ -2584,7 +2642,7 @@ function rpLine(el, series, empty){
   }
   // direct labels at the line ends, nudged apart so they never overlap
   ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
-  for (const e of ends) svg += `<text x="${L + pw + 8}" y="${e.y + 4}" fill="#f4f1ea" font-size="11">${RP_NAME[e.key]} ${rpN(e.v)}</text>`;
+  for (const e of ends) svg += `<text x="${L + pw + 8}" y="${e.y + 4}" fill="#f4f1ea" font-size="11">${(RP_SHORT[e.key] || RP_NAME[e.key])} ${rpN(e.v)}</text>`;
   svg += `<line class="rp-x" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="#a8adba" stroke-width="1" visibility="hidden"/><rect x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent" class="rp-hit"/></svg>`;
   const legend = series.length > 1 ? `<div class="rp-legend">${series.map(s => `<span><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]}</span>`).join('')}</div>` : '';
   const table = `<details class="rp-tbl"><summary>Show as a table</summary><table class="rp-table"><thead><tr><th>Date</th>${series.map(s => `<th class="n">${RP_NAME[s.key]}</th>`).join('')}</tr></thead><tbody>${xs.map((x, i) => `<tr><td>${rpDate(x)}</td>${series.map(s => `<td class="n">${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></details>`;
