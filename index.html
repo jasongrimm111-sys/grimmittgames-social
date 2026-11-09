@@ -27,6 +27,18 @@ label{display:block;font-weight:600;margin:10px 0 4px}
 input[type=text],input[type=password],input[type=time],select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);max-width:100%}
 input[type=text],input[type=password],textarea{width:100%}
 textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--fg);resize:vertical}
+.dashhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.rp-when{color:var(--muted);font-size:.85rem;margin-left:auto}
+.stats.rp-tiles{grid-template-columns:repeat(4,minmax(0,1fr))}@media (max-width:640px){.stats.rp-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}.rp-chart{margin:18px 0 0}.rp-chart h3{margin:0 0 2px}.rp-plot{position:relative}.rp-plot svg{display:block;touch-action:pan-y}
+.rp-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:6px 0}.rp-legend i,.rp-tip i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.rp-tip{position:absolute;pointer-events:none;background:#0e1118;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.85rem;box-shadow:0 8px 24px -10px rgba(0,0,0,.6);min-width:130px}.rp-tip div{white-space:nowrap}
+.rp-tbl{margin-top:6px;font-size:.85rem}.rp-tbl summary{cursor:pointer;color:var(--muted)}
+.rp-tablewrap{overflow-x:auto}.rp-table{width:100%;border-collapse:collapse;font-size:.9rem}.rp-table th,.rp-table td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}.rp-table th{color:var(--muted);font-weight:600;font-size:.8rem}.rp-table .n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rp-table td small{display:block;color:var(--muted);font-size:.78rem}.rp-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}.rp-pn{color:var(--muted);font-size:.78rem;margin-right:4px}
+.rp-plat{border-left:3px solid var(--pc)}.rp-plat small{display:block;color:var(--warn);font-size:.75rem}
+.rp-reviews,.rp-conn{list-style:none;margin:0;padding:0}.rp-reviews li,.rp-conn li{padding:10px 0;border-bottom:1px solid var(--line)}.rp-reviews p,.rp-conn p{margin:4px 0 0;color:var(--muted);font-size:.88rem}
+.rp-stars{color:#fab219;letter-spacing:1px}.rp-stars span{color:#3a4152}.rp-rh small{color:var(--muted)}
+.rp-st{font-size:.78rem;font-weight:600;white-space:nowrap}.rp-st.good{color:#0ca30c}.rp-st.mid{color:var(--muted)}.rp-st.bad{color:#ec835a}.rp-empty{color:var(--muted);padding:14px 0}
+@media (max-width:640px){.rp-when{margin-left:0;width:100%}.rp-table .rp-pn{display:none}}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin:0 0 12px}
 .stats div{background:var(--chip);border-radius:12px;padding:10px 12px}.stats b{display:block;font-size:1.15rem;line-height:1.3}.stats span{color:var(--muted);font-size:.8rem}
 .tag{display:inline-block;font-size:.72rem;font-weight:700;border-radius:99px;padding:1px 8px;margin-left:4px;background:var(--chip);color:var(--muted)}
@@ -346,6 +358,7 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
   <div id="app" hidden>
   <nav class="tabs" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="dashboard"><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
+    <button type="button" role="tab" data-go="reports">Reports</button>
     <button type="button" role="tab" data-go="activity">Activity</button>
     <button type="button" role="tab" data-go="videos">Media</button>
     <button type="button" role="tab" data-go="schedule">Schedule</button>
@@ -367,6 +380,33 @@ code{background:var(--chip);border-radius:5px;padding:0 4px;font-size:.92em}
     <ul id="upcoming" class="q"><li class="loadrow"><span class="spin"></span>Loading…</li></ul><div class="pager" id="upPager" hidden></div>
     <h3 class="schedh" hidden>Set for a time by you</h3><ul class="q schedlist" hidden></ul>
     <p class="hint">The next 10 posting times from your Schedule, in its time zone. Captions are written by AI just before each one goes out.</p>
+  </section>
+  <section id="reports" data-tab="reports">
+    <div class="dashhead"><h2>How the app is doing</h2><span class="rp-when" id="rpWhen"></span><button type="button" id="rpRefresh">Refresh now</button></div>
+    <p id="rpStatus" class="status" role="status"></p>
+    <div class="stats rp-tiles" id="rpTiles"><div><b>…</b><span>Loading</span></div></div>
+    <div class="rp-chart"><h3>Downloads per day</h3><p class="hint">First-time downloads on the App Store and installs on Google Play, last 30 days.</p><div id="rpDl"></div></div>
+    <div class="rp-chart"><h3>Video views over time</h3><p class="hint">Total views across each account's recent videos, one reading a day.</p><div id="rpViews"></div></div>
+  </section>
+  <section data-tab="reports">
+    <h3>Social accounts</h3>
+    <div class="stats" id="rpSocial"></div>
+    <h3>Top videos</h3>
+    <p class="hint">Recent videos on each account, most viewed first. "Watched" is how much of the video people watch on average (YouTube), or the average watch time (Instagram, Facebook): the higher, the more people stay to the end.</p>
+    <div class="rp-tablewrap"><table class="rp-table" id="rpVideos"></table></div>
+  </section>
+  <section data-tab="reports">
+    <h3>App Store and Google Play</h3>
+    <div class="stats" id="rpStores"></div>
+    <h3>App health</h3>
+    <div class="stats" id="rpHealth"></div>
+    <h3>Latest reviews</h3>
+    <ul class="rp-reviews" id="rpReviews"></ul>
+  </section>
+  <section data-tab="reports">
+    <h3>Connections</h3>
+    <p class="hint">Each source reports on its own. Anything not connected yet says what it needs; add it under Settings → Credentials, then press Refresh now.</p>
+    <ul class="rp-conn" id="rpConn"></ul>
   </section>
   <section id="compose" data-tab="new">
     <div class="composehead"><h2>New post</h2><button type="button" class="dlgx" data-go="dashboard" aria-label="Close">✕</button></div>
@@ -775,13 +815,13 @@ const CREDS = [
     ['YT_CLIENT_SECRET', 'Client secret', `<li>Same window as the Client ID: copy the <b>Client secret</b> (starts <code>GOCSPX-</code>). If you closed it, open the client under <b>Credentials</b> → <b>OAuth 2.0 Client IDs</b>.</li>`],
     ['YT_REFRESH_TOKEN', 'Refresh token', `<li>Open the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth 2.0 Playground</a>.</li>
       <li>Click the ⚙ (top right), tick <b>Use your own OAuth credentials</b>, paste your Client ID and Client secret.</li>
-      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/youtube.upload</code> and click <b>Authorize APIs</b>. Sign in with the channel's account and allow it (if Google warns the app isn't verified, click <b>Advanced</b> → <b>Go to …</b>).</li>
+      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly</code> (all three, with spaces between: posting, plus reading views for the Reports tab) and click <b>Authorize APIs</b>. Sign in with the channel's account and allow it (if Google warns the app isn't verified, click <b>Advanced</b> → <b>Go to …</b>).</li>
       <li>Click <b>Exchange authorization code for tokens</b>, then copy the <b>Refresh token</b> (starts <code>1//</code>) into this box.</li>`],
   ]],
   ['Instagram and Facebook', 'Both use your Facebook Page. Your Instagram must be a Business or Creator account linked to that Page (Instagram app → Settings → Account type and tools).', [
     ['META_PAGE_ID', 'Facebook Page ID', `<li>Open your Facebook Page → <b>About</b> → <b>Page transparency</b>: the <b>Page ID</b> is the long number. (Or from the Graph API Explorer step below: the <code>id</code> next to your Page.)</li>`],
     ['META_PAGE_TOKEN', 'Page access token', `<li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → <b>Create app</b> → use case <b>Other</b> → type <b>Business</b>. Add the products <b>Instagram</b> (API setup with Facebook login) and <b>Facebook Login for Business</b>.</li>
-      <li>Open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>, pick your app, then <b>Add a permission</b>: <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>pages_manage_posts</code>, <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>business_management</code>. Click <b>Generate access token</b> and allow it for your Page and Instagram.</li>
+      <li>Open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>, pick your app, then <b>Add a permission</b>: <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>read_insights</code>, <code>instagram_manage_insights</code> (these two let the Reports tab read views), <code>pages_manage_posts</code>, <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>business_management</code>. Click <b>Generate access token</b> and allow it for your Page and Instagram.</li>
       <li>Make it long-lived: open the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener">Access Token Debugger</a>, paste the token, <b>Debug</b>, then <b>Extend access token</b> and copy the new one.</li>
       <li>Back in the Explorer, paste that long-lived token, run <code>GET me/accounts</code>. In the result, find your Page: copy its <code>access_token</code> into this box (it doesn't expire) and its <code>id</code> into Page ID.</li>`],
     ['IG_USER_ID', 'Instagram account ID', `<li>In the Graph API Explorer (with the Page token), run <code>GET {your-page-id}?fields=instagram_business_account</code>.</li>
@@ -789,10 +829,10 @@ const CREDS = [
   ]],
   ['TikTok', 'TikTok needs a developer app. Until TikTok audits and approves it, posts can only be private ("Only me"): apply for the audit in the developer portal, then set TikTok visibility to Everyone below.', [
     ['TIKTOK_CLIENT_KEY', 'Client key', `<li>Go to <a href="https://developers.tiktok.com/" target="_blank" rel="noopener">developers.tiktok.com</a>, sign in with your TikTok business account → <b>Manage apps</b> → <b>Connect an app</b>.</li>
-      <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>. Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
+      <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>, plus <code>user.info.stats</code> and <code>video.list</code> (they let the Reports tab read followers and views). Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
       <li>On the app page copy the <b>Client key</b> into this box.</li>`],
     ['TIKTOK_CLIENT_SECRET', 'Client secret', `<li>Same app page: copy the <b>Client secret</b> into this box.</li>`],
-    ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,video.publish,video.upload&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
+    ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,user.info.stats,video.list,video.publish,video.upload&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
       <li>Sign in and allow it. You land on monkeyvinerush.com with <code>?code=…</code> in the address bar: copy that code.</li>
       <li>Ask Claude to swap the code for a refresh token (it needs your client key and secret), or use the token endpoint in TikTok's docs. Paste the <b>refresh token</b> here. It lasts about a year; you'll see a warning in the runs when it needs renewing.</li>`],
   ]],
@@ -823,6 +863,16 @@ CREDS.push(['Email', 'Sends your confirmation emails through your own Gmail. Goo
     <li>Open <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>, type the name "Grimmitt Social" and click <b>Create</b>.</li>
     <li>Copy the 16-letter password Google shows (spaces don't matter) into this box. It's shown only once.</li>`],
 ]]);
+CREDS.push(['App Store reporting', 'Lets the Reports tab read downloads, sales and App Store analytics. Uses an App Store Connect API key with the Admin, Finance or Sales role (the upload key may not be allowed to read sales).', [
+    ['ASC_ISSUER_ID', 'Issuer ID', `<li>Go to <a href="https://appstoreconnect.apple.com/access/integrations/api" target="_blank" rel="noopener">App Store Connect → Users and Access → Integrations → App Store Connect API</a>.</li><li>Copy the <b>Issuer ID</b> shown above the list of keys (a long code with dashes).</li>`],
+    ['ASC_KEY_ID', 'Key ID', `<li>Same page: use a key with the <b>Admin</b>, <b>Finance</b> or <b>Sales</b> role, or click <b>+</b> to make one (name it "Reports", role <b>Sales</b>).</li><li>Copy its <b>Key ID</b> (10 letters and numbers).</li>`],
+    ['ASC_KEY_P8', 'Private key (.p8 file)', `<li>Download the key's <b>.p8</b> file (Apple only lets you download it once).</li><li>Open it in Notepad, select everything (including the BEGIN and END lines) and paste it here.</li>`],
+    ['ASC_VENDOR_NUMBER', 'Vendor number', `<li>App Store Connect → <b>Payments and Financial Reports</b>: the vendor number is shown at the top left under your name (8 digits, starts with 8 or 9).</li>`],
+  ]]);
+CREDS.push(['Google Play reporting', 'Lets the Reports tab read installs, ratings, reviews and crash rates from Google Play.', [
+    ['PLAY_SERVICE_ACCOUNT_JSON', 'Service account key (JSON)', `<li>Use the same key file as the Android app's GitHub setup (the github-upload service account), or make one: Google Cloud → IAM &amp; Admin → Service accounts → your account → Keys → Add key → JSON.</li><li>Open the .json file in Notepad, select everything and paste it here.</li><li>In Google Cloud → APIs &amp; Services → Library, turn on the <b>Google Play Developer Reporting API</b> (crash rates).</li>`],
+    ['PLAY_REPORTS_BUCKET', 'Reports bucket', `<li>Play Console (account level) → <b>Download reports</b> → <b>Statistics</b> → <b>Copy Cloud Storage URI</b>.</li><li>Paste it here (it looks like <code>gs://pubsite_prod_rev_0123456789/stats/installs</code>; the whole thing is fine).</li>`],
+  ]]);
 CREDS.push(...CREDS.splice(CREDS.findIndex(c => c[0] === 'AI (Anthropic)'), 1));   // AI last, after the social sites
 async function renderCreds(){
   let have = new Set(); try { have = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
@@ -1754,7 +1804,7 @@ function edited(){
   for (const [el, [k, f]] of Object.entries(FIELDS)){ const v = $('#' + el).value.trim(); (p[k] = p[k] || {})[f] = f === 'tags' ? v.split(',').map(x => x.trim()).filter(Boolean) : v; }
   return p;
 }
-const TABS = ['dashboard', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
+const TABS = ['dashboard', 'reports', 'activity', 'videos', 'schedule', 'platforms', 'credentials', 'ai', 'outreach', 'account', 'new'];
 function showTab(t, push = true){
   if (!TABS.includes(t)) t = 'dashboard';
   stopAllMedia();
@@ -1766,6 +1816,7 @@ function showTab(t, push = true){
   if (push && location.hash !== '#' + t) history.replaceState(null, '', '#' + t);
   if (t === 'activity') renderHistory();
   if (t === 'outreach') loadOutreach();
+  if (t === 'reports') loadReports();
   window.scrollTo({ top:0 });
 }
 document.addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; moreMenu(false); if (b.dataset.go === 'new') compose(''); else showTab(b.dataset.go); });
@@ -2161,7 +2212,7 @@ $('#oSubject').addEventListener('input', () => { const n = $('#oSubject').value.
 function renderLinks(){
   // the website, the App Store, posted YouTube videos, and any added here
   const yt = []; for (const [vid, p] of Object.entries(state.posted || {})){ const y = p.youtube; if (y && y.url) yt.push({ label:'Watch: ' + label(vid), url:y.url }); if (y && y.video && y.video.url) yt.push({ label:'Watch: ' + label(vid) + ' (video)', url:y.video.url }); }
-  const base = [{ label:'Get the game (iPhone, iPad and Android)', url:'https://monkeyvinerush.com/get/?src=email', on:true }, { label:'Download on the App Store', url:'https://apps.apple.com/app/id6825472830', on:false }, { label:'Get it on Google Play', url:'https://play.google.com/store/apps/details?id=com.grimmittgames.monkeyvinerush', on:false }, { label:'Visit the website', url:'https://monkeyvinerush.com/', on:true }, ...yt.slice(0, 12), ...outreachLinks];
+  const base = [{ label:'Get the game (iPhone, iPad and Android)', url:'https://download.monkeyvinerush.com/?src=email', on:true }, { label:'Download on the App Store', url:'https://apps.apple.com/app/id6825472830', on:false }, { label:'Get it on Google Play', url:'https://play.google.com/store/apps/details?id=com.grimmittgames.monkeyvinerush', on:false }, { label:'Visit the website', url:'https://monkeyvinerush.com/', on:true }, ...yt.slice(0, 12), ...outreachLinks];
   const was = new Map([...document.querySelectorAll('#oLinks input')].map(c => [c.dataset.url, c.checked]));
   $('#oLinks').innerHTML = base.map((l, i) => `<label><input type="checkbox" data-url="${esc(l.url)}" data-label="${esc(l.label)}"${(was.has(l.url) ? was.get(l.url) : l.on) ? ' checked' : ''}> ${esc(l.label)} <small>${esc(l.url)}</small></label>`).join('');
 }
@@ -2401,6 +2452,146 @@ $('#btnRefresh').onclick = renderHistory;
   try { vault = await getVault(); } catch(e){}
   if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
 })();
+// ---------- Reports tab (user, 2026-11-09): how the app and the social accounts are doing ----------
+// Data: reports/latest.json and reports/trend.json, written once a day by the "Update reports" workflow (src/report.js).
+// Colours: platform identity in fixed order (validated for this dark surface with the dataviz validator, all checks pass).
+const RP_COL = { youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926' };
+const RP_NAME = { youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play' };
+const rpN = v => v == null ? '–' : Math.abs(v) >= 1e6 ? (v/1e6).toFixed(1).replace(/\.0$/, '') + 'M' : Math.abs(v) >= 1e4 ? (v/1e3).toFixed(1).replace(/\.0$/, '') + 'k' : Math.round(v).toLocaleString('en-GB');
+const rpDate = d => new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+let rpData = null, rpTrend = [];
+
+async function loadReports(force){
+  if (rpData && !force) return renderReports();
+  say($('#rpStatus'), '');
+  try { rpData = (await readFile('reports/latest.json')).data; }
+  catch (e) { rpData = null; $('#rpTiles').innerHTML = ''; say($('#rpStatus'), 'No report yet. Press Refresh now: the first one takes about a minute.'); return; }
+  try { rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) { rpTrend = []; }
+  renderReports();
+}
+$('#rpRefresh').onclick = async () => {
+  const b = $('#rpRefresh'); b.disabled = true; say($('#rpStatus'), 'Collecting the latest figures… (about a minute)');
+  try { const before = rpData && rpData.at;
+    await gh('/actions/workflows/report.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main' }) });
+    for (let i = 0; i < 30; i++){ await new Promise(r => setTimeout(r, 8000)); try { const d = (await readFile('reports/latest.json')).data; if (d.at !== before){ rpData = null; await loadReports(true); say($('#rpStatus'), 'Updated.'); b.disabled = false; return; } } catch (e) {} }
+    say($('#rpStatus'), 'Still running: check back in a few minutes.');
+  } catch (e) { say($('#rpStatus'), 'Could not start it: ' + e.message, true); }
+  b.disabled = false;
+};
+
+function renderReports(){
+  const R = rpData, S = R.summary || {};
+  $('#rpWhen').textContent = 'Updated ' + new Date(R.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  const d7 = S.downloads7 || {}, d30 = S.downloads30 || {}, aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
+  const dl = (o, k) => (aOk || gOk) ? rpN((aOk ? o.apple || 0 : 0) + (gOk ? o.google || 0 : 0)) : '–';
+  const views = Object.values(S.views || {}).filter(v => v != null), fol = Object.values(S.followers || {}).filter(v => v != null);
+  const ar = S.ratings?.apple, gr = S.ratings?.google;
+  const money = Object.entries(S.proceeds30 || {}).map(([c, v]) => new Intl.NumberFormat('en-GB', { style:'currency', currency:c, maximumFractionDigits:0 }).format(v)).join(' + ');
+  $('#rpTiles').innerHTML = [
+    [dl(d7), 'downloads, last 7 days'], [dl(d30), 'downloads, last 30 days'],
+    [aOk ? rpN(S.purchases30) : '–', 'coin purchases, 30 days (iPhone)'], [money || (aOk ? '£0' : '–'), 'proceeds, 30 days (iPhone)'],
+    [ar && ar.count ? `${ar.average.toFixed(1)}★` : '–', ar && ar.count ? `App Store rating · ${rpN(ar.count)} ratings` : 'App Store rating'],
+    [gr ? `${(+gr.total).toFixed(1)}★` : '–', 'Google Play rating'],
+    [views.length ? rpN(views.reduce((a, b) => a + b, 0)) : '–', 'video views (recent videos)'], [fol.length ? rpN(fol.reduce((a, b) => a + b, 0)) : '–', 'followers, all accounts'],
+  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+
+  // downloads per day: App Store and Google Play
+  const days = [...new Set([...(R.apple?.sales?.days || []).map(d => d.date), ...(R.google?.installs?.days || []).map(d => d.date)])].sort().slice(-30);
+  const dser = [];
+  if (aOk) { const m = new Map(R.apple.sales.days.map(d => [d.date, d.downloads])); dser.push({ key:'apple', pts:days.map(d => ({ x:d, y:m.get(d) ?? null })) }); }
+  if (gOk) { const m = new Map(R.google.installs.days.map(d => [d.date, d.installs])); dser.push({ key:'google', pts:days.map(d => ({ x:d, y:m.get(d) ?? null })) }); }
+  rpLine($('#rpDl'), dser, 'Connect the App Store and Google Play under Credentials to see downloads here.');
+  // video views over time: the daily snapshots, one line per platform
+  const tdays = rpTrend.map(t => t.date), vser = [];
+  for (const k of ['youtube', 'instagram', 'facebook', 'tiktok']) if (rpTrend.some(t => t.views && t.views[k] != null)) vser.push({ key:k, pts:rpTrend.map(t => ({ x:t.date, y:t.views ? t.views[k] ?? null : null })) });
+  rpLine($('#rpViews'), tdays.length > 1 ? vser : [], tdays.length > 1 ? 'No social account is connected for views yet.' : 'This builds up from one reading a day: the line appears after the second day.');
+
+  // social accounts
+  $('#rpSocial').innerHTML = ['youtube', 'instagram', 'facebook', 'tiktok'].map(k => { const s = R[k] || {}, f = S.followers?.[k], v = S.views?.[k];
+    return `<div class="rp-plat" style="--pc:${RP_COL[k]}"><b>${f != null ? rpN(f) : '–'}</b><span>${RP_NAME[k]} ${k === 'youtube' ? 'subscribers' : 'followers'}${v != null ? ` · ${rpN(v)} views` : ''}</span>${s.status && s.status !== 'ok' ? `<small>${s.status === 'partial' ? 'partly connected' : 'not connected'}</small>` : ''}</div>`; }).join('');
+  // top videos across every account
+  const vids = [];
+  for (const k of ['youtube', 'instagram', 'facebook', 'tiktok']) for (const v of (R[k]?.videos || [])) vids.push({ ...v, k });
+  vids.sort((a, b) => (b.views || 0) - (a.views || 0));
+  $('#rpVideos').innerHTML = vids.length ? `<thead><tr><th>Video</th><th class="n">Views</th><th class="n">Likes</th><th class="n">Comments</th><th class="n">Watched</th></tr></thead><tbody>` + vids.slice(0, 40).map(v =>
+    `<tr><td><span class="rp-dot" style="background:${RP_COL[v.k]}" title="${RP_NAME[v.k]}"></span><span class="rp-pn">${RP_NAME[v.k]}</span> ${v.url ? `<a href="${esc(v.url)}" target="_blank" rel="noopener">${esc(v.title || 'Untitled')}</a>` : esc(v.title || 'Untitled')}<small>${v.at ? rpDate(v.at.slice(0, 10)) : ''}</small></td>
+     <td class="n">${v.views != null ? rpN(v.views) : '–'}</td><td class="n">${v.likes != null ? rpN(v.likes) : '–'}</td><td class="n">${v.comments != null ? rpN(v.comments) : '–'}</td>
+     <td class="n">${v.avgPercent != null ? Math.round(v.avgPercent) + '%' : v.avgSeconds != null ? v.avgSeconds + ' s' : '–'}</td></tr>`).join('') + '</tbody>'
+    : '<tbody><tr><td class="rp-empty">No video figures yet: connect the social accounts for reading (see Connections below).</td></tr></tbody>';
+
+  // stores: App Store funnel and Google Play installs
+  const eng = R.apple?.analytics?.engagement || [], evSum = re => eng.reduce((s, d) => s + Object.entries(d).filter(([k]) => re.test(k)).reduce((a, [, v]) => a + (+v || 0), 0), 0);
+  const imp = evSum(/impression/i), pv = evSum(/page view/i), aDl = aOk ? (d30.apple || 0) : null;
+  const gd = R.google?.installs?.days || [], gLast = gd[gd.length - 1];
+  $('#rpStores').innerHTML = [
+    [eng.length ? rpN(imp) : '–', 'App Store impressions, 30 days'], [eng.length ? rpN(pv) : '–', 'App Store page views, 30 days'],
+    [eng.length && pv && aDl != null ? (100*aDl/pv).toFixed(1) + '%' : '–', 'page views that became downloads'],
+    [aOk ? rpN(R.apple.sales.days.slice(-30).reduce((s, d) => s + d.redownloads, 0)) : '–', 'App Store re-downloads, 30 days'],
+    [gOk ? rpN(d30.google) : '–', 'Google Play installs, 30 days'], [gLast ? rpN(gLast.active) : '–', 'Google Play active installs'],
+    [gOk ? rpN(gd.slice(-30).reduce((s, d) => s + d.uninstalls, 0)) : '–', 'Google Play uninstalls, 30 days'],
+  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join('');
+  // health: crash and ANR rates (Google's bad-behaviour lines are 1.09% crashes and 0.47% ANRs)
+  const vit = R.google?.vitals || {}, avg = a => a && a.length ? a.slice(-7).reduce((s, x) => s + x.rate, 0)/Math.min(7, a.length) : null;
+  const cr = avg(vit.crashRate), anr = avg(vit.anrRate), aCr = (R.apple?.analytics?.crashes || []).slice(-30).reduce((s, d) => s + Object.values(d).filter(v => typeof v === 'number').reduce((a, b) => a + b, 0), 0);
+  const health = (v, bad) => v == null ? '' : v*100 >= bad ? ' <span class="rp-st bad">⚠ above Google\'s limit</span>' : ' <span class="rp-st good">✓ fine</span>';
+  $('#rpHealth').innerHTML = [
+    [cr != null ? (cr*100).toFixed(2) + '%' : '–', 'Android users with a crash (7-day avg)' + health(cr, 1.09)],
+    [anr != null ? (anr*100).toFixed(2) + '%' : '–', 'Android users with a freeze/ANR (7-day avg)' + health(anr, 0.47)],
+    [R.apple?.analytics?.crashes ? rpN(aCr) : '–', 'iPhone/iPad crashes, 30 days'],
+  ].map(([v, l]) => `<div><b>${esc(v)}</b><span>${l}</span></div>`).join('');
+  // reviews from both stores, newest first
+  const revs = [...(R.apple?.reviews || []), ...(R.google?.reviews || [])].sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 15);
+  $('#rpReviews').innerHTML = revs.length ? revs.map(r => `<li><div class="rp-rh"><span class="rp-stars" aria-label="${r.stars} out of 5 stars">${'★'.repeat(r.stars || 0)}<span>${'★'.repeat(5 - (r.stars || 0))}</span></span> <b>${esc(r.title || '')}</b> <small>${RP_NAME[r.store]}${r.country ? ' · ' + esc(r.country.toUpperCase()) : ''}${r.at ? ' · ' + rpDate(r.at.slice(0, 10)) : ''}${r.version ? ' · v' + esc(r.version) : ''}</small></div><p>${esc(r.text)}</p></li>`).join('')
+    : '<li class="rp-empty">No written reviews yet.</li>';
+  // connections
+  const conn = [['apple', 'App Store: ratings and reviews', R.apple && { status:R.apple.ratings?.count ? 'ok' : 'partial', note:R.apple.ratings?.count ? '' : 'Shows once the app is live on the App Store and has ratings.' }],
+    ['apple', 'App Store: downloads and sales', R.apple?.sales], ['apple', 'App Store: impressions, page views, sessions, crashes', R.apple?.analytics],
+    ['google', 'Google Play: installs and ratings', R.google?.installs || R.google], ['google', 'Google Play: reviews', R.google && { status:R.google.reviewsNote ? 'needs' : R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.reviewsNote || (R.google.status === 'needs' ? R.google.note : '') }],
+    ['google', 'Google Play: crashes and freezes', R.google && { status:R.google.vitalsNote || R.google.status === 'needs' ? 'needs' : 'ok', note:R.google.vitalsNote || (R.google.status === 'needs' ? R.google.note : '') }],
+    ['youtube', 'YouTube', R.youtube], ['instagram', 'Instagram', R.instagram], ['facebook', 'Facebook', R.facebook], ['tiktok', 'TikTok', R.tiktok], ['x', 'X', R.x]];
+  const lab = { ok:['✓', 'Connected'], partial:['◐', 'Partly connected'], needs:['○', 'Needs connecting'], error:['⚠', 'Problem'] };
+  $('#rpConn').innerHTML = conn.map(([k, name, s]) => { s = s || { status:'needs' }; const [ic, t] = lab[s.status] || lab.needs;
+    return `<li class="rp-c-${s.status}"><span class="rp-dot" style="background:${RP_COL[k]}"></span><b>${esc(name)}</b> <span class="rp-st ${s.status === 'ok' ? 'good' : s.status === 'error' ? 'bad' : 'mid'}">${ic} ${t}</span>${s.note ? `<p>${esc(s.note)}</p>` : ''}</li>`; }).join('');
+}
+
+// a line chart: one value axis, 2px lines, a legend for 2+ series and direct end labels, crosshair + tooltip on hover,
+// and a table view for screen readers and exact numbers
+function rpLine(el, series, empty){
+  series = series.filter(s => s.pts.some(p => p.y != null));
+  if (!series.length){ el.innerHTML = `<p class="rp-empty">${esc(empty)}</p>`; return; }
+  const xs = series[0].pts.map(p => p.x), W = Math.max(300, el.clientWidth || 600), H = 220, L = 44, Rm = 118, T = 12, B = 26, pw = W - L - Rm, ph = H - T - B;
+  const maxY = Math.max(1, ...series.flatMap(s => s.pts.map(p => p.y || 0))), raw = maxY/4, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = [1, 2, 2.5, 5, 10].map(m => m*mag).find(v => v >= raw), top = Math.max(step, Math.ceil(maxY/step)*step);   // round tick values (0, 25, 50…)
+  const X = i => L + (xs.length < 2 ? pw/2 : i*pw/(xs.length - 1)), Y = v => T + ph - (v/top)*ph;
+  const ticks = Array.from({ length:Math.round(top/step) + 1 }, (_, i) => i*step);
+  const every = Math.max(1, Math.ceil(xs.length/Math.max(2, Math.floor(pw/62))));   // a date label about every 62 px
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" role="img" aria-label="${esc(series.map(s => RP_NAME[s.key]).join(' and '))} over time">`;
+  for (const t of ticks) svg += `<line x1="${L}" x2="${L + pw}" y1="${Y(t)}" y2="${Y(t)}" stroke="#262c3a" stroke-width="1"/><text x="${L - 8}" y="${Y(t) + 4}" text-anchor="end" fill="#a8adba" font-size="11">${rpN(t)}</text>`;
+  xs.forEach((x, i) => { if ((i % every === 0 && xs.length - 1 - i >= every*.8) || i === xs.length - 1) svg += `<text x="${X(i)}" y="${H - 6}" text-anchor="middle" fill="#a8adba" font-size="11">${rpDate(x)}</text>`; });
+  const ends = [];
+  for (const s of series){
+    let d = '', pen = false; s.pts.forEach((p, i) => { if (p.y == null){ pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.y).toFixed(1); pen = true; });
+    svg += `<path d="${d}" fill="none" stroke="${RP_COL[s.key]}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+    const li = s.pts.map(p => p.y).lastIndexOf(s.pts.filter(p => p.y != null).slice(-1)[0].y);
+    if (xs.length === 1 || s.pts.filter(p => p.y != null).length === 1) svg += `<circle cx="${X(li)}" cy="${Y(s.pts[li].y)}" r="4" fill="${RP_COL[s.key]}" stroke="#131722" stroke-width="2"/>`;
+    ends.push({ key:s.key, y:Y(s.pts[li].y), x:X(li), v:s.pts[li].y });
+  }
+  // direct labels at the line ends, nudged apart so they never overlap
+  ends.sort((a, b) => a.y - b.y); for (let i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+  for (const e of ends) svg += `<text x="${L + pw + 8}" y="${e.y + 4}" fill="#f4f1ea" font-size="11">${RP_NAME[e.key]} ${rpN(e.v)}</text>`;
+  svg += `<line class="rp-x" x1="0" x2="0" y1="${T}" y2="${T + ph}" stroke="#a8adba" stroke-width="1" visibility="hidden"/><rect x="${L}" y="${T}" width="${pw}" height="${ph}" fill="transparent" class="rp-hit"/></svg>`;
+  const legend = series.length > 1 ? `<div class="rp-legend">${series.map(s => `<span><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]}</span>`).join('')}</div>` : '';
+  const table = `<details class="rp-tbl"><summary>Show as a table</summary><table class="rp-table"><thead><tr><th>Date</th>${series.map(s => `<th class="n">${RP_NAME[s.key]}</th>`).join('')}</tr></thead><tbody>${xs.map((x, i) => `<tr><td>${rpDate(x)}</td>${series.map(s => `<td class="n">${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</td>`).join('')}</tr>`).join('')}</tbody></table></details>`;
+  el.innerHTML = legend + `<div class="rp-plot">${svg}<div class="rp-tip" hidden></div></div>` + table;
+  const plot = el.querySelector('.rp-plot'), tip = plot.querySelector('.rp-tip'), cross = plot.querySelector('.rp-x'), svgEl = plot.querySelector('svg');
+  const show = ev => { const r = svgEl.getBoundingClientRect(), sx = (ev.clientX - r.left)*W/r.width, i = Math.max(0, Math.min(xs.length - 1, Math.round((sx - L)/(xs.length < 2 ? 1 : pw/(xs.length - 1)))));
+    cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+    tip.innerHTML = `<b>${rpDate(xs[i])}</b>` + series.map(s => `<div><i style="background:${RP_COL[s.key]}"></i>${RP_NAME[s.key]} <b>${s.pts[i].y != null ? rpN(s.pts[i].y) : '–'}</b></div>`).join('');
+    tip.hidden = false; const px = X(i)*r.width/W; tip.style.left = Math.min(Math.max(0, px + 12), r.width - tip.offsetWidth - 4) + 'px'; tip.style.top = '8px'; };
+  const hide = () => { tip.hidden = true; cross.setAttribute('visibility', 'hidden'); };
+  svgEl.addEventListener('pointermove', show); svgEl.addEventListener('pointerleave', hide);
+}
+window.addEventListener('resize', () => { if (rpData && document.querySelector('#reports.on')) renderReports(); });
+
 </script>
 </body>
 </html>
