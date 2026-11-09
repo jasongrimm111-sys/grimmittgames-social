@@ -48,6 +48,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .ad-form h3{margin-top:0}.ad-sum{margin:14px 0 0;color:var(--muted)}.ad-vid{display:flex;gap:12px;align-items:flex-start;margin-top:8px}.ad-vid img{width:72px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:var(--chip);flex:none}.ad-vid p{margin:0}
 #adVideo{width:100%}.ad-budgets input{max-width:220px}.ad-ages input{width:70px;display:inline-block;margin:0 4px}.ad-budgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.ad-budgets input{width:100%}
 .ad-total{font-weight:700;margin:10px 0 0}.ad-tips{margin:14px 0 0;padding-left:18px;color:var(--muted)}.ad-tips:empty{display:none}.ad-acts{margin-top:6px}.ad-det ul{margin:6px 0 0;padding-left:18px}.rp-chip:disabled{opacity:.45;cursor:not-allowed}
+.pk-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-size:1rem}.pk-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.pk-or{text-align:center;margin:10px 0 0}.pk-state{font-weight:600;margin:6px 0 10px}
 .dk-new{display:none}}.dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 #rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .dk-kpis{margin:0 0 16px;cursor:pointer}.dk-kpis .rp-kpi:hover{outline:1px solid #39415a}
@@ -391,7 +392,7 @@ main{max-width:none}
 .navlabel{display:none}
 @media (min-width:1000px){
   body:has(#app:not([hidden])) main{padding:22px 32px 60px 292px}
-  body:has(#app:not([hidden])) .brand{position:fixed;top:0;left:0;width:260px;z-index:36;margin:0;padding:18px 20px 14px;flex-wrap:nowrap}
+  body:has(#app:not([hidden])) .brand{position:fixed;top:0;left:0;width:260px;height:76px;z-index:36;margin:0;padding:18px 20px 14px;flex-wrap:nowrap;background:var(--card);border-right:1px solid var(--line)}
   body:has(#app:not([hidden])) .who{position:fixed;left:0;bottom:0;width:260px;margin:0;padding:12px 20px;border-top:1px solid var(--line);background:var(--card);z-index:36;justify-content:space-between;font-size:.8rem}
   body:has(#app:not([hidden])) .who button{white-space:nowrap;flex:none}
   body:has(#app:not([hidden])) .who span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -407,7 +408,7 @@ main{max-width:none}
   #app #moreMenu,#app #moreMenu[hidden]{display:flex!important;position:static;box-shadow:none;border:0;background:none;padding:0;min-width:0;gap:2px}
   #app #moreMenu button{color:var(--fg)}
   #app #moreMenu button[aria-selected="true"]{background:rgba(198,244,50,.13);color:var(--accent)}
-  body.fullnew #app .tabs,body.fullnew .brand,body.fullnew .who{z-index:1!important}
+  body.fullnew #compose{left:260px;padding-left:max(24px,calc((100vw - 260px - 1180px)/2));padding-right:max(24px,calc((100vw - 260px - 1180px)/2))}body.fullnew .ppgo{left:260px}
   .foot{margin-left:0}
 }
 </style>
@@ -418,6 +419,7 @@ main{max-width:none}
 
   <section id="login" class="gate" hidden>
     <h2>Sign in</h2>
+    <div id="pkLogin" hidden><button type="button" class="primary pk-btn" id="pkSignIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11c0 3-1 6-3 8M8 6.5A6 6 0 0 1 18 11c0 1.5-.2 3-.6 4.4M6 9.5c-.3.5-.5 1-.5 1.5 0 2.5-.6 4.7-1.7 6.5M12 7a4 4 0 0 1 4 4c0 3.6-.9 6.6-2.4 9M8.5 11a3.5 3.5 0 0 1 7 0"/></svg>Sign in with Face ID or fingerprint</button><p class="hint pk-or">or use your password</p></div>
     <form id="loginForm">
       <label for="lEmail">Email</label><input id="lEmail" type="text" inputmode="email" autocomplete="username" required>
       <label for="lPass">Password</label><input id="lPass" type="password" autocomplete="current-password" required>
@@ -907,6 +909,14 @@ main{max-width:none}
   </section>
 
   <section data-tab="account">
+    <div class="shead"><h2>Face ID and fingerprint sign-in</h2></div>
+    <p class="hint">Sign in on this device with Face ID, Touch ID, your fingerprint or Windows Hello instead of typing the password. It’s set up separately on each device, and the sign-in stays locked unless your face or fingerprint unlocks it.</p>
+    <p id="pkState" class="pk-state"></p>
+    <div class="row"><button type="button" class="primary" id="pkOn">Turn on for this device</button><button type="button" id="pkOff" hidden>Turn off on this device</button></div>
+    <p id="pkStatus" class="status" role="status"></p>
+  </section>
+
+  <section data-tab="account">
     <div class="shead"><h2>Sign-in</h2><p class="sub">Change your password, or paste a new GitHub key when the old one expires. Both are saved locked with your email and password.</p></div>
     <form id="acctForm">
       <label for="aPass">New password <span class="unset">· leave empty to keep it</span></label><input id="aPass" type="password" autocomplete="new-password" minlength="12">
@@ -1002,7 +1012,7 @@ async function saveVault(v, key){
   const res = await fetch(url, { method:'PUT', headers:{ ...H, 'Content-Type':'application/json' }, body:JSON.stringify({ message:'Update sign-in', content:btoa(JSON.stringify(v, null, 1) + '\n'), sha }) });
   if (!res.ok) throw new Error(res.status + ' ' + ((await res.json().catch(() => ({}))).message || '') + ' (the key needs Contents: Read and write on grimmittgames-social)');
 }
-const signedIn = (key, email, ai) => { token = key; aiKey = ai || aiKey || ''; try { sessionStorage.setItem('gg-social-key', key); sessionStorage.setItem('gg-social-ai', aiKey); sessionStorage.setItem('gg-social-who', norm(email)); } catch(e){} };
+const signedIn = (key, email, ai) => { token = key; aiKey = ai || aiKey || ''; setTimeout(() => window.__pkSync && window.__pkSync(), 0); try { sessionStorage.setItem('gg-social-key', key); sessionStorage.setItem('gg-social-ai', aiKey); sessionStorage.setItem('gg-social-who', norm(email)); } catch(e){} };
 function showSignedIn(){
   $('#login').hidden = $('#setup').hidden = true; $('#who').hidden = false;
   let who = OWNER; try { who = sessionStorage.getItem('gg-social-who') || OWNER; } catch(e){}
@@ -2636,6 +2646,63 @@ $('#acctForm').onsubmit = async e => {
     say(st, 'Updated. It works everywhere within a minute or two.');
   } catch(err){ say(st, err.name === 'OperationError' ? 'The current password isn\'t right.' : 'Not saved: ' + err.message, true); }
 };
+// ---------- passkey sign-in (user, 2026-11-09) ----------
+// The sign-in secrets (GitHub key, AI key) are encrypted on this device with a key that only the device's passkey can
+// produce (WebAuthn PRF), so they unlock only after Face ID / fingerprint / Windows Hello. Nothing leaves the device.
+const PK_STORE = 'gg-social-passkey';
+let pkKey = null;   // the unlocked AES key, kept in memory this session so a newly saved AI key can be added
+const pkGet = () => { try { return JSON.parse(localStorage.getItem(PK_STORE) || 'null'); } catch (e) { return null; } };
+const pkSet = v => { try { v ? localStorage.setItem(PK_STORE, JSON.stringify(v)) : localStorage.removeItem(PK_STORE); } catch (e) {} };
+const pkSupported = () => !!(window.PublicKeyCredential && navigator.credentials && window.isSecureContext);
+async function pkSecret(credId, salt){
+  const a = await navigator.credentials.get({ publicKey:{ challenge:crypto.getRandomValues(new Uint8Array(32)), rpId:location.hostname, userVerification:'required', timeout:60000,
+    allowCredentials:[{ type:'public-key', id:fromB64(credId) }], extensions:{ prf:{ eval:{ first:fromB64(salt) } } } } });
+  const out = a.getClientExtensionResults()?.prf?.results?.first;
+  if (!out) throw new Error('nosupport');
+  const base = await crypto.subtle.importKey('raw', out, 'HKDF', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name:'HKDF', hash:'SHA-256', salt:new Uint8Array(0), info:te.encode('grimmitt-social passkey v1') }, base, { name:'AES-GCM', length:256 }, false, ['encrypt', 'decrypt']);
+}
+async function pkLock(key, rec){
+  const iv = crypto.getRandomValues(new Uint8Array(12)), ct = new Uint8Array(await crypto.subtle.encrypt({ name:'AES-GCM', iv }, key, te.encode(JSON.stringify({ token, anthropic:aiKey || '', email:OWNER, at:new Date().toISOString() }))));
+  pkSet({ ...rec, iv:toB64(iv), ct:toB64(ct) });
+}
+function pkRender(){
+  const has = !!pkGet(), ok = pkSupported();
+  $('#pkLogin').hidden = !(has && ok);
+  if ($('#pkState')) { $('#pkState').textContent = !ok ? 'This browser can’t do passkey sign-in.' : has ? '✓ On for this device.' : 'Off for this device.'; $('#pkOn').hidden = has || !ok; $('#pkOff').hidden = !has; }
+}
+$('#pkOn').onclick = async () => {
+  const st = $('#pkStatus');
+  if (!token){ say(st, 'Sign in with your password first.', true); return; }
+  say(st, 'Follow your device’s prompt (Face ID, fingerprint or PIN)…');
+  try {
+    const cred = await navigator.credentials.create({ publicKey:{ rp:{ name:'Grimmitt Social', id:location.hostname }, user:{ id:crypto.getRandomValues(new Uint8Array(16)), name:OWNER, displayName:'Grimmitt Social (' + OWNER + ')' },
+      challenge:crypto.getRandomValues(new Uint8Array(32)), pubKeyCredParams:[{ type:'public-key', alg:-7 }, { type:'public-key', alg:-257 }], timeout:60000,
+      authenticatorSelection:{ authenticatorAttachment:'platform', residentKey:'preferred', userVerification:'required' }, extensions:{ prf:{} } } });
+    if (cred.getClientExtensionResults()?.prf?.enabled === false) throw new Error('nosupport');
+    const rec = { id:toB64(new Uint8Array(cred.rawId)), salt:toB64(crypto.getRandomValues(new Uint8Array(32))) };
+    say(st, 'One more time, to lock your sign-in to it…');
+    const key = await pkSecret(rec.id, rec.salt);
+    await pkLock(key, rec); pkKey = key; pkRender();
+    say(st, 'Done. Next time, press “Sign in with Face ID or fingerprint” on this device.');
+  } catch (e) {
+    say(st, e.message === 'nosupport' ? 'This device or browser can’t lock a sign-in to a passkey yet (it needs iPhone/iPad iOS 18+, a Mac with macOS 15+, Android, or Windows 11 with Chrome or Edge). Your password still works.'
+      : e.name === 'NotAllowedError' ? 'Cancelled, nothing changed.' : 'Couldn’t turn it on: ' + (e.message || e), true);
+  }
+};
+$('#pkOff').onclick = () => { pkSet(null); pkKey = null; pkRender(); say($('#pkStatus'), 'Turned off on this device. (You can also delete the “Grimmitt Social” passkey in your device’s password settings.)'); };
+$('#pkSignIn').onclick = async () => {
+  const st = $('#loginStatus'), rec = pkGet(); if (!rec) return;
+  say(st, 'Waiting for Face ID or fingerprint…');
+  try {
+    const key = await pkSecret(rec.id, rec.salt);
+    const sec = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name:'AES-GCM', iv:fromB64(rec.iv) }, key, fromB64(rec.ct))));
+    pkKey = key; signedIn(sec.token, sec.email || OWNER, sec.anthropic); say(st, ''); showSignedIn();
+  } catch (e) { say(st, e.name === 'NotAllowedError' ? 'Cancelled. Try again, or use your password.' : 'That didn’t work on this device: use your password (and turn it on again under Account).', true); }
+};
+// a newly saved AI key or GitHub key is added to this device's passkey sign-in too
+{ window.__pkSync = async () => { const rec = pkGet(); if (pkKey && rec && token) try { await pkLock(pkKey, rec); } catch (e) {} }; }
+pkRender();
 $('#btnOut').onclick = () => { try { sessionStorage.clear(); } catch(e){} location.reload(); };
 $('#btnAddSlot').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'20:00', kind:'any', platforms:[] }); renderSlots(); };
 $('#btnDaily').onclick = () => { cfg.slots.push({ days:[...DAYS], time:'19:00', kind:'any', platforms:[] }); renderSlots(); say($('#status'), 'Added 7 pm every day: press Save changes to keep it.'); };
