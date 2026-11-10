@@ -427,9 +427,17 @@ main{max-width:none}
 #ptr svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
 #ptr.ready{color:var(--accent)}#ptr.ready svg{transform:rotate(180deg)}
 #ptr.go svg{animation:ptrspin .8s linear infinite}@keyframes ptrspin{to{transform:rotate(360deg)}}
+
+/* one loading screen until the signed-in page is complete, instead of it filling in piece by piece (user, 2026-11-10) */
+#boot{position:fixed;inset:0;z-index:1000;background:var(--bg);display:grid;place-items:center;transition:opacity .3s ease}
+#boot.done{opacity:0;pointer-events:none}
+.bootin{display:flex;flex-direction:column;align-items:center;gap:16px;color:var(--muted);font-weight:600}
+.bootring{width:56px;height:56px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--accent);animation:ptrspin .8s linear infinite}
+@media (prefers-reduced-motion:reduce){.bootring{animation-duration:2.4s}}
 </style>
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite"><div class="bootin"><div class="bootring" aria-hidden="true"></div><span>Loading…</span></div></div>
 <main>
   <div class="brand"><button type="button" id="navToggle" class="navtoggle" aria-label="Open the menu" aria-expanded="false" aria-controls="sideNav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button" aria-label="Sign out" title="Sign out"><svg class="outic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M15 17l5-5-5-5M20 12H9"/></svg><span class="outtx">Sign out</span></button></div></div>
 
@@ -1056,7 +1064,10 @@ async function keepLoad(){
 }
 function keepClear(){ try { localStorage.removeItem(KEEP); } catch(e){} try { indexedDB.deleteDatabase('gg-social-keep'); } catch(e){} }
 const signedIn = (key, email, ai) => { token = key; aiKey = ai || aiKey || ''; if (keepMe) keepSave(key, norm(email), aiKey); else keepClear(); setTimeout(() => window.__pkSync && window.__pkSync(), 0); try { sessionStorage.setItem('gg-social-key', key); sessionStorage.setItem('gg-social-ai', aiKey); sessionStorage.setItem('gg-social-who', norm(email)); } catch(e){} };
+const bootDone = () => { const b = $('#boot'); if (b && !b.classList.contains('done')){ b.classList.add('done'); setTimeout(() => { b.hidden = true; }, 320); } };
+const bootShow = () => { const b = $('#boot'); if (b){ b.hidden = false; b.classList.remove('done'); clearTimeout(window.__bootT); window.__bootT = setTimeout(bootDone, 30000); } };
 function showSignedIn(){
+  bootShow();
   $('#login').hidden = $('#setup').hidden = true; $('#who').hidden = false;
   let who = OWNER; try { who = sessionStorage.getItem('gg-social-who') || OWNER; } catch(e){}
   // the name, not the sign-in email (user, 2026-11-10); the email stays in the tooltip
@@ -2108,7 +2119,8 @@ async function load(){
     try { haveSecrets = new Set(((await gh('/actions/secrets?per_page=100')) || {}).secrets.map(x => x.name)); } catch(e){}
     showTab(location.hash.slice(1) || 'dashboard', false); goStep(1);
     render(); renderCreds(); renderHistory(); await renderVideos(); await renderDash(); renderPicker(); metaReset(); renderWhere();
-  } catch(e){ say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
+    bootDone();
+  } catch(e){ bootDone(); say(st, 'Could not open the posting project: ' + e.message + (e.message.startsWith('401') ? '. The GitHub key has expired or been revoked: sign out, sign in again and paste a new key under Sign-in, or ask Claude to reset the sign-in.' : '. Check the GitHub key has access to monkey-vine-rush-social.'), true); }
 }
 // ---------- coming up: the next scheduled times and which video each will post ----------
 const NEED = { youtube:['YT_CLIENT_ID', 'YT_CLIENT_SECRET', 'YT_REFRESH_TOKEN'], instagram:['META_PAGE_TOKEN', 'IG_USER_ID'], facebook:['META_PAGE_ID', 'META_PAGE_TOKEN'], tiktok:['TIKTOK_CLIENT_KEY', 'TIKTOK_CLIENT_SECRET', 'TIKTOK_REFRESH_TOKEN'], x:['X_API_KEY', 'X_API_SECRET', 'X_ACCESS_TOKEN', 'X_ACCESS_SECRET'] };
@@ -2943,7 +2955,7 @@ $('#btnRefresh').onclick = renderHistory;
   if (token){ showSignedIn(); return; }
   if (keepMe){ const k = await keepLoad(); if (k && k.key){ signedIn(k.key, k.email || OWNER, k.ai); showSignedIn(); return; } }
   try { vault = await getVault(); } catch(e){}
-  if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
+  bootDone(); if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
 })();
 // ---------- Reporting page (user, 2026-11-09): how the app, the social accounts and the ads are doing ----------
 // Data: reports/latest.json and reports/trend.json, written once a day by the "Update reports" workflow (src/report.js,
