@@ -31,7 +31,14 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .rp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}.rp-head h2{margin:0}
 .rp-seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:2px}.rp-seg button{border:0;background:none;padding:5px 12px;border-radius:8px;color:var(--muted);font-weight:600}.rp-seg button[aria-pressed="true"]{background:var(--chip);color:var(--fg)}
 .rp-when{color:var(--muted);font-size:.85rem;margin-left:auto}
-.rp-tabs{margin:8px 0 14px}
+.subtabs.rp-tabs{display:flex;flex-wrap:nowrap;gap:2px;margin:12px 0 18px;border-bottom:1px solid var(--line);overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;max-width:100%}
+.subtabs.rp-tabs::-webkit-scrollbar{display:none}
+.subtabs.rp-tabs button{flex:none;background:none;border:0;border-bottom:2px solid transparent;border-radius:0;margin:0 0 -1px;padding:10px 14px 9px;color:var(--muted);font-weight:600;box-shadow:none;white-space:nowrap}
+.subtabs.rp-tabs button:hover{color:var(--fg);background:none}
+.subtabs.rp-tabs button[aria-selected="true"]{color:var(--fg);background:none;border-color:transparent;border-bottom-color:var(--accent)}
+.subtabs.rp-tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;border-radius:6px 6px 0 0}
+.outic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:none;vertical-align:middle}
+@media (max-width:999px){#btnOut .outtx{display:none}#btnOut .outic{display:block}#btnOut{padding:8px;line-height:0;min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center}.who #whoEmail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:46vw}}
 .rp-panel>*+*{margin-top:14px}
 .rp-card{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(255,255,255,.015)}
 .rp-ch{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:6px}.rp-ch h3{margin:0;font-size:1rem}.rp-ch .hint{margin:0;font-size:.82rem}
@@ -418,7 +425,7 @@ main{max-width:none}
 </head>
 <body>
 <main>
-  <div class="brand"><button type="button" id="navToggle" class="navtoggle" aria-label="Open the menu" aria-expanded="false" aria-controls="sideNav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button">Sign out</button></div></div>
+  <div class="brand"><button type="button" id="navToggle" class="navtoggle" aria-label="Open the menu" aria-expanded="false" aria-controls="sideNav"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" width="40" height="40"><defs><linearGradient id="gt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#262d3f"/><stop offset="1" stop-color="#0c0f16"/></linearGradient><linearGradient id="gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ecff8a"/><stop offset=".55" stop-color="#c6f432"/><stop offset="1" stop-color="#8fd61a"/></linearGradient><linearGradient id="gc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8a6a"/><stop offset="1" stop-color="#ff5a3c"/></linearGradient></defs><rect width="64" height="64" rx="18" fill="url(#gt)"/><rect x=".5" y=".5" width="63" height="63" rx="17.5" fill="none" stroke="#fff" stroke-opacity=".09"/><mask id="mb"><rect width="64" height="64" fill="#000"/><circle cx="32" cy="32" r="14.25" fill="none" stroke="#fff" stroke-width="9.5"/><rect x="32" y="0" width="32" height="30" fill="#000"/><rect x="33" y="30" width="20" height="9.5" fill="#fff"/><circle cx="32" cy="32" r="33" fill="none" stroke="#000" stroke-width="28"/></mask><rect width="64" height="64" fill="url(#gl)" mask="url(#mb)"/><path d="M44.4 11.4 L52.6 16 L44.4 20.6 Z" fill="url(#gc)" stroke="url(#gc)" stroke-width="2.2" stroke-linejoin="round"/></svg><div><b>GRIMMITT</b><small>SOCIAL</small></div><div class="who" id="who" hidden><span id="whoEmail"></span><button id="btnOut" type="button" aria-label="Sign out" title="Sign out"><svg class="outic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3M15 17l5-5-5-5M20 12H9"/></svg><span class="outtx">Sign out</span></button></div></div>
 
   <section id="login" class="gate" hidden>
     <h2>Sign in</h2>
@@ -460,7 +467,7 @@ main{max-width:none}
   <nav class="tabs" id="sideNav" role="tablist" aria-label="Sections">
     <button type="button" role="tab" data-go="dashboard"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span class="wide-only">Dashboard</span><span class="phone-only">Home</span></button>
     <button type="button" role="tab" data-go="new" class="nav-new"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg><span>Create new post</span></button>
-    <button type="button" role="tab" data-go="reports"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span>Reports</span></button>
+    <button type="button" role="tab" data-go="reports"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V11M10 20V5M16 20v-6M21 20H3"/></svg><span>Reporting</span></button>
     <button type="button" role="tab" data-go="ads"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h3l6 4V6L6 10zM16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/></svg><span>Ads</span></button>
     <button type="button" role="tab" data-go="activity"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg><span>Activity</span></button>
     <button type="button" role="tab" data-go="videos"><svg class="nic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg><span>Media</span></button>
@@ -479,7 +486,7 @@ main{max-width:none}
     </div>
   </nav>
   <div class="dk" data-tab="dashboard">
-  <div class="rp-kpis dk-kpis" id="dkKpis" title="Open Reports"></div>
+  <div class="rp-kpis dk-kpis" id="dkKpis" title="Open Reporting"></div>
   <div class="dk-grid">
   <section id="dash">
     <div class="dashhead"><h2>Coming up</h2><button type="button" class="primary dk-new" data-go="new">+ Create new post</button></div>
@@ -495,8 +502,8 @@ main{max-width:none}
   </div>
   <section id="reports" data-tab="reports" class="rp">
     <div class="rp-head">
-      <h2>Reports</h2>
-      <div class="rp-seg" role="group" aria-label="Period"><button type="button" data-per="7">7 days</button><button type="button" data-per="30">30 days</button></div>
+      <h2>Reporting</h2>
+      <div class="rp-seg" role="group" aria-label="Period"><button type="button" data-per="ty" title="6 April to yesterday">Tax year</button><button type="button" data-per="30">30 days</button><button type="button" data-per="7">7 days</button></div>
       <span class="rp-when" id="rpWhen"></span>
       <button type="button" id="rpRefresh">Refresh now</button>
     </div>
@@ -630,7 +637,7 @@ main{max-width:none}
   </section>
   <section data-tab="connections">
     <h2>Connections</h2>
-    <p class="hint">What the Reports tab can read from each store, social account and ad platform. Anything not connected says what it needs: add it under Settings → Credentials, then press Refresh now on the Reports tab.</p>
+    <p class="hint">What the Reporting page can read from each store, social account and ad platform. Anything not connected says what it needs: add it under Settings → Credentials, then press Refresh now on the Reporting page.</p>
     <ul class="rp-conn" id="rpConn"><li class="rp-empty">Loading…</li></ul>
   </section>
   <section id="compose" data-tab="new">
@@ -867,7 +874,7 @@ main{max-width:none}
       <div class="pcard">
         <div class="phd"><span class="pi ptt">♪</span><b>TikTok</b><input class="switch" type="checkbox" data-p="tiktok" aria-label="Post to TikTok"></div>
         <div class="setting"><div><b>TikTok app for posting</b><small>Production uses Credentials → TikTok; Sandbox uses Credentials → TikTok sandbox (sandbox posts are private).</small></div><select id="ttApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
-        <div class="setting"><div><b>TikTok app for reports</b><small>Which sign-in the Reports tab reads followers and views with. Sandbox until the production app's read permissions are approved.</small></div><select id="ttReportApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
+        <div class="setting"><div><b>TikTok app for reports</b><small>Which sign-in the Reporting page reads followers and views with. Sandbox until the production app's read permissions are approved.</small></div><select id="ttReportApp"><option value="production">Production</option><option value="sandbox">Sandbox</option></select></div>
         <div class="setting"><div><b>Who can see scheduled posts</b><small>Only me until TikTok approves the app.</small></div><select id="ttPrivacy"><option value="SELF_ONLY">Only me</option><option value="PUBLIC_TO_EVERYONE">Everyone</option><option value="FOLLOWER_OF_CREATOR">Followers</option><option value="MUTUAL_FOLLOW_FRIENDS">Friends</option></select></div>
         <div class="setting"><div><b>Allow comments</b></div><input class="switch" id="tdCom" type="checkbox" aria-label="Allow comments"></div>
         <div class="setting"><div><b>Allow Duet</b></div><input class="switch" id="tdDuet" type="checkbox" aria-label="Allow Duet"></div>
@@ -1019,7 +1026,8 @@ const signedIn = (key, email, ai) => { token = key; aiKey = ai || aiKey || ''; s
 function showSignedIn(){
   $('#login').hidden = $('#setup').hidden = true; $('#who').hidden = false;
   let who = OWNER; try { who = sessionStorage.getItem('gg-social-who') || OWNER; } catch(e){}
-  $('#whoEmail').textContent = who;
+  // the name, not the sign-in email (user, 2026-11-10); the email stays in the tooltip
+  const NAMES = { [OWNER.toLowerCase()]:'Jason Grimmitt' }; $('#whoEmail').textContent = NAMES[String(who).toLowerCase()] || who; $('#whoEmail').title = who;
   load();
 }
 const wait = ms => new Promise(r => setTimeout(r, ms));
@@ -1050,13 +1058,13 @@ const CREDS = [
     ['YT_CLIENT_SECRET', 'Client secret', `<li>Same window as the Client ID: copy the <b>Client secret</b> (starts <code>GOCSPX-</code>). If you closed it, open the client under <b>Credentials</b> → <b>OAuth 2.0 Client IDs</b>.</li>`],
     ['YT_REFRESH_TOKEN', 'Refresh token', `<li>Open the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth 2.0 Playground</a>.</li>
       <li>Click the ⚙ (top right), tick <b>Use your own OAuth credentials</b>, paste your Client ID and Client secret.</li>
-      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly</code> (all three, with spaces between: posting, plus reading views for the Reports tab) and click <b>Authorize APIs</b>. Sign in with the channel's account and allow it (if Google warns the app isn't verified, click <b>Advanced</b> → <b>Go to …</b>).</li>
+      <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/yt-analytics.readonly</code> (all three, with spaces between: posting, plus reading views for the Reporting page) and click <b>Authorize APIs</b>. Sign in with the channel's account and allow it (if Google warns the app isn't verified, click <b>Advanced</b> → <b>Go to …</b>).</li>
       <li>Click <b>Exchange authorization code for tokens</b>, then copy the <b>Refresh token</b> (starts <code>1//</code>) into this box.</li>`],
   ]],
   ['Instagram and Facebook', 'Both use your Facebook Page. Your Instagram must be a Business or Creator account linked to that Page (Instagram app → Settings → Account type and tools).', [
     ['META_PAGE_ID', 'Facebook Page ID', `<li>Open your Facebook Page → <b>About</b> → <b>Page transparency</b>: the <b>Page ID</b> is the long number. (Or from the Graph API Explorer step below: the <code>id</code> next to your Page.)</li>`],
     ['META_PAGE_TOKEN', 'Page access token', `<li>Go to <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener">developers.facebook.com/apps</a> → <b>Create app</b> → use case <b>Other</b> → type <b>Business</b>. Add the products <b>Instagram</b> (API setup with Facebook login) and <b>Facebook Login for Business</b>.</li>
-      <li>Open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>, pick your app, then <b>Add a permission</b>: <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>read_insights</code>, <code>instagram_manage_insights</code> (these two let the Reports tab read views), <code>pages_manage_posts</code>, <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>business_management</code>. Click <b>Generate access token</b> and allow it for your Page and Instagram.</li>
+      <li>Open the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>, pick your app, then <b>Add a permission</b>: <code>pages_show_list</code>, <code>pages_read_engagement</code>, <code>read_insights</code>, <code>instagram_manage_insights</code> (these two let the Reporting page read views), <code>pages_manage_posts</code>, <code>instagram_basic</code>, <code>instagram_content_publish</code>, <code>business_management</code>. Click <b>Generate access token</b> and allow it for your Page and Instagram.</li>
       <li>Make it long-lived: open the <a href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener">Access Token Debugger</a>, paste the token, <b>Debug</b>, then <b>Extend access token</b> and copy the new one.</li>
       <li>Back in the Explorer, paste that long-lived token, run <code>GET me/accounts</code>. In the result, find your Page: copy its <code>access_token</code> into this box (it doesn't expire) and its <code>id</code> into Page ID.</li>`],
     ['IG_USER_ID', 'Instagram account ID', `<li>In the Graph API Explorer (with the Page token), run <code>GET {your-page-id}?fields=instagram_business_account</code>.</li>
@@ -1064,7 +1072,7 @@ const CREDS = [
   ]],
   ['TikTok', 'Your TikTok app’s Production sign-in, used wherever Settings → Platforms → TikTok is set to Production. TikTok needs a developer app. Until TikTok audits and approves it, posts can only be private ("Only me"): apply for the audit in the developer portal, then set TikTok visibility to Everyone below.', [
     ['TIKTOK_CLIENT_KEY', 'Client key', `<li>Go to <a href="https://developers.tiktok.com/" target="_blank" rel="noopener">developers.tiktok.com</a>, sign in with your TikTok business account → <b>Manage apps</b> → <b>Connect an app</b>.</li>
-      <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>, plus <code>user.info.stats</code> and <code>video.list</code> (they let the Reports tab read followers and views). Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
+      <li>Fill in the app details (website <code>https://monkeyvinerush.com/</code>, the privacy and terms links from the site). Add products <b>Login Kit</b> and <b>Content Posting API</b> (turn on <b>Direct Post</b>). Scopes: <code>user.info.basic</code>, <code>video.publish</code>, plus <code>user.info.stats</code> and <code>video.list</code> (they let the Reporting page read followers and views). Redirect URI: <code>https://monkeyvinerush.com/</code>.</li>
       <li>On the app page copy the <b>Client key</b> into this box.</li>`],
     ['TIKTOK_CLIENT_SECRET', 'Client secret', `<li>Same app page: copy the <b>Client secret</b> into this box.</li>`],
     ['TIKTOK_REFRESH_TOKEN', 'Refresh token', `<li>Open this address (put your client key in): <code>https://www.tiktok.com/v2/auth/authorize/?client_key=YOUR_KEY&amp;scope=user.info.basic,user.info.stats,video.list,video.publish,video.upload&amp;response_type=code&amp;redirect_uri=https%3A%2F%2Fmonkeyvinerush.com%2F&amp;state=mvr</code></li>
@@ -1081,7 +1089,7 @@ const CREDS = [
       <li><b>Settings</b> → <b>Billing</b>: add a small amount of credit (e.g. £5 lasts a long time at a few pence a post). Optionally set a monthly spend limit under <b>Limits</b>.</li>
       <li><b>Settings</b> → <b>API keys</b> → <b>Create key</b>, name it "Grimmitt Social", and copy it (it starts <code>sk-ant-</code>; it's only shown once) into this box.</li>`],
   ]],
-  ['X', 'X needs a developer account and an app allowed to post. All four values come from the app’s <b>Keys and tokens</b> page. The same keys also let the Reports tab read your followers and post views. X charges per API call from prepaid credit: add some at <a href="https://console.x.com/" target="_blank" rel="noopener">console.x.com</a> → <b>Billing</b> (reading costs about $1–2 a month; each post costs a little more).', [
+  ['X', 'X needs a developer account and an app allowed to post. All four values come from the app’s <b>Keys and tokens</b> page. The same keys also let the Reporting page read your followers and post views. X charges per API call from prepaid credit: add some at <a href="https://console.x.com/" target="_blank" rel="noopener">console.x.com</a> → <b>Billing</b> (reading costs about $1–2 a month; each post costs a little more).', [
     ['X_API_KEY', 'API key', `<li>Go to <a href="https://developer.x.com/" target="_blank" rel="noopener">developer.x.com</a> and sign in with the X account you want to post from. Choose the <b>Free</b> plan and describe your use (e.g. "Posting my own game's promo videos to my own account").</li>
       <li>In the <b>Developer Portal</b> → <b>Projects &amp; Apps</b>, open your app (one is made for you) → <b>Settings</b> → <b>User authentication settings</b> → <b>Set up</b>.</li>
       <li>App permissions: <b>Read and write</b>. Type of app: <b>Web App, Automated App or Bot</b>. Callback URI and Website: <code>https://www.grimmittgames.com/</code>. <b>Save</b>.</li>
@@ -1098,7 +1106,7 @@ CREDS.push(['Email', 'Sends your confirmation emails through your own Gmail. Goo
     <li>Open <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>, type the name "Grimmitt Social" and click <b>Create</b>.</li>
     <li>Copy the 16-letter password Google shows (spaces don't matter) into this box. It's shown only once.</li>`],
 ]]);
-CREDS.push(['App Store reporting', 'Lets the Reports tab read downloads, sales and App Store analytics. Uses an App Store Connect API key with the Admin, Finance or Sales role (the upload key may not be allowed to read sales).', [
+CREDS.push(['App Store reporting', 'Lets the Reporting page read downloads, sales and App Store analytics. Uses an App Store Connect API key with the Admin, Finance or Sales role (the upload key may not be allowed to read sales).', [
     ['ASC_ISSUER_ID', 'Issuer ID', `<li>Go to <a href="https://appstoreconnect.apple.com/access/integrations/api" target="_blank" rel="noopener">App Store Connect → Users and Access → Integrations → App Store Connect API</a>.</li><li>Copy the <b>Issuer ID</b> shown above the list of keys (a long code with dashes).</li>`],
     ['ASC_KEY_ID', 'Key ID', `<li>Same page: use a key with the <b>Admin</b>, <b>Finance</b> or <b>Sales</b> role, or click <b>+</b> to make one (name it "Reports", role <b>Sales</b>).</li><li>Copy its <b>Key ID</b> (10 letters and numbers).</li>`],
     ['ASC_KEY_P8', 'Private key (.p8 file)', `<li>Download the key's <b>.p8</b> file (Apple only lets you download it once).</li><li>Open it in Notepad, select everything (including the BEGIN and END lines) and paste it here.</li>`],
@@ -1109,34 +1117,34 @@ CREDS.push(['TikTok sandbox', 'Your TikTok app’s Sandbox sign-in. Used whereve
     ['TIKTOK_STATS_CLIENT_SECRET', 'Sandbox client secret', `<li>Same Sandbox page: copy the <b>Client secret</b>.</li>`],
     ['TIKTOK_STATS_REFRESH_TOKEN', 'Sandbox refresh token', `<li>In Sandbox: add your TikTok account under <b>Target users</b>, scopes <code>user.info.basic</code>, <code>user.info.stats</code>, <code>video.list</code> (plus <code>video.publish</code> and <code>video.upload</code> to post), redirect URI <code>https://monkeyvinerush.com/</code>.</li><li>Ask Claude for the sign-in link, sign in, and give Claude the code: it swaps it for this refresh token.</li>`],
   ]]);
-CREDS.push(['Ads: Facebook & Instagram', 'Lets the Reports tab read your ad spend and results, boosted posts included (they run through your ad account).', [
+CREDS.push(['Ads: Facebook & Instagram', 'Lets the Reporting page read your ad spend and results, boosted posts included (they run through your ad account).', [
     ['META_AD_ACCOUNT_ID', 'Ad account ID', `<li>Open <a href="https://adsmanager.facebook.com/" target="_blank" rel="noopener">Ads Manager</a>: the ad account ID is the number after <code>act=</code> in the address bar (or in the account dropdown at the top left).</li>`],
     ['META_ADS_TOKEN', 'Ads token', `<li>Best (never expires): <a href="https://business.facebook.com/settings/system-users" target="_blank" rel="noopener">Business settings → Users → System users</a> → <b>Add</b> (role Admin) → <b>Assign assets</b>: your ad account (View performance) → <b>Generate new token</b> for your Meta app with the <code>ads_read</code> permission, expiry <b>Never</b>. Copy it here.</li><li>Quicker: in the <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> generate a User token with <code>ads_read</code>, extend it in the Access Token Debugger (it then lasts about 60 days) and paste it here.</li><li>If <code>ads_read</code> isn’t offered: your app → Use cases → add <b>Measure ad performance</b> (Marketing API) first.</li>`],
   ]]);
-CREDS.push(['Ads: Apple Search Ads', 'Lets the Reports tab read Apple Search Ads spend, taps and installs.', [
+CREDS.push(['Ads: Apple Search Ads', 'Lets the Reporting page read Apple Search Ads spend, taps and installs.', [
     ['ASA_PRIVATE_KEY', 'Private key', `<li>Ask Claude to make the key pair (or on your PC: <code>openssl ecparam -genkey -name prime256v1 -noout -out asa-private.pem</code> then <code>openssl ec -in asa-private.pem -pubout -out asa-public.pem</code>).</li><li>Paste the whole of <b>asa-private.pem</b> here.</li>`],
     ['ASA_CLIENT_ID', 'Client ID', `<li>In <a href="https://app.searchads.apple.com/" target="_blank" rel="noopener">Apple Search Ads</a>: Account Settings → User Management → invite a user (another email you own) with the role <b>API Account Read Only</b>, and accept the invite.</li><li>Signed in as that user: Account Settings → <b>API</b> → paste the contents of <b>asa-public.pem</b> → <b>Save</b>. Apple shows a <b>clientId</b>, <b>teamId</b> and <b>keyId</b>: copy the clientId here.</li>`],
     ['ASA_TEAM_ID', 'Team ID', `<li>Same Apple page: copy the <b>teamId</b>.</li>`],
     ['ASA_KEY_ID', 'Key ID', `<li>Same Apple page: copy the <b>keyId</b>.</li>`],
   ]]);
-CREDS.push(['Ads: TikTok', 'Lets the Reports tab read TikTok Ads Manager campaigns. Boosts made with Promote inside the TikTok app can’t be read by any API.', [
+CREDS.push(['Ads: TikTok', 'Lets the Reporting page read TikTok Ads Manager campaigns. Boosts made with Promote inside the TikTok app can’t be read by any API.', [
     ['TIKTOK_ADVERTISER_ID', 'Advertiser ID', `<li>Open <a href="https://ads.tiktok.com/" target="_blank" rel="noopener">TikTok Ads Manager</a>: the advertiser ID is the number under your account name at the top (or <code>aadvid=</code> in the address bar).</li>`],
     ['TIKTOK_ADS_TOKEN', 'Access token', `<li>Go to <a href="https://business-api.tiktok.com/portal/apps" target="_blank" rel="noopener">TikTok API for Business → My apps</a> → <b>Create</b> an app (TikTok approves it, usually in 1–2 days) with read access to <b>Reporting</b> and <b>Ad Account Management</b>, redirect URL <code>https://monkeyvinerush.com/</code>.</li><li>When approved, open the app’s <b>Advertiser authorization URL</b>, authorise your ad account, and give Claude the <code>auth_code</code> from the address you land on: Claude swaps it for this long-term access token.</li>`],
   ]]);
-CREDS.push(['Ads: Google', 'Lets the Reports tab read Google Ads (YouTube and App campaigns). Google first has to give you an API developer token, which can take a few days.', [
+CREDS.push(['Ads: Google', 'Lets the Reporting page read Google Ads (YouTube and App campaigns). Google first has to give you an API developer token, which can take a few days.', [
     ['GOOGLE_ADS_CUSTOMER_ID', 'Customer ID', `<li>Sign in to <a href="https://ads.google.com/" target="_blank" rel="noopener">Google Ads</a>: your customer ID is the 10-digit number at the top right (like 123-456-7890).</li>`],
     ['GOOGLE_ADS_DEVELOPER_TOKEN', 'Developer token', `<li>API access needs a free <b>manager account</b>: create one at <a href="https://ads.google.com/home/tools/manager-accounts/" target="_blank" rel="noopener">ads.google.com/home/tools/manager-accounts</a> and link your ads account to it.</li><li>In the manager account: <b>Admin → API Center</b>, fill in the form; the developer token shows there. Apply for <b>Basic access</b> (Google reviews it in a few days). Paste the token here.</li>`],
     ['GOOGLE_ADS_LOGIN_CUSTOMER_ID', 'Manager account ID', `<li>The manager account’s 10-digit ID (top right while signed in to it).</li>`],
     ['GOOGLE_ADS_REFRESH_TOKEN', 'Refresh token', `<li>In Google Cloud (your YouTube project) turn on the <b>Google Ads API</b> (APIs &amp; Services → Library).</li><li>In the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth Playground</a> with your YouTube client ID and secret (⚙), scope <code>https://www.googleapis.com/auth/adwords</code>, <b>Authorize</b> with the Google Ads account, <b>Exchange</b>, and paste the refresh token here.</li>`],
   ]]);
-CREDS.push(['AdMob reporting', 'Lets the Reports tab read what the rewarded videos earn in both apps (read only). Uses your YouTube OAuth client, so only one box is needed.', [
+CREDS.push(['AdMob reporting', 'Lets the Reporting page read what the rewarded videos earn in both apps (read only). Uses your YouTube OAuth client, so only one box is needed.', [
     ['ADMOB_REFRESH_TOKEN', 'Refresh token', `<li>Go to <a href="https://console.cloud.google.com/apis/library/admob.googleapis.com" target="_blank" rel="noopener">Google Cloud → AdMob API</a> (the same project as YouTube, top left) and click <b>Enable</b>.</li>
       <li>Still in Google Cloud: <b>APIs &amp; Services → OAuth consent screen → Audience</b>. If it says <b>Testing</b>, add the Google account that owns AdMob as a <b>test user</b>.</li>
       <li>Open the <a href="https://developers.google.com/oauthplayground" target="_blank" rel="noopener">OAuth 2.0 Playground</a>, click ⚙ (top right), tick <b>Use your own OAuth credentials</b> and paste the YouTube client ID and secret.</li>
       <li>In the box under the list on the left type <code>https://www.googleapis.com/auth/admob.readonly</code> and click <b>Authorize APIs</b>. Sign in with the Google account you use for AdMob (not the YouTube channel) and allow it.</li>
       <li>Click <b>Exchange authorization code for tokens</b>, copy the <b>Refresh token</b> and paste it here.</li>`],
   ]]);
-CREDS.push(['Google Play reporting', 'Lets the Reports tab read installs, ratings, reviews and crash rates from Google Play.', [
+CREDS.push(['Google Play reporting', 'Lets the Reporting page read installs, ratings, reviews and crash rates from Google Play.', [
     ['PLAY_SERVICE_ACCOUNT_JSON', 'Service account key (JSON)', `<li>Use the same key file as the Android app's GitHub setup (the github-upload service account), or make one: Google Cloud → IAM &amp; Admin → Service accounts → your account → Keys → Add key → JSON.</li><li>Open the .json file in Notepad, select everything and paste it here.</li><li>In Google Cloud → APIs &amp; Services → Library, turn on the <b>Google Play Developer Reporting API</b> (crash rates).</li>`],
     ['PLAY_REPORTS_BUCKET', 'Reports bucket', `<li>Play Console (account level) → <b>Download reports</b> → <b>Statistics</b> → <b>Copy Cloud Storage URI</b>.</li><li>Paste it here (it looks like <code>gs://pubsite_prod_rev_0123456789/stats/installs</code>; the whole thing is fine).</li>`],
   ]]);
@@ -1248,7 +1256,7 @@ function renderPicker(){
   box.querySelectorAll('.pick[data-id]').forEach(b => {
     if (b.dataset.id) poster(b.dataset.id).then(u => b.querySelector('.im').style.backgroundImage = `url(${u})`).catch(() => {});
     b.querySelector('.sel').onclick = () => chooseAndNext(b.dataset.id);
-    const im = b.querySelector('button.im'); if (im) im.onclick = () => { im.disabled = true; playVideo(b.dataset.id, v => { if (v){ v.controls = true; v.className = 'pickvid'; im.replaceWith(v); } else im.disabled = false; }, false, undefined, im); };
+    const im = b.querySelector('button.im'); if (im) im.onclick = () => { im.disabled = true; playVideo(b.dataset.id, v => { if (v){ v.controls = true; v.className = 'pickvid'; im.replaceWith(v); replayOnEnd(v); } else im.disabled = false; }, false, undefined, im); };
   });
   $('#chosen').textContent = cur ? 'Chosen: ' + label(cur) : 'Chosen: next in line' + (nextId ? ' (' + label(nextId) + ')' : '');
 }
@@ -1558,8 +1566,10 @@ async function storeEnding(v, id){
     if (!vw || vw > vh || t < 0){ c.style.display = 'none'; return; }   // wide videos have their own card layout: left as made
     const ew = v.offsetWidth, eh = v.offsetHeight, dpr = Math.min(3, window.devicePixelRatio || 1), fit = getComputedStyle(v).objectFit;
     if (!ew || !eh){ c.style.display = 'none'; return; }
-    Object.assign(c.style, { display:'block', left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:ew + 'px', height:eh + 'px' });
-    if (c.width !== Math.round(ew*dpr) || c.height !== Math.round(eh*dpr)){ c.width = Math.round(ew*dpr); c.height = Math.round(eh*dpr); }
+    // with the video's own controls showing, its bottom strip (play / pause / play again) stays uncovered (user, 2026-11-10)
+    const ch = v.controls ? Math.max(0, eh - 48) : eh;
+    Object.assign(c.style, { display:'block', left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:ew + 'px', height:ch + 'px', borderBottomLeftRadius:ch < eh ? '0' : '', borderBottomRightRadius:ch < eh ? '0' : '' });
+    if (c.width !== Math.round(ew*dpr) || c.height !== Math.round(ch*dpr)){ c.width = Math.round(ew*dpr); c.height = Math.round(ch*dpr); }
     const k = fit === 'cover' ? Math.max(ew/vw, eh/vh) : Math.min(ew/vw, eh/vh), w = vw*k, h = vh*k;
     x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, c.width, c.height);
     x.setTransform(dpr*w/540, 0, 0, dpr*h/960, dpr*(ew - w)/2, dpr*(eh - h)/2);
@@ -1589,6 +1599,16 @@ function playVideo(id, put, plain, over, spinEl){
     catch(err){ spin(false); put(null); }
   })();
   return v;
+}
+// a finished video (library cards keep it on its last frame): a Play again button over it (user, 2026-11-10)
+function replayOnEnd(v){
+  v.addEventListener('ended', () => {
+    const box = v.parentNode; if (!box || box.querySelector(':scope > .replay')) return; if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'taptoplay replay'; b.innerHTML = '<span>↻</span>Play again';
+    Object.assign(b.style, { left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:v.offsetWidth + 'px', height:v.offsetHeight + 'px', zIndex:'2' });
+    b.onclick = e => { e.stopPropagation(); b.remove(); v.currentTime = 0; v.play().catch(() => {}); }; v.after(b);
+    v.addEventListener('play', () => b.remove(), { once:true });
+  });
 }
 function tapToPlay(v, start){
   const box = v.parentNode; if (!box) return; if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
@@ -1800,7 +1820,7 @@ async function renderVideos(keepPage = false){
     d.innerHTML = `<button class="pv" type="button" aria-label="Play ${esc(label(id))}">${lenOf(id) ? `<span class="len">${fmtLen(lenOf(id))}</span>` : ''}</button><b>${esc(label(id))}</b><small>${when(id) ? 'Updated ' + when(id) + ' · ' : ''}${posted.length ? 'Posted to ' + posted.join(', ') : 'Not posted yet'}</small><div class="vb"><button type="button" data-a="dl" title="1080 × 1920: TikTok, Instagram Reels, YouTube Shorts, Facebook Reels">Download 9:16</button>${xs.has(id) ? '<button type="button" data-a="dlx" title="1080 × 1350: X">Download 4:5 (X)</button>' : ''}<button type="button" data-a="post">New post</button><button type="button" class="ghost" data-a="rm">Delete</button></div>`;
     box.appendChild(d);
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
-    d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); } else b.disabled = false; }, false, undefined, b); };
+    d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); replayOnEnd(v); } else b.disabled = false; }, false, undefined, b); };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
     dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
     const rm = d.querySelector('[data-a="rm"]');
@@ -2115,10 +2135,10 @@ async function renderDash(){
   document.querySelectorAll('#upcoming [data-poster]').forEach(el => poster(el.dataset.poster).then(u => el.style.backgroundImage = `url(${u})`).catch(() => {}));
   renderDashStats().catch(e => console.warn('dash stats', e));
 }
-// key figures from the latest report (the same numbers as Reports → Overview, last 30 days)
+// key figures from the latest report (the same numbers as Reporting → Overview, last 30 days)
 async function renderDashStats(){
   if (!rpData){ try { rpData = (await readFile('reports/latest.json')).data; rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) {} }
-  if (!rpData){ $('#dkKpis').innerHTML = ''; $('#dkFol').innerHTML = $('#dkViews').innerHTML = '<p class="rp-empty">Shows after the first report (Reports → Refresh now).</p>'; return; }
+  if (!rpData){ $('#dkKpis').innerHTML = ''; $('#dkFol').innerHTML = $('#dkViews').innerHTML = '<p class="rp-empty">Shows after the first report (Reporting → Refresh now).</p>'; return; }
   const keep = rpPer; rpPer = 30; const F = figures(), R = F.R; rpPer = keep;
   const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-30)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
   if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum;
@@ -2872,7 +2892,7 @@ $('#btnRefresh').onclick = renderHistory;
   try { vault = await getVault(); } catch(e){}
   if (vault){ $('#login').hidden = false; $('#lEmail').focus(); } else $('#setup').hidden = false;
 })();
-// ---------- Reports tab (user, 2026-11-09): how the app, the social accounts and the ads are doing ----------
+// ---------- Reporting page (user, 2026-11-09): how the app, the social accounts and the ads are doing ----------
 // Data: reports/latest.json and reports/trend.json, written once a day by the "Update reports" workflow (src/report.js,
 // src/ads.js, src/insights.js for the AI overview). Layout follows what the good analytics tools do: an insights summary
 // first, a few KPI cards with the change against the previous period and a sparkline, a period switch, then one tab per
@@ -2886,8 +2906,13 @@ const rpN = v => v == null || !isFinite(v) ? '–' : Math.abs(v) >= 1e6 ? (v/1e6
 const rpDate = d => new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
 const rpMoney = (v, c) => { try { return new Intl.NumberFormat('en-GB', { style:'currency', currency:c || 'GBP', maximumFractionDigits:Math.abs(v) < 100 ? 2 : 0 }).format(v); } catch (e) { return (c || '') + ' ' + (+v).toFixed(2); } };
 const rpPct = v => v == null || !isFinite(v) ? '–' : (v >= 10 ? v.toFixed(0) : v.toFixed(1)) + '%';
-let rpData = null, rpTrend = [], rpTab = 'overview', rpPer = 30, rpVidPlat = 'all', rpRevStore = 'all', rpVidMax = 15;
-try { rpPer = +localStorage.getItem('rpPer') || 30; rpTab = localStorage.getItem('rpTab') || 'overview'; } catch (e) {}
+let rpData = null, rpTrend = [], rpTab = 'overview', rpPer = 'ty', rpVidPlat = 'all', rpRevStore = 'all', rpVidMax = 15;
+try { const p = localStorage.getItem('rpPer2'); rpPer = p === '7' || p === '30' ? +p : 'ty'; rpTab = localStorage.getItem('rpTab') || 'overview'; } catch (e) {}
+if (rpPer !== 7 && rpPer !== 30) rpPer = 'ty';
+// the period (user, 2026-11-10: by default the UK tax year, 6 April to 5 April): 'ty' is this tax year so far, up to yesterday
+const rpTaxStart = () => { const n = new Date(), y = n.getMonth() > 3 || (n.getMonth() === 3 && n.getDate() >= 6) ? n.getFullYear() : n.getFullYear() - 1; return new Date(y, 3, 6, 12); };
+const rpDays = () => rpPer === 'ty' ? Math.max(1, Math.round((new Date().setHours(12, 0, 0, 0) - rpTaxStart())/864e5)) : rpPer;
+const rpPerLabel = () => { if (rpPer !== 'ty') return `last ${rpPer} days`; const y = rpTaxStart().getFullYear(); return `${y}/${String(y + 1).slice(2)} tax year so far`; };
 
 async function loadReports(force){
   if (rpData && !force){ renderReports(); return; }
@@ -2906,7 +2931,7 @@ $('#rpRefresh').onclick = async () => {
   } catch (e) { say($('#rpStatus'), 'Could not start it: ' + e.message, true); }
   b.disabled = false;
 };
-document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { rpPer = +b.dataset.per; try { localStorage.setItem('rpPer', rpPer); } catch (e) {} if (rpData) renderReports(); });
+document.querySelectorAll('[data-per]').forEach(b => b.onclick = () => { rpPer = b.dataset.per === 'ty' ? 'ty' : +b.dataset.per; try { localStorage.setItem('rpPer2', String(rpPer)); } catch (e) {} if (rpData) renderReports(); });
 document.querySelectorAll('[data-rt]').forEach(b => b.onclick = () => { rpTab = b.dataset.rt; try { localStorage.setItem('rpTab', rpTab); } catch (e) {} showRpTab(); });
 $('#dkKpis').onclick = () => showTab('reports');
 $('#rpVidSort').onchange = () => { rpVidMax = 15; if (rpData) rpRenderVideos(); };
@@ -2944,7 +2969,7 @@ function rpSpark(vals, color){
 function renderReports(){
   const R = rpData;
   $('#rpWhen').textContent = 'Updated ' + new Date(R.at).toLocaleString('en-GB', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
-  document.querySelectorAll('[data-per]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.per === rpPer)));
+  document.querySelectorAll('[data-per]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.per === String(rpPer))));
   showRpTab();
   renderConnections();
 }
@@ -2955,7 +2980,7 @@ function renderTab(t){
 
 // ---------- shared figures ----------
 function figures(){
-  const R = rpData, n = rpPer, aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
+  const R = rpData, n = rpDays(), aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
   const a = window2(daysOf(R.apple?.sales?.days, 'downloads'), n), g = window2(daysOf(R.google?.installs?.days, 'installs'), n);
   const dl = (aOk ? a.sum : 0) + (gOk ? g.sum : 0), dlPrev = (aOk && a.prevSum == null) || (gOk && g.prevSum == null) ? null : (aOk ? a.prevSum : 0) + (gOk ? g.prevSum : 0);
   const eng = R.apple?.analytics?.engagement || [], evs = (rows, re) => rows.reduce((s, d) => s + Object.entries(d).filter(([k]) => re.test(k)).reduce((x, [, v]) => x + (+v || 0), 0), 0);
@@ -2966,7 +2991,7 @@ function figures(){
   const sp = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.spend })), n), ai = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.installs })), n);
   const amOk = R.admob?.status === 'ok', am = window2(daysOf(R.admob?.days, 'earnings'), n);
   const sNow = rpTrend[rpTrend.length - 1], sAgo = snapAgo(n), s2Ago = snapAgo(2*n);
-  return { R, n, aOk, gOk, a, g, dl, dlPrev, dlAny:aOk || gOk,
+  return { R, n, per:rpPerLabel(), aOk, gOk, a, g, dl, dlPrev, dlAny:aOk || gOk,
     impressions:ec.length ? evs(ec, /impression/i) : null, pageViews:ec.length ? evs(ec, /page view/i) : null, pageViewsPrev:ep.length ? evs(ep, /page view/i) : null,
     amOk, am, adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
     fol:sumObj(sNow?.followers || R.summary?.followers), folAgo:sAgo ? sumObj(sAgo.followers) : null,
@@ -2984,7 +3009,7 @@ function renderOverview(){
   const cpi = F.adInstalls ? F.spend/F.adInstalls : null, cpiPrev = F.adInstallsPrev ? F.spendPrev/F.adInstallsPrev : null, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP';
   const ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
   const folSpark = rpSpark(rpTrend.slice(-F.n - 1).map(s => sumObj(s.followers)), '#199e70');
-  const per = `last ${F.n} days`;
+  const per = F.per;
   $('#rpKpis').innerHTML = [
     kpi('Downloads', F.dlAny ? rpN(F.dl) : '–', F.dlAny ? delta(F.dl, F.dlPrev) : '', dlSpark, F.dlAny ? per : 'stores not connected'),
     kpi('Store page → download', conv != null ? rpPct(conv) : '–', conv != null ? delta(conv, convPrev) : '', '', conv != null ? 'App Store, ' + per : 'needs App Store analytics'),
@@ -2998,7 +3023,7 @@ function renderOverview(){
     kpi('Rating', ar?.count ? ar.average.toFixed(1) + '★' : gr ? (+gr.total).toFixed(1) + '★' : '–', '', '', ar?.count ? `App Store · ${rpN(ar.count)} ratings` + (gr ? ` · Play ${(+gr.total).toFixed(1)}★` : '') : 'no ratings yet'),
   ].join('');
   dlBars($('#rpDl'));
-  $('#rpDlHint').textContent = F.dlAny ? `last ${F.n} days` : '';
+  $('#rpDlHint').textContent = F.dlAny ? F.per : '';
   { const dates = F.am.cur.length ? F.am.cur.map(x => x.date) : (R.apple?.sales?.days || []).slice(-F.n).map(d => d.date);
     const coin = d => (R.apple?.sales?.days || []).find(x => x.date === d)?.proceeds?.GBP || 0;
     const ser = []; if (F.aOk) ser.push({ key:'coins', vals:dates.map(coin) }); if (F.amOk) ser.push({ key:'admob', vals:F.am.cur.map(x => x.v) });
@@ -3026,7 +3051,7 @@ function renderStores(){
   const cut = ad.slice(-F.n), red = cut.reduce((s, d) => s + d.redownloads, 0), pur = cut.reduce((s, d) => s + d.purchases, 0);
   const money = {}; for (const d of cut) for (const [c, v] of Object.entries(d.proceeds || {})) money[c] = (money[c] || 0) + v;
   const gLast = gd[gd.length - 1], unin = gd.slice(-F.n).reduce((s, d) => s + d.uninstalls, 0);
-  const per = `last ${F.n} days`;
+  const per = F.per;
   $('#rpStoreKpis').innerHTML = [
     kpi('App Store downloads', F.aOk ? rpN(F.a.sum) : '–', F.aOk ? delta(F.a.sum, F.a.prevSum) : '', rpSpark(F.a.cur.map(x => x.v), '#3987e5'), F.aOk ? per : 'starts after the first download'),
     kpi('Google Play installs', F.gOk ? rpN(F.g.sum) : '–', F.gOk ? delta(F.g.sum, F.g.prevSum) : '', rpSpark(F.g.cur.map(x => x.v), '#d95926'), F.gOk ? per : 'waiting for Google'),
@@ -3085,7 +3110,7 @@ function rpRenderVideos(){
 
 // ---------- ads ----------
 function renderAds(){
-  const F = figures(), A = F.R.ads || {}, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP', per = `last ${F.n} days`;
+  const F = figures(), A = F.R.ads || {}, cur = F.adCur.length === 1 ? F.adCur[0] : 'GBP', per = F.per;
   const tot = { clicks:0, impressions:0, views:0 }; const cutoff = new Date(Date.now() - F.n*864e5).toISOString().slice(0, 10);
   for (const [, k] of F.adLive) for (const d of A[k].days || []) if (d.date >= cutoff) for (const m of Object.keys(tot)) tot[m] += d[m] || 0;
   const cpi = F.adInstalls ? F.spend/F.adInstalls : null;
@@ -3109,7 +3134,7 @@ function renderAds(){
 
 // ---------- AdMob ----------
 function renderAdmob(){
-  const F = figures(), A = F.R.admob, per = `last ${F.n} days`;
+  const F = figures(), A = F.R.admob, per = F.per;
   if (!F.amOk){ const msg = A?.status === 'error' ? 'AdMob couldn’t be read: ' + (A.note || 'unknown error') : 'Connect AdMob under Settings → Credentials → AdMob reporting to see what the rewarded videos earn.';
     $('#rpAmKpis').innerHTML = `<p class="rp-empty">${esc(msg)}</p>`; for (const id of ['#rpAmEarn', '#rpAmImp', '#rpAmApps']) $(id).innerHTML = ''; return; }
   const days = [...A.days].sort((a, b) => a.date.localeCompare(b.date)), cur = days.slice(-F.n), prev = days.slice(-2*F.n, -F.n), full = prev.length >= F.n*.6;
