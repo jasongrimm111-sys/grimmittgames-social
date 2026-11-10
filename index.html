@@ -1474,22 +1474,24 @@ async function mixInto(v, id, t){
 // setting's ending clip over the last seconds (media/end/<stores>/<id>.mp4 from the time in media/end/index.json).
 // The preview does the same: the clip plays on top of the video from that moment, so only one ending is ever seen.
 let endIndex = null;
-async function storeEnding(v, id){
+// t: a muted player started during the tap (playVideo makes it): phones, iPhones in Low Power Mode especially, block a
+// video started later without a tap, so a player made here never played and the ending didn't show (user, 2026-11-10)
+async function storeEnding(v, id, t){
   const stores = cfg && ['google', 'both'].includes(cfg.stores) ? cfg.stores : 'apple';
   if (stores === 'apple' || !v || !v.parentNode) return;
   try { if (!endIndex) endIndex = JSON.parse(await (await fetch(await raw('media/end/index.json'))).text()); } catch(err){ return; }
   const at = endIndex[id]; if (at == null) return;
   let src; try { src = await raw(`media/end/${stores}/${id}.mp4`); } catch(err){ return; }
-  const t = document.createElement('video'); t.muted = true; t.playsInline = true; t.setAttribute('playsinline', ''); t.preload = 'auto'; t.src = src;
+  if (!t) t = document.createElement('video'); t.muted = true; t.playsInline = true; t.setAttribute('playsinline', ''); t.preload = 'auto'; t.src = src; try { t.load(); } catch(err){}
   const box = v.parentNode; if (getComputedStyle(box).position === 'static') box.style.position = 'relative';
-  Object.assign(t.style, { position:'absolute', pointerEvents:'none', visibility:'hidden', objectFit:getComputedStyle(v).objectFit || 'contain', borderRadius:getComputedStyle(v).borderRadius });
+  Object.assign(t.style, { position:'absolute', pointerEvents:'none', opacity:'0', objectFit:getComputedStyle(v).objectFit || 'contain', borderRadius:getComputedStyle(v).borderRadius });
   v.after(t);
   const place = () => Object.assign(t.style, { left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:v.offsetWidth + 'px', height:v.offsetHeight + 'px' });
   const sync = () => {
     if (!t.isConnected) return;
     const on = v.currentTime >= at && !v.ended; place();
-    if (on){ t.style.visibility = 'visible'; const want = v.currentTime - at; if (Math.abs(t.currentTime - want) > 0.15) t.currentTime = want; if (!v.paused && t.paused) t.play().catch(() => {}); if (v.paused) t.pause(); }
-    else { t.style.visibility = v.ended && v.currentTime >= at ? 'visible' : 'hidden'; if (!v.ended) t.pause(); }
+    if (on){ t.style.opacity = '1'; const want = v.currentTime - at; if (Math.abs(t.currentTime - want) > 0.15) t.currentTime = want; if (!v.paused && t.paused) t.play().catch(() => {}); if (v.paused) t.pause(); }
+    else { t.style.opacity = v.ended && v.currentTime >= at ? '1' : '0'; if (!v.ended) t.pause(); }
   };
   for (const e of ['timeupdate', 'seeked', 'play', 'pause', 'ended']) v.addEventListener(e, sync);
   addEventListener('resize', sync);
@@ -1502,13 +1504,13 @@ function playVideo(id, put, plain, over, spinEl){
   // with a track, the sound comes from Web Audio: start it first, and keep the tap's unlock video muted so an iPhone
   // doesn't hand the sound over to it and leave the mix silent
   if (mixed){ try { mixStart(); } catch(err){} }
-  const v = tapVideo(mixed);
+  const v = tapVideo(mixed), tv = tapVideo(true);   // tv: the store ending's player, started in the same tap
   const spin = on => { if (spinEl) spinEl.classList.toggle('loadingv', on); }; spin(true); setTimeout(() => spin(false), 30000);
   (async () => {
     try { v.muted = false; v.volume = 1; v.preload = 'auto'; v.src = await raw('media/' + (fileOf[id] || id + '.mp4'));
       let mix = null; if (mt && mt.file){ try { mix = await mixInto(v, id, mt); } catch(err){ v.muted = false; /* a track that won't load: its own sound */ } }
       v.addEventListener('playing', () => spin(false), { once:true });
-      put(v); storeEnding(v, id);
+      put(v); storeEnding(v, id, tv);
       // if the phone blocks it (iPhones can, once the tap is a few seconds old), it waits for one more tap, which always works
       // with a track the video itself is muted, so it always plays; check the mix is really sounding, else ask for a tap
       const start = async () => { if (mix){ await Promise.race([mix.ctx.resume().catch(() => {}), new Promise(r => setTimeout(r, 800))]);
