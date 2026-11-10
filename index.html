@@ -1487,12 +1487,29 @@ async function storeEnding(v, id, t){
   Object.assign(t.style, { position:'absolute', pointerEvents:'none', opacity:'0', objectFit:getComputedStyle(v).objectFit || 'contain', borderRadius:getComputedStyle(v).borderRadius });
   v.after(t);
   const place = () => Object.assign(t.style, { left:v.offsetLeft + 'px', top:v.offsetTop + 'px', width:v.offsetWidth + 'px', height:v.offsetHeight + 'px' });
+  // Phones seek slowly: the old sync re-seeked the ending on every frame it was 0.15 s out, so on a phone it never
+  // settled, never showed a picture, and the App Store card underneath was seen instead (user, 2026-11-10). Now it is
+  // warmed up a second early, started once at the card, only nudged when well out (at most every 1.5 s), and only
+  // shown once it has a picture to show.
+  let warmed = false, lastSeek = 0;
+  const seek = s => { if (t.seeking) return; lastSeek = Date.now(); try { t.currentTime = s; } catch(err){} };
   const sync = () => {
     if (!t.isConnected) return;
-    const on = v.currentTime >= at && !v.ended; place();
-    if (on){ t.style.opacity = '1'; const want = v.currentTime - at; if (Math.abs(t.currentTime - want) > 0.15) t.currentTime = want; if (!v.paused && t.paused) t.play().catch(() => {}); if (v.paused) t.pause(); }
-    else { t.style.opacity = v.ended && v.currentTime >= at ? '1' : '0'; if (!v.ended) t.pause(); }
+    place();
+    const ct = v.currentTime, want = ct - at;
+    if (v.ended){ if (ct >= at) t.style.opacity = t.readyState >= 2 ? '1' : '0'; return; }
+    if (want < 0){
+      t.style.opacity = '0';
+      if (!warmed && !v.paused && want > -1.2){ warmed = true; const p = t.play(); const back = () => { if (v.currentTime < at){ t.pause(); seek(0); } }; if (p && p.then) p.then(back, () => {}); else back(); }
+      else if (!t.paused && v.currentTime < at - .05) { t.pause(); seek(0); }
+      return;
+    }
+    if (v.paused){ if (!t.paused) t.pause(); if (Math.abs(t.currentTime - want) > .1) seek(want); }
+    else if (t.paused){ if (Math.abs(t.currentTime - want) > .35) seek(want); t.play().catch(() => {}); }
+    else if (Math.abs(t.currentTime - want) > .6 && Date.now() - lastSeek > 1500) seek(want);
+    t.style.opacity = t.readyState >= 2 && !t.seeking ? '1' : '0';
   };
+  t.addEventListener('seeked', sync); t.addEventListener('playing', sync);
   for (const e of ['timeupdate', 'seeked', 'play', 'pause', 'ended']) v.addEventListener(e, sync);
   addEventListener('resize', sync);
   if (v.requestVideoFrameCallback){ const tick = () => { if (!t.isConnected) return; sync(); v.requestVideoFrameCallback(tick); }; v.requestVideoFrameCallback(tick); }   // every frame, so the swap lands on the right one
