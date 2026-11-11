@@ -3116,7 +3116,7 @@ function dlBars(el){
 // ---------- stores ----------
 function renderStores(){
   const F = figures(), R = F.R, ad = R.apple?.sales?.days || [], gd = R.google?.installs?.days || [];
-  const cut = ad.slice(-F.n), red = cut.reduce((s, d) => s + d.redownloads, 0), pur = cut.reduce((s, d) => s + d.purchases, 0);
+  const cut = ad.slice(-F.n), red = cut.reduce((s, d) => s + d.redownloads, 0), pur = cut.reduce((s, d) => s + d.purchases, 0), aRef = cut.reduce((s, d) => s + (d.refunds || 0), 0);
   const gs = rpLastDays(F.gsDays, F.n), gPur = gs.reduce((s, d) => s + d.purchases, 0), gRef = gs.reduce((s, d) => s + (d.refunds || 0), 0);
   const money = {}; for (const d of [...cut, ...gs]) for (const [c, v] of Object.entries(d.proceeds || {})) money[c] = (money[c] || 0) + v;
   const gLast = gd[gd.length - 1], unin = gd.slice(-F.n).reduce((s, d) => s + d.uninstalls, 0);
@@ -3124,12 +3124,12 @@ function renderStores(){
   $('#rpStoreKpis').innerHTML = [
     kpi('App Store downloads', F.aOk ? rpN(F.a.sum) : '–', F.aOk ? delta(F.a.sum, F.a.prevSum) : '', rpSpark(F.a.cur.map(x => x.v), '#3987e5'), F.aOk ? per : 'starts after the first download'),
     kpi('Google Play installs', F.gOk ? rpN(F.g.sum) : '–', F.gOk ? delta(F.g.sum, F.g.prevSum) : '', rpSpark(F.g.cur.map(x => x.v), '#d95926'), F.gOk ? per : 'waiting for Google'),
-    kpi('Coin purchases', F.aOk || F.gsOk ? rpN((F.aOk ? pur : 0) + (F.gsOk ? gPur : 0)) : '–', '', '', [F.aOk && `iPhone & iPad ${rpN(pur)}`, F.gsOk && `Android ${rpN(gPur)}` + (gRef ? ` (${rpN(gRef)} refunded)` : '')].filter(Boolean).join(' · ') || 'stores not connected'),
+    kpi('Coin purchases', F.aOk || F.gsOk ? rpN((F.aOk ? pur : 0) + (F.gsOk ? gPur : 0)) : '–', '', '', [F.aOk && `iPhone & iPad ${rpN(pur)}`, F.gsOk && `Android ${rpN(gPur)}`].filter(Boolean).join(' · ') || 'stores not connected'),
     kpi('Proceeds', Object.keys(money).length ? Object.entries(money).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk || F.gsOk ? rpMoney(0, 'GBP') : '–', '', '', F.gsOk ? 'after store fees (Google Play estimated)' : 'after Apple\'s cut'),
+    kpi('Refunds', F.aOk || F.gsOk ? rpN((F.aOk ? aRef : 0) + (F.gsOk ? gRef : 0)) : '–', '', '', F.aOk || F.gsOk ? [F.aOk && `iPhone & iPad ${rpN(aRef)}`, F.gsOk && `Android ${rpN(gRef)}`].filter(Boolean).join(' · ') + ', ' + per : 'stores not connected'),
     kpi('Store page views', F.pageViews != null ? rpN(F.pageViews) : '–', F.pageViews != null ? delta(F.pageViews, F.pageViewsPrev) : '', '', F.pageViews != null ? 'App Store, ' + per : 'needs App Store analytics'),
     kpi('Re-downloads', F.aOk ? rpN(red) : '–', '', '', 'App Store'),
-    kpi('Active installs', gLast ? rpN(gLast.active) : '–', '', '', 'Google Play devices'),
-    kpi('Uninstalls', F.gOk ? rpN(unin) : '–', '', '', 'Google Play, ' + per),
+    kpi('Active installs', gLast ? rpN(gLast.active) : '–', '', '', 'Google Play devices' + (F.gOk ? ` · ${rpN(unin)} uninstalls, ${per}` : '')),
   ].join('');
   rpFunnel($('#rpFunnel'), F.impressions != null ? [['Saw the app', F.impressions], ['Opened its page', F.pageViews], ['Downloaded', F.aOk ? F.a.sum : null]] : null);
   const cc = {}; for (const d of cut) for (const [c, v] of Object.entries(d.countries || {})) cc[c] = (cc[c] || 0) + v;
