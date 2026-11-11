@@ -2185,14 +2185,14 @@ async function renderDashStats(){
   if (!rpData){ try { rpData = (await readFile('reports/latest.json')).data; rpTrend = (await readFile('reports/trend.json')).data || []; } catch (e) {} }
   if (!rpData){ $('#dkKpis').innerHTML = ''; $('#dkFol').innerHTML = $('#dkViews').innerHTML = '<p class="rp-empty">Shows after the first report (Reporting → Refresh now).</p>'; return; }
   const keep = rpPer; rpPer = 30; const F = figures(), R = F.R; rpPer = keep;
-  const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-30)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
+  const m = {}; for (const d of [...(R.apple?.sales?.days || []).slice(-30), ...rpLastDays(F.gsDays, 30)]) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
   if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum;
   const ar = R.summary?.ratings?.apple, gr = R.summary?.ratings?.google;
   $('#dkKpis').innerHTML = [
     kpi('Downloads', F.dlAny ? rpN(F.dl) : '–', F.dlAny ? delta(F.dl, F.dlPrev) : '', rpSpark(F.a.cur.map((x, i) => (F.aOk ? x.v : 0) + (F.gOk ? (F.g.cur[i]?.v || 0) : 0)), '#3987e5'), F.dlAny ? 'last 30 days' : 'stores not connected'),
     kpi('Followers', rpN(F.fol), F.folAgo != null ? delta(F.fol, F.folAgo) : '', rpSpark(rpTrend.slice(-31).map(t => sumObj(t.followers)), '#199e70'), 'all accounts'),
     kpi(F.viewsGained != null ? 'Video views gained' : 'Video views', rpN(F.viewsGained != null ? F.viewsGained : F.viewsTotal), F.viewsGained != null ? delta(F.viewsGained, F.viewsGainedPrev) : '', '', F.viewsGained != null ? 'last 30 days' : 'recent videos'),
-    kpi('Money in', Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : '–', '', F.amOk ? rpSpark(F.am.cur.map(x => x.v), '#0ca30c') : '', F.aOk || F.amOk ? 'last 30 days' : 'not connected yet'),
+    kpi('Money in', Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : '–', '', F.amOk ? rpSpark(F.am.cur.map(x => x.v), '#0ca30c') : '', F.aOk || F.amOk || F.gsOk ? 'last 30 days' : 'not connected yet'),
   ].join('');
   rpLine($('#dkFol'), rpTrend.length > 1 ? SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-30).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) })) : [], 'The lines appear after the second daily reading.');
   rpHBars($('#dkViews'), SOC.map(k => ({ label:RP_NAME[k], value:R.summary?.views?.[k], color:RP_COL[k] })).filter(r => r.value != null).sort((a, b) => b.value - a.value), rpN, 'Appears once the social accounts are connected.');
@@ -2962,8 +2962,8 @@ $('#btnRefresh').onclick = renderHistory;
 // src/ads.js, src/insights.js for the AI overview). Layout follows what the good analytics tools do: an insights summary
 // first, a few KPI cards with the change against the previous period and a sparkline, a period switch, then one tab per
 // area. Colours: platform identity in a fixed order, validated for this dark surface with the dataviz validator.
-const RP_COL = { coins:'#199e70', amIos:'#3987e5', amAnd:'#d95926', admob:'#3987e5', youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
-const RP_NAME = { coins:'Coin sales', amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
+const RP_COL = { coins:'#199e70', coinsG:'#c98500', amIos:'#3987e5', amAnd:'#d95926', admob:'#3987e5', youtube:'#3987e5', instagram:'#d95926', facebook:'#199e70', tiktok:'#c98500', x:'#d55181', apple:'#3987e5', google:'#d95926', meta:'#199e70', asa:'#3987e5', tta:'#c98500', gads:'#d95926' };
+const RP_NAME = { coins:'Coin sales: App Store', coinsG:'Coin sales: Google Play', amIos:'iPhone & iPad', amAnd:'Android', admob:'AdMob', youtube:'YouTube', instagram:'Instagram', facebook:'Facebook', tiktok:'TikTok', x:'X', apple:'App Store', google:'Google Play', meta:'Facebook & Instagram', asa:'Apple Search Ads', tta:'TikTok Ads', gads:'Google Ads' };
 const RP_SHORT = { meta:'Meta', asa:'Apple Ads', tta:'TikTok Ads', gads:'Google Ads', apple:'App Store', google:'Google Play' };
 const AD_KEYS = [['meta', 'meta'], ['asa', 'apple'], ['tta', 'tiktok'], ['gads', 'google']];
 const SOC = ['youtube', 'instagram', 'facebook', 'tiktok', 'x'];
@@ -3044,6 +3044,7 @@ function renderTab(t){
 }
 
 // ---------- shared figures ----------
+function rpLastDays(days, n){ if (!days || !days.length) return []; const from = new Date(Date.now() - n*864e5).toISOString().slice(0, 10); return days.filter(d => d.date > from); }
 function figures(){
   const R = rpData, n = rpDays(), aOk = R.apple?.sales?.status === 'ok', gOk = R.google?.installs?.status === 'ok';
   const a = window2(daysOf(R.apple?.sales?.days, 'downloads'), n), g = window2(daysOf(R.google?.installs?.days, 'installs'), n);
@@ -3055,10 +3056,11 @@ function figures(){
   const adDays = {}; for (const [, k] of adLive) for (const d of ads[k].days || []){ const x = adDays[d.date] = adDays[d.date] || { date:d.date, spend:0, installs:0 }; x.spend += d.spend; x.installs += d.installs; }
   const sp = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.spend })), n), ai = window2(Object.values(adDays).map(d => ({ date:d.date, v:d.installs })), n);
   const amOk = R.admob?.status === 'ok', am = window2(daysOf(R.admob?.days, 'earnings'), n);
+  const gsOk = R.google?.sales?.status === 'ok', gsDays = R.google?.sales?.days || [];
   const sNow = rpTrend[rpTrend.length - 1], sAgo = snapAgo(n), s2Ago = snapAgo(2*n);
   return { R, n, per:rpPerLabel(), aOk, gOk, a, g, dl, dlPrev, dlAny:aOk || gOk,
     impressions:ec.length ? evs(ec, /impression/i) : null, pageViews:ec.length ? evs(ec, /page view/i) : null, pageViewsPrev:ep.length ? evs(ep, /page view/i) : null,
-    amOk, am, adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
+    amOk, am, gsOk, gsDays, adLive, adCur, adDays, spend:sp.sum, spendPrev:sp.prevSum, adInstalls:ai.sum, adInstallsPrev:ai.prevSum,
     fol:sumObj(sNow?.followers || R.summary?.followers), folAgo:sAgo ? sumObj(sAgo.followers) : null,
     viewsGained:sNow && sAgo ? sumObj(sNow.views) - sumObj(sAgo.views) : null, viewsGainedPrev:sAgo && s2Ago ? sumObj(sAgo.views) - sumObj(s2Ago.views) : null,
     viewsTotal:sumObj(R.summary?.views) };
@@ -3082,17 +3084,18 @@ function renderOverview(){
     kpi('Followers', rpN(F.fol), F.folAgo != null ? delta(F.fol, F.folAgo) : '', folSpark, 'all accounts'),
     kpi('Ad spend', F.adLive.length ? rpMoney(F.spend, cur) : '–', F.adLive.length ? delta(F.spend, F.spendPrev, 'neutral') : '', '', F.adLive.length ? per : 'no ad account connected'),
     kpi('Cost per install', cpi != null ? rpMoney(cpi, cur) : '–', cpi != null ? delta(cpi, cpiPrev, true) : '', '', 'from ads'),
-    (() => { const m = {}; for (const d of (R.apple?.sales?.days || []).slice(-F.n)) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
-      if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum; const any = F.aOk || F.amOk, src = [F.aOk && 'coin sales', F.amOk && 'AdMob'].filter(Boolean).join(' + ');
+    (() => { const m = {}; for (const d of [...(R.apple?.sales?.days || []).slice(-F.n), ...rpLastDays(F.gsDays, F.n)]) for (const [c, v] of Object.entries(d.proceeds || {})) m[c] = (m[c] || 0) + v;
+      if (F.amOk) m.GBP = (m.GBP || 0) + F.am.sum; const any = F.aOk || F.amOk || F.gsOk, src = [(F.aOk || F.gsOk) && 'coin sales', F.amOk && 'AdMob'].filter(Boolean).join(' + ');
       return kpi('Money in', Object.keys(m).length ? Object.entries(m).map(([c, v]) => rpMoney(v, c)).join(' + ') : any ? rpMoney(0, 'GBP') : '–', F.amOk && !F.aOk ? delta(F.am.sum, F.am.prevSum) : '', F.amOk ? rpSpark(F.am.cur.map(x => x.v), '#0ca30c') : '', any ? src + ', ' + per : 'starts with App Store sales and AdMob'); })(),
     kpi('Rating', ar?.count ? ar.average.toFixed(1) + '★' : gr ? (+gr.total).toFixed(1) + '★' : '–', '', '', ar?.count ? `App Store · ${rpN(ar.count)} ratings` + (gr ? ` · Play ${(+gr.total).toFixed(1)}★` : '') : 'no ratings yet'),
   ].join('');
   dlBars($('#rpDl'));
   $('#rpDlHint').textContent = F.dlAny ? F.per : '';
-  { const dates = F.am.cur.length ? F.am.cur.map(x => x.date) : (R.apple?.sales?.days || []).slice(-F.n).map(d => d.date);
+  { const dates = F.am.cur.length ? F.am.cur.map(x => x.date) : [...new Set([...(R.apple?.sales?.days || []).slice(-F.n), ...rpLastDays(F.gsDays, F.n)].map(d => d.date))].sort();
     const coin = d => (R.apple?.sales?.days || []).find(x => x.date === d)?.proceeds?.GBP || 0;
-    const ser = []; if (F.aOk) ser.push({ key:'coins', vals:dates.map(coin) }); if (F.amOk) ser.push({ key:'admob', vals:F.am.cur.map(x => x.v) });
-    rpBars($('#rpMoney'), dates, ser, v => rpMoney(v, 'GBP'), F.aOk || F.amOk ? 'No money in this period yet.' : 'Starts once App Store sales and AdMob are connected.'); }
+    const coinG = d => F.gsDays.find(x => x.date === d)?.proceeds?.GBP || 0;
+    const ser = []; if (F.aOk) ser.push({ key:'coins', vals:dates.map(coin) }); if (F.gsOk) ser.push({ key:'coinsG', vals:dates.map(coinG) }); if (F.amOk) ser.push({ key:'admob', vals:F.am.cur.map(x => x.v) });
+    rpBars($('#rpMoney'), dates, ser, v => rpMoney(v, 'GBP'), F.aOk || F.amOk || F.gsOk ? 'No money in this period yet.' : 'Starts once App Store sales, Google Play sales and AdMob are connected.'); }
   rpLine($('#rpFol0'), rpTrend.length > 1 ? SOC.filter(k => rpTrend.some(t => t.followers?.[k] != null)).map(k => ({ key:k, pts:rpTrend.slice(-Math.max(F.n, 2)).map(t => ({ x:t.date, y:t.followers?.[k] ?? null })) })) : [], 'The lines appear after the second daily reading.');
   rpHBars($('#rpViews'), SOC.map(k => ({ label:RP_NAME[k], value:R.summary?.views?.[k], color:RP_COL[k], sub:R.summary?.followers?.[k] != null ? rpN(R.summary.followers[k]) + (k === 'youtube' ? ' subs' : ' followers') : '' })).filter(r => r.value != null).sort((a, b) => b.value - a.value), rpN, 'Appears once the social accounts are connected.');
 }
@@ -3114,14 +3117,15 @@ function dlBars(el){
 function renderStores(){
   const F = figures(), R = F.R, ad = R.apple?.sales?.days || [], gd = R.google?.installs?.days || [];
   const cut = ad.slice(-F.n), red = cut.reduce((s, d) => s + d.redownloads, 0), pur = cut.reduce((s, d) => s + d.purchases, 0);
-  const money = {}; for (const d of cut) for (const [c, v] of Object.entries(d.proceeds || {})) money[c] = (money[c] || 0) + v;
+  const gs = rpLastDays(F.gsDays, F.n), gPur = gs.reduce((s, d) => s + d.purchases, 0), gRef = gs.reduce((s, d) => s + (d.refunds || 0), 0);
+  const money = {}; for (const d of [...cut, ...gs]) for (const [c, v] of Object.entries(d.proceeds || {})) money[c] = (money[c] || 0) + v;
   const gLast = gd[gd.length - 1], unin = gd.slice(-F.n).reduce((s, d) => s + d.uninstalls, 0);
   const per = F.per;
   $('#rpStoreKpis').innerHTML = [
     kpi('App Store downloads', F.aOk ? rpN(F.a.sum) : '–', F.aOk ? delta(F.a.sum, F.a.prevSum) : '', rpSpark(F.a.cur.map(x => x.v), '#3987e5'), F.aOk ? per : 'starts after the first download'),
     kpi('Google Play installs', F.gOk ? rpN(F.g.sum) : '–', F.gOk ? delta(F.g.sum, F.g.prevSum) : '', rpSpark(F.g.cur.map(x => x.v), '#d95926'), F.gOk ? per : 'waiting for Google'),
-    kpi('Coin purchases', F.aOk ? rpN(pur) : '–', '', '', 'iPhone and iPad'),
-    kpi('Proceeds', Object.keys(money).length ? Object.entries(money).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk ? rpMoney(0, 'GBP') : '–', '', '', 'after Apple\'s cut'),
+    kpi('Coin purchases', F.aOk || F.gsOk ? rpN((F.aOk ? pur : 0) + (F.gsOk ? gPur : 0)) : '–', '', '', [F.aOk && `iPhone & iPad ${rpN(pur)}`, F.gsOk && `Android ${rpN(gPur)}` + (gRef ? ` (${rpN(gRef)} refunded)` : '')].filter(Boolean).join(' · ') || 'stores not connected'),
+    kpi('Proceeds', Object.keys(money).length ? Object.entries(money).map(([c, v]) => rpMoney(v, c)).join(' + ') : F.aOk || F.gsOk ? rpMoney(0, 'GBP') : '–', '', '', F.gsOk ? 'after store fees (Google Play estimated)' : 'after Apple\'s cut'),
     kpi('Store page views', F.pageViews != null ? rpN(F.pageViews) : '–', F.pageViews != null ? delta(F.pageViews, F.pageViewsPrev) : '', '', F.pageViews != null ? 'App Store, ' + per : 'needs App Store analytics'),
     kpi('Re-downloads', F.aOk ? rpN(red) : '–', '', '', 'App Store'),
     kpi('Active installs', gLast ? rpN(gLast.active) : '–', '', '', 'Google Play devices'),
