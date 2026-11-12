@@ -56,6 +56,7 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .ad-form h3{margin-top:0}.ad-sum{margin:14px 0 0;color:var(--muted)}.ad-vid{display:flex;gap:12px;align-items:flex-start;margin-top:8px}.ad-vid img{width:72px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:var(--chip);flex:none}.ad-vid p{margin:0}
 #adVideo{width:100%}.ad-budgets input{max-width:220px}.ad-ages input{width:70px;display:inline-block;margin:0 4px}.ad-budgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.ad-budgets input{width:100%}
 .ad-total{font-weight:700;margin:10px 0 0}.ad-tips{margin:14px 0 0;padding-left:18px;color:var(--muted)}.ad-tips:empty{display:none}.ad-acts{margin-top:6px}.ad-det ul{margin:6px 0 0;padding-left:18px}.rp-chip:disabled{opacity:.45;cursor:not-allowed}
+.ad-plat-q{margin:4px 0 8px;font-weight:600}.ad-plat-q .hint{font-weight:400}.ad-plats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:8px;margin-bottom:12px}.ad-plat{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:12px 14px;font:inherit;font-weight:600;text-align:left;cursor:pointer}.ad-plat .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted);flex:none;display:grid;place-items:center}.ad-plat[aria-checked="true"]{border-color:var(--accent);background:#1d2412}.ad-plat[aria-checked="true"] .dot{border-color:var(--accent);background:var(--accent)}.ad-plat[aria-checked="true"] .dot::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--accentfg)}.ad-plat:disabled{opacity:.45;cursor:not-allowed}.ad-plat small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
 .pk-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-size:1rem}.pk-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.pk-or{text-align:center;margin:10px 0 0}.pk-state{font-weight:600;margin:6px 0 10px}
 .dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 #rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -597,7 +598,8 @@ main{max-width:none}
     <div class="dashhead"><h2>Ads</h2><button type="button" class="primary" id="adNewBtn" style="margin-left:auto">+ Create an ad</button></div>
     <div id="adForm" class="ad-form" hidden>
       <h3>Where and what for</h3>
-      <div class="rp-chips" id="adPlats"></div>
+      <p class="ad-plat-q">Which platform is this ad for? <span class="hint">Pick one. Make another ad for each other platform.</span></p>
+      <div class="ad-plats" id="adPlats" role="radiogroup" aria-label="Platform for this ad"></div>
       <label for="adBrief">What should this ad do? <span class="hint">(optional)</span></label>
       <textarea id="adBrief" rows="2" placeholder="e.g. more UK downloads before Christmas, about £10 a day, show the boss fights"></textarea>
       <div class="row" style="margin-top:10px"><button type="button" class="primary" id="adSuggest">Suggest the whole ad with AI</button><button type="button" id="adBlank">Fill it in myself</button></div>
@@ -3254,8 +3256,8 @@ async function loadAds(){
 }
 function renderAdPlats(){
   $('#adPlats').innerHTML = AD_PLATS.map(([k, n, rk]) => { const ok = adConnected(rk);
-    return `<button type="button" class="rp-chip" data-adplat="${k}" aria-pressed="${adPlats.has(k)}"${ok ? '' : ' disabled title="Connect it under Settings → Credentials first"'}>${n}${ok ? '' : ' (not connected)'}</button>`; }).join('');
-  document.querySelectorAll('[data-adplat]').forEach(b => b.onclick = () => { const k = b.dataset.adplat; adPlats.has(k) ? adPlats.delete(k) : adPlats.add(k); renderAdPlats(); adShowPlats(); adTotal(); });
+    return `<button type="button" class="ad-plat" role="radio" data-adplat="${k}" aria-checked="${adPlats.has(k)}"${ok ? '' : ' disabled title="Connect it under Settings → Credentials first"'}><span class="dot"></span><span>${n}${ok ? '' : '<small>not connected</small>'}${adPlats.has(k) ? '<small>selected</small>' : ''}</span></button>`; }).join('');
+  document.querySelectorAll('[data-adplat]').forEach(b => b.onclick = () => { const k = b.dataset.adplat; adPlats = new Set([k]); renderAdPlats();   /* one platform per ad (user, 2026-11-12) */ adShowPlats(); adTotal(); });
 }
 function adShowPlats(){
   document.querySelectorAll('[data-adp]').forEach(el => el.hidden = !adPlats.has(el.dataset.adp));
@@ -3286,13 +3288,13 @@ $('#adVideo').onchange = () => { $('#adVideoWhy').textContent = ''; adPoster(); 
 $('#adEnd').oninput = adTotal;
 $('#adMText').oninput = () => $('#adMTextN').textContent = $('#adMText').value.length + ' / 125';
 $('#adNewBtn').onclick = async () => { $('#adForm').hidden = false; await adEnsureReport();
-  if (!adPlats.size) for (const [k, , rk] of AD_PLATS) if (adConnected(rk)) adPlats.add(k);
+  { const con = AD_PLATS.filter(([, , rk]) => adConnected(rk)).map(([k]) => k); adPlats = new Set(con.length === 1 ? con : []); }   // one platform per ad, chosen on purpose (user, 2026-11-12): only preselected when it's the only one connected
   renderAdPlats(); adShowPlats(); $('#adBrief').focus(); };
 $('#adCancel').onclick = () => { $('#adForm').hidden = true; $('#adFields').hidden = true; };
-$('#adBlank').onclick = async () => { if (!adPlats.size){ say($('#adAiStatus'), 'Choose at least one platform first.', true); return; } await adFillVideos(); $('#adFields').hidden = false; adShowPlats(); adTotal(); };
+$('#adBlank').onclick = async () => { if (!adPlats.size){ say($('#adAiStatus'), 'Choose the platform for this ad first.', true); return; } await adFillVideos(); $('#adFields').hidden = false; adShowPlats(); adTotal(); };
 $('#adSuggest').onclick = async () => {
   const st = $('#adAiStatus');
-  if (!adPlats.size){ say(st, 'Choose at least one connected platform first.', true); return; }
+  if (!adPlats.size){ say(st, 'Choose the platform for this ad first.', true); return; }
   if (!aiKey){ say(st, 'Add your Anthropic API key under Credentials first (with your sign-in password), then try again.', true); return; }
   say(st, 'Looking at what has worked and planning the ad… (about 30 seconds)'); $('#adSuggest').disabled = true;
   try {
