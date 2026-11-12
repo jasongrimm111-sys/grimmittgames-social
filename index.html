@@ -56,7 +56,11 @@ textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radiu
 .ad-form h3{margin-top:0}.ad-sum{margin:14px 0 0;color:var(--muted)}.ad-vid{display:flex;gap:12px;align-items:flex-start;margin-top:8px}.ad-vid img{width:72px;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:var(--chip);flex:none}.ad-vid p{margin:0}
 #adVideo{width:100%}.ad-budgets input{max-width:220px}.ad-ages input{width:70px;display:inline-block;margin:0 4px}.ad-budgets{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.ad-budgets input{width:100%}
 .ad-total{font-weight:700;margin:10px 0 0}.ad-tips{margin:14px 0 0;padding-left:18px;color:var(--muted)}.ad-tips:empty{display:none}.ad-acts{margin-top:6px}.ad-det ul{margin:6px 0 0;padding-left:18px}.rp-chip:disabled{opacity:.45;cursor:not-allowed}
-.ad-plat-q{margin:4px 0 8px;font-weight:600}.ad-plat-q .hint{font-weight:400}.ad-plats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:8px;margin-bottom:12px}.ad-plat{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:12px 14px;font:inherit;font-weight:600;text-align:left;cursor:pointer}.ad-plat .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted);flex:none;display:grid;place-items:center}.ad-plat[aria-checked="true"]{border-color:var(--accent);background:#1d2412}.ad-plat[aria-checked="true"] .dot{border-color:var(--accent);background:var(--accent)}.ad-plat[aria-checked="true"] .dot::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--accentfg)}.ad-plat:disabled{opacity:.45;cursor:not-allowed}.ad-plat small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.ad-lab{display:block;margin:12px 0 6px;font-weight:600}.ad-checks{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:6px}.ad-checks label{display:flex;align-items:center;gap:6px;font-weight:500;margin:0}
+.ad-opts{display:grid;gap:6px;margin-bottom:6px}.ad-opts label,.ad-chk{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0;cursor:pointer;font-weight:500}.ad-opts label:has(input:checked){border-color:var(--accent);background:#1d2412}.ad-opts input,.ad-chk input{margin-top:3px;accent-color:var(--accent)}.ad-opts small,.ad-chk small{display:block;color:var(--muted);font-size:.8rem;font-weight:400}
+.bst-posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(230px,100%),1fr));gap:8px;margin-bottom:8px}.bst-post{border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:10px 12px;text-align:left;font:inherit;cursor:pointer}.bst-post[aria-checked="true"]{border-color:var(--accent);background:#1d2412}.bst-post b{display:block;font-size:.9rem;line-height:1.3}.bst-post small{color:var(--muted)}
+.bst-budget{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center}.bst-budget input[type=number]{width:90px}
+.ad-plat-q{margin:14px 0 8px;font-weight:600}.ad-plat-q .hint{font-weight:400}.ad-plats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr));gap:8px;margin-bottom:12px}.ad-plat{display:flex;align-items:center;gap:10px;border:2px solid var(--line);background:var(--card);color:var(--fg);border-radius:12px;padding:12px 14px;font:inherit;font-weight:600;text-align:left;cursor:pointer}.ad-plat .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted);flex:none;display:grid;place-items:center}.ad-plat[aria-checked="true"]{border-color:var(--accent);background:#1d2412}.ad-plat[aria-checked="true"] .dot{border-color:var(--accent);background:var(--accent)}.ad-plat[aria-checked="true"] .dot::after{content:"";width:6px;height:6px;border-radius:50%;background:var(--accentfg)}.ad-plat:disabled{opacity:.45;cursor:not-allowed}.ad-plat small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
 .pk-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 16px;font-size:1rem}.pk-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}.pk-or{text-align:center;margin:10px 0 0}.pk-state{font-weight:600;margin:6px 0 10px}
 .dk-new{margin-left:auto}@media (max-width:640px){.dk-new{width:100%;margin:4px 0 6px}}
 #rpSocialKpis{grid-template-columns:repeat(5,minmax(0,1fr))}@media (max-width:1100px){#rpSocialKpis{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (max-width:760px){#rpSocialKpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -595,7 +599,35 @@ main{max-width:none}
     </div>
   </section>
   <section data-tab="ads" id="adsPage">
-    <div class="dashhead"><h2>Ads</h2><button type="button" class="primary" id="adNewBtn" style="margin-left:auto">+ Create an ad</button></div>
+    <div class="dashhead"><h2>Ads</h2><div class="row" style="margin-left:auto"><button type="button" id="bstNewBtn">Boost a post</button><button type="button" class="primary" id="adNewBtn">+ Create an ad</button></div></div>
+    <div id="bstForm" class="ad-form" hidden>
+      <h3>Boost a post</h3>
+      <p class="hint">Like the Boost button in the apps: your post is shown to more people as it is, and its likes, comments and follows stay on the post.</p>
+      <p class="ad-plat-q">Which account’s post?</p>
+      <div class="ad-plats" id="bstPlats" role="radiogroup" aria-label="Platform"></div>
+      <div id="bstBody" hidden>
+        <p class="ad-plat-q">Which post?</p>
+        <div class="bst-posts" id="bstPosts" role="radiogroup" aria-label="Post"></div>
+        <p class="ad-plat-q">What do you want from it?</p>
+        <div class="ad-opts" id="bstGoals"></div>
+        <p class="ad-plat-q">Who should see it?</p>
+        <div class="ad-opts" id="bstAudMode">
+          <label><input type="radio" name="bstAud" value="auto" checked><span><b>Automatic</b><small id="bstAutoTxt"></small></span></label>
+          <label><input type="radio" name="bstAud" value="custom"><span><b>People you choose</b><small>Pick the countries, ages, gender and interests.</small></span></label></div>
+        <label for="bstCountries">Countries <span class="hint">(2-letter codes)</span></label><input id="bstCountries" type="text" value="GB">
+        <div id="bstCustom" hidden>
+          <div class="ad-ages"><label>Ages <input id="bstAgeMin" type="number" min="18" max="65" value="18"> to <input id="bstAgeMax" type="number" min="18" max="65" value="65"></label></div>
+          <span class="ad-lab">Gender</span><div class="ad-checks"><label><input type="radio" name="bstGender" value="all" checked> Everyone</label><label><input type="radio" name="bstGender" value="male"> Men</label><label><input type="radio" name="bstGender" value="female"> Women</label></div>
+          <label for="bstInterests">Interests <span class="hint">(comma separated)</span></label><input id="bstInterests" type="text" placeholder="Mobile games, Casual games">
+        </div>
+        <div id="bstPlaceBox"><p class="ad-plat-q">Where should it show?</p><div class="ad-checks" id="bstPlaces"><label><input type="checkbox" value="instagram"> Instagram</label><label><input type="checkbox" value="facebook"> Facebook</label></div></div>
+        <p class="ad-plat-q">Budget and duration</p>
+        <div class="bst-budget"><label>£ a day <input id="bstDaily" type="number" min="1" step="1" value="5"></label><label>Days <input id="bstDays" type="range" min="1" max="30" value="7"> <b id="bstDaysN">7</b></label></div>
+        <p class="ad-total" id="bstTotal"></p>
+        <div class="row" style="margin-top:12px"><button type="button" class="primary" id="bstGo">Boost post</button><button type="button" id="bstCancel">Cancel</button></div>
+        <p id="bstStatus" class="status" role="status"></p>
+      </div>
+    </div>
     <div id="adForm" class="ad-form" hidden>
       <h3>Where and what for</h3>
       <p class="ad-plat-q">Which platform is this ad for? <span class="hint">Pick one. Make another ad for each other platform.</span></p>
@@ -610,15 +642,19 @@ main{max-width:none}
           <div class="rp-card">
             <h3>Ad</h3>
             <label for="adName">Name <span class="hint">(only you see this)</span></label><input id="adName" type="text" maxlength="80">
-            <label for="adVideo">Video</label><select id="adVideo"></select>
-            <div class="ad-vid"><img id="adPoster" alt=""><p class="hint" id="adVideoWhy"></p></div>
-            <p class="hint">Every ad links to <b>download.monkeyvinerush.com</b>, which opens the right store. Apple Search Ads goes to the App Store page and uses keywords, not the video.</p>
+            <div data-adp="meta tiktok google"><label for="adVideo">Video</label><select id="adVideo"></select>
+            <div class="ad-vid"><img id="adPoster" alt=""><p class="hint" id="adVideoWhy"></p></div></div>
+            <p class="hint" data-adp="meta tiktok google">The ad links to <b>download.monkeyvinerush.com</b>, which opens the right store.</p><p class="hint" data-adp="asa">Apple Search Ads shows your App Store page in App Store search results for the keywords below. It uses your store listing, not a video.</p>
           </div>
           <div class="rp-card">
             <h3>Audience</h3>
             <label for="adCountries">Countries <span class="hint">(2-letter codes)</span></label><input id="adCountries" type="text" placeholder="GB, IE, US">
-            <div class="ad-ages"><label>Ages <input id="adAgeMin" type="number" min="18" max="65" value="18"> to <input id="adAgeMax" type="number" min="18" max="65" value="65"></label></div>
-            <label for="adInterests">Interests <span class="hint">(comma separated)</span></label><input id="adInterests" type="text" placeholder="Mobile games, Casual games">
+            <div data-adp="meta"><label class="ad-chk"><input type="checkbox" id="adMAdv" checked> <span><b>Advantage+ audience</b><small>Meta uses your choices below as a starting point and finds more people likely to download. Untick to keep strictly to them.</small></span></label></div>
+            <div class="ad-ages" data-adp="meta google"><label>Ages <input id="adAgeMin" type="number" min="18" max="65" value="18"> to <input id="adAgeMax" type="number" min="18" max="65" value="65"></label><span class="hint">65 means 65 and over</span></div>
+            <div data-adp="tiktok"><span class="ad-lab">Age groups</span><div class="ad-checks" id="adTAges"><label><input type="checkbox" value="18-24" checked> 18-24</label><label><input type="checkbox" value="25-34" checked> 25-34</label><label><input type="checkbox" value="35-44" checked> 35-44</label><label><input type="checkbox" value="45-54" checked> 45-54</label><label><input type="checkbox" value="55-100" checked> 55+</label></div></div>
+            <div data-adp="meta tiktok"><span class="ad-lab">Gender</span><div class="ad-checks" id="adGender"><label><input type="radio" name="adGender" value="all" checked> Everyone</label><label><input type="radio" name="adGender" value="male"> Men</label><label><input type="radio" name="adGender" value="female"> Women</label></div></div>
+            <div data-adp="tiktok"><span class="ad-lab">Phones</span><div class="ad-checks"><label><input type="radio" name="adTOs" value="all" checked> All</label><label><input type="radio" name="adTOs" value="ios"> iPhone only</label><label><input type="radio" name="adTOs" value="android"> Android only</label></div></div>
+            <div data-adp="meta tiktok"><label for="adInterests">Interests <span class="hint">(comma separated)</span></label><input id="adInterests" type="text" placeholder="Mobile games, Casual games"></div>
             <p class="hint" id="adAudWhy"></p>
           </div>
         </div>
@@ -628,14 +664,34 @@ main{max-width:none}
           <label for="adEnd">End date <span class="hint">(leave empty to run until you pause it)</span></label><input id="adEnd" type="date">
           <p class="ad-total" id="adTotal"></p><p class="hint" id="adBudWhy"></p>
         </div>
+        <div class="rp-card" data-adp="meta"><h3>Facebook &amp; Instagram: goal and placements</h3>
+          <span class="ad-lab">Goal</span><div class="ad-opts" id="adMGoal">
+            <label><input type="radio" name="adMGoal" value="traffic" checked><span><b>Website visits</b><small>People tap through to the download page. Best for downloads.</small></span></label>
+            <label><input type="radio" name="adMGoal" value="views"><span><b>Video views</b><small>Shown to people likely to watch the video through (ThruPlay). Still has the Download button.</small></span></label>
+            <label><input type="radio" name="adMGoal" value="reach"><span><b>Reach</b><small>Shown to as many different people as possible. Good for awareness before launch.</small></span></label></div>
+          <span class="ad-lab">Placements</span><div class="ad-opts" id="adMPlaceMode">
+            <label><input type="radio" name="adMPlace" value="auto" checked><span><b>Advantage+ placements</b><small>Meta puts it wherever it works best across Facebook, Instagram and Messenger.</small></span></label>
+            <label><input type="radio" name="adMPlace" value="manual"><span><b>Choose them myself</b></span></label></div>
+          <div class="ad-checks" id="adMPlaces" hidden><label><input type="checkbox" value="facebook:feed" checked> Facebook feed</label><label><input type="checkbox" value="facebook:facebook_reels" checked> Facebook Reels</label><label><input type="checkbox" value="facebook:video_feeds" checked> Facebook video feeds</label><label><input type="checkbox" value="instagram:stream" checked> Instagram feed</label><label><input type="checkbox" value="instagram:story" checked> Instagram Stories</label><label><input type="checkbox" value="instagram:reels" checked> Instagram Reels</label><label><input type="checkbox" value="instagram:explore" checked> Instagram Explore</label></div></div>
         <div class="rp-card" data-adp="meta"><h3>Facebook &amp; Instagram wording</h3>
           <label for="adMText">Primary text <span class="count" id="adMTextN"></span></label><textarea id="adMText" rows="2"></textarea>
           <label for="adMHead">Headline</label><input id="adMHead" type="text" maxlength="60">
           <label for="adMDesc">Description</label><input id="adMDesc" type="text" maxlength="60">
-          <label for="adMCta">Button</label><select id="adMCta"><option value="DOWNLOAD">Download</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select></div>
+          <label for="adMCta">Button</label><select id="adMCta"><option value="DOWNLOAD">Download</option><option value="INSTALL_MOBILE_APP">Install now</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select></div>
+        <div class="rp-card" data-adp="tiktok"><h3>TikTok: goal and placement</h3>
+          <span class="ad-lab">Goal</span><div class="ad-opts" id="adTGoal">
+            <label><input type="radio" name="adTGoal" value="traffic" checked><span><b>Website visits</b><small>People tap through to the download page. Best for downloads.</small></span></label>
+            <label><input type="radio" name="adTGoal" value="views"><span><b>Video views</b><small>Shown to people likely to watch at least 6 seconds.</small></span></label>
+            <label><input type="radio" name="adTGoal" value="reach"><span><b>Reach</b><small>Shown to as many different people as possible.</small></span></label></div>
+          <p class="hint">New followers come from boosting a post you've already made (Boost a post), not from a new ad.</p>
+          <span class="ad-lab">Placement</span><div class="ad-opts">
+            <label><input type="radio" name="adTPlace" value="tiktok" checked><span><b>TikTok only</b><small>The For You feed.</small></span></label>
+            <label><input type="radio" name="adTPlace" value="auto"><span><b>Automatic</b><small>TikTok plus partner apps (Pangle, Lemon8). Cheaper views, lower quality.</small></span></label></div>
+          <span class="ad-lab">On the ad</span><div class="ad-checks"><label><input type="checkbox" id="adTComments" checked> Allow comments</label><label><input type="checkbox" id="adTDownload"> Allow video downloads</label></div></div>
         <div class="rp-card" data-adp="tiktok"><h3>TikTok wording</h3>
           <label for="adTText">Ad text <span class="hint">(12–100 characters, no emojis)</span></label><input id="adTText" type="text" maxlength="100">
-          <label for="adTCta">Button</label><select id="adTCta"><option value="DOWNLOAD_NOW">Download now</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select></div>
+          <label for="adTCta">Button</label><select id="adTCta"><option value="DOWNLOAD_NOW">Download now</option><option value="INSTALL_NOW">Install now</option><option value="PLAY_GAME">Play game</option><option value="LEARN_MORE">Learn more</option></select>
+          <p class="hint">Shown as “Monkey Vine Rush” with the app icon. To run a post from @monkey.vine.rush itself (with likes and follows going to the account), use Boost a post.</p></div>
         <div class="rp-card" data-adp="google"><h3>Google &amp; YouTube wording</h3>
           <label for="adGHeads">Headlines <span class="hint">(one per line, up to 5, 40 characters each)</span></label><textarea id="adGHeads" rows="5"></textarea>
           <label for="adGLong">Long headline <span class="hint">(up to 90)</span></label><input id="adGLong" type="text" maxlength="90">
@@ -3260,7 +3316,7 @@ function renderAdPlats(){
   document.querySelectorAll('[data-adplat]').forEach(b => b.onclick = () => { const k = b.dataset.adplat; adPlats = new Set([k]); renderAdPlats();   /* one platform per ad (user, 2026-11-12) */ adShowPlats(); adTotal(); });
 }
 function adShowPlats(){
-  document.querySelectorAll('[data-adp]').forEach(el => el.hidden = !adPlats.has(el.dataset.adp));
+  document.querySelectorAll('[data-adp]').forEach(el => el.hidden = !el.dataset.adp.split(' ').some(k => adPlats.has(k)));
   const cur = {}; document.querySelectorAll('#adBudgets input').forEach(i => cur[i.dataset.k] = i.value);
   $('#adBudgets').innerHTML = AD_PLATS.filter(([k]) => adPlats.has(k)).map(([k, n]) => `<label>${n} <span class="hint">£ a day${AD_MIN[k] > 1 ? ', at least £' + AD_MIN[k] : ''}</span><input type="number" min="${AD_MIN[k]}" step="1" data-k="${k}" value="${cur[k] || AD_MIN[k] * (k === 'tiktok' ? 1 : 5)}"></label>`).join('') || '<p class="hint">Choose at least one platform above.</p>';
   document.querySelectorAll('#adBudgets input').forEach(i => i.oninput = adTotal);
@@ -3287,7 +3343,7 @@ function adPoster(){ const id = $('#adVideo').value, img = $('#adPoster'); img.r
 $('#adVideo').onchange = () => { $('#adVideoWhy').textContent = ''; adPoster(); };
 $('#adEnd').oninput = adTotal;
 $('#adMText').oninput = () => $('#adMTextN').textContent = $('#adMText').value.length + ' / 125';
-$('#adNewBtn').onclick = async () => { $('#adForm').hidden = false; await adEnsureReport();
+$('#adNewBtn').onclick = async () => { $('#bstForm').hidden = true; $('#adForm').hidden = false; await adEnsureReport();
   { const con = AD_PLATS.filter(([, , rk]) => adConnected(rk)).map(([k]) => k); adPlats = new Set(con.length === 1 ? con : []); }   // one platform per ad, chosen on purpose (user, 2026-11-12): only preselected when it's the only one connected
   renderAdPlats(); adShowPlats(); $('#adBrief').focus(); };
 $('#adCancel').onclick = () => { $('#adForm').hidden = true; $('#adFields').hidden = true; };
@@ -3333,13 +3389,16 @@ $('#adCreate').onclick = async () => {
   const budget = {}; for (const i of document.querySelectorAll('#adBudgets input')) budget[i.dataset.k] = +i.value || 0;
   const countries = $('#adCountries').value.toUpperCase().split(/[^A-Z]+/).filter(c => c.length === 2);
   const r = { name:$('#adName').value.trim(), platforms:plats, video:$('#adVideo').value, url:'https://download.monkeyvinerush.com/', endDate:$('#adEnd').value || null,
-    audience:{ countries, ageMin:+$('#adAgeMin').value || 18, ageMax:+$('#adAgeMax').value || 65, interests:$('#adInterests').value.split(',').map(x => x.trim()).filter(Boolean) }, budget,
-    meta:{ primaryText:$('#adMText').value.trim(), headline:$('#adMHead').value.trim(), description:$('#adMDesc').value.trim(), cta:$('#adMCta').value },
-    tiktok:{ adText:$('#adTText').value.trim(), cta:$('#adTCta').value },
+    audience:{ countries, gender:adRadio('adGender') || 'all', ageMin:+$('#adAgeMin').value || 18, ageMax:+$('#adAgeMax').value || 65, interests:$('#adInterests').value.split(',').map(x => x.trim()).filter(Boolean) }, budget,
+    meta:{ primaryText:$('#adMText').value.trim(), headline:$('#adMHead').value.trim(), description:$('#adMDesc').value.trim(), cta:$('#adMCta').value, goal:adRadio('adMGoal') || 'traffic',
+      advantage:$('#adMAdv').checked, placements:adRadio('adMPlace') === 'manual' ? [...document.querySelectorAll('#adMPlaces input:checked')].map(i => i.value) : null },
+    tiktok:{ adText:$('#adTText').value.trim(), cta:$('#adTCta').value, goal:adRadio('adTGoal') || 'traffic', placement:adRadio('adTPlace') || 'tiktok', os:adRadio('adTOs') || 'all',
+      comments:$('#adTComments').checked, downloads:$('#adTDownload').checked, ages:[...document.querySelectorAll('#adTAges input:checked')].map(i => i.value) },
     google:{ headlines:$('#adGHeads').value.split('\n').map(x => x.trim()).filter(Boolean), longHeadline:$('#adGLong').value.trim(), descriptions:$('#adGDescs').value.split('\n').map(x => x.trim()).filter(Boolean) },
     asa:{ defaultBid:+$('#adABid').value || 0.5, keywords:$('#adAKw').value.split('\n').map(l => l.split('|').map(x => x.trim())).filter(p => p[0]).map(([text, m, b]) => ({ text, matchType:/exact/i.test(m || '') ? 'EXACT' : 'BROAD', bid:+b || +$('#adABid').value || 0.5 })) } };
   const bad = !plats.length ? 'Choose at least one platform.' : !r.name ? 'Give the ad a name.' : !countries.length ? 'Add at least one country code (e.g. GB).'
     : plats.some(p => budget[p] < AD_MIN[p]) ? 'A budget is below that platform’s minimum.' : r.endDate && r.endDate < new Date().toISOString().slice(0, 10) ? 'The end date is in the past.'
+    : plats.includes('meta') && r.meta.placements && !r.meta.placements.length ? 'Tick at least one Facebook or Instagram placement.' : plats.includes('tiktok') && !r.tiktok.ages.length ? 'Tick at least one TikTok age group.'
     : plats.includes('meta') && !(r.meta.primaryText && r.meta.headline) ? 'Add the Facebook & Instagram text and headline.' : plats.includes('tiktok') && r.tiktok.adText.length < 12 ? 'The TikTok ad text needs at least 12 characters.'
     : plats.includes('google') && !(r.google.headlines.length && r.google.descriptions.length) ? 'Add Google headlines and descriptions.' : plats.includes('asa') && !r.asa.keywords.length ? 'Add some Apple Search Ads keywords.' : '';
   if (bad){ say(st, bad, true); return; }
@@ -3360,6 +3419,72 @@ $('#adCreate').onclick = async () => {
     loadAds();
   } catch (e) { say(st, 'Couldn’t create it: ' + (e.message || e), true); }
   adBusy = false; $('#adCreate').disabled = false;
+};
+const adRadio = n => document.querySelector(`input[name="${n}"]:checked`)?.value;
+document.querySelectorAll('input[name="adMPlace"]').forEach(i => i.onchange = () => $('#adMPlaces').hidden = adRadio('adMPlace') !== 'manual');
+
+// ---------- Boost a post (user, 2026-11-12): the apps' Boost / Promote, with each app's own goals ----------
+const BST_PLATS = [['instagram', 'Instagram', 'meta'], ['facebook', 'Facebook', 'meta'], ['tiktok', 'TikTok', 'tiktok']];
+const BST_GOALS = {
+  instagram:[['profile', 'More profile visits', 'People who are likely to visit your profile and follow.'], ['website', 'More website visits', 'Adds a Download button that goes to the download page.'], ['engagement', 'More engagement', 'Likes, comments, shares and saves.']],
+  facebook:[['engagement', 'Get more engagement', 'Reactions, comments and shares.'], ['views', 'Get more video views', 'People likely to watch the video (ThruPlay).'], ['website', 'Get more website visitors', 'Runs the same video with a Download button to the download page (as its own ad, so its likes don’t add to the post).']],
+  tiktok:[['views', 'More video views', 'Shown in For You to people likely to watch.'], ['likes', 'More likes & comments', 'Shown to people likely to watch 15 seconds or more, who are the ones who like and comment. TikTok doesn’t let outside tools aim for likes directly, so this is the closest match.'], ['profile', 'More profile views', 'People likely to tap through to your profile.'], ['followers', 'More followers', 'People likely to follow you.'], ['website', 'More website visits', 'Adds a Download button that goes to the download page.']] };
+const BST_AUTO = { instagram:'Instagram finds people like your followers (Advantage+ audience).', facebook:'Facebook finds people like your followers (Advantage+ audience).', tiktok:'TikTok picks people likely to be interested, based on your video.' };
+const BST_MIN = { instagram:1, facebook:1, tiktok:20 };
+let bstPlat = null, bstPost = null, bstBusy = false;
+function bstRender(){
+  $('#bstPlats').innerHTML = BST_PLATS.map(([k, n, rk]) => { const ok = adConnected(rk);
+    return `<button type="button" class="ad-plat" role="radio" data-bplat="${k}" aria-checked="${bstPlat === k}"${ok ? '' : ' disabled title="Connect it under Settings → Credentials first"'}><span class="dot"></span><span>${n}${ok ? '' : '<small>not connected for ads</small>'}${bstPlat === k ? '<small>selected</small>' : ''}</span></button>`; }).join('');
+  document.querySelectorAll('[data-bplat]').forEach(b => b.onclick = () => { if (bstPlat !== b.dataset.bplat){ bstPlat = b.dataset.bplat; bstPost = null; $('#bstGoals').innerHTML = ''; } bstRender(); });
+  $('#bstBody').hidden = !bstPlat; if (!bstPlat) return;
+  const posts = (rpData?.[bstPlat]?.videos || []).slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  $('#bstPosts').innerHTML = posts.length ? posts.map(p => `<button type="button" class="bst-post" role="radio" data-bpost="${esc(p.id)}" aria-checked="${bstPost?.id === p.id}"><b>${esc((p.title || 'Untitled').slice(0, 90))}</b><small>${p.at ? new Date(p.at).toLocaleDateString('en-GB', { day:'numeric', month:'short' }) : ''}${p.views != null ? ' · ' + rpN(p.views) + ' views' : ''}${p.likes != null ? ' · ' + rpN(p.likes) + ' likes' : ''}</small>${p.url ? ` <a href="${esc(p.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">open</a>` : ''}</button>`).join('')
+    : '<p class="hint">No posts found yet. The list comes from Reports: press Refresh on the Reports page after posting.</p>';
+  document.querySelectorAll('[data-bpost]').forEach(b => b.onclick = () => { bstPost = posts.find(p => String(p.id) === b.dataset.bpost); bstRender(); });
+  const goals = BST_GOALS[bstPlat], cur = adRadio('bstGoal');
+  $('#bstGoals').innerHTML = goals.map(([v, n, d], i) => `<label><input type="radio" name="bstGoal" value="${v}"${(cur ? cur === v : i === 0) && goals.some(g => g[0] === (cur || v)) ? ' checked' : ''}><span><b>${n}</b><small>${d}</small></span></label>`).join('');
+  if (!adRadio('bstGoal')) document.querySelector('input[name="bstGoal"]').checked = true;
+  $('#bstAutoTxt').textContent = BST_AUTO[bstPlat];
+  $('#bstPlaceBox').hidden = bstPlat === 'tiktok';
+  document.querySelectorAll('#bstPlaces input').forEach(i => { if (i.dataset.for !== bstPlat){ i.checked = i.value === bstPlat; i.dataset.for = bstPlat; } });
+  $('#bstDaily').min = BST_MIN[bstPlat]; if (+$('#bstDaily').value < BST_MIN[bstPlat]) $('#bstDaily').value = BST_MIN[bstPlat];
+  bstTotal();
+}
+function bstTotal(){ const d = +$('#bstDaily').value || 0, n = +$('#bstDays').value || 1; $('#bstDaysN').textContent = n;
+  $('#bstTotal').textContent = d ? `${rpMoney(d, 'GBP')} a day for ${n} day${n === 1 ? '' : 's'}: ${rpMoney(d*n, 'GBP')} in total at most${bstPlat === 'tiktok' ? ' (TikTok’s minimum is £20 a day)' : ''}.` : ''; }
+$('#bstDaily').oninput = bstTotal; $('#bstDays').oninput = bstTotal;
+document.querySelectorAll('input[name="bstAud"]').forEach(i => i.onchange = () => $('#bstCustom').hidden = adRadio('bstAud') !== 'custom');
+$('#bstNewBtn').onclick = async () => { $('#adForm').hidden = true; $('#bstForm').hidden = false; await adEnsureReport();
+  const con = BST_PLATS.filter(([, , rk]) => adConnected(rk)); if (!bstPlat && con.length === 1) bstPlat = con[0][0]; bstRender(); };
+$('#bstCancel').onclick = () => { $('#bstForm').hidden = true; };
+$('#bstGo').onclick = async () => {
+  if (bstBusy) return; const st = $('#bstStatus');
+  const custom = adRadio('bstAud') === 'custom', countries = $('#bstCountries').value.toUpperCase().split(/[^A-Z]+/).filter(c => c.length === 2);
+  const daily = +$('#bstDaily').value || 0, days = +$('#bstDays').value || 7, goal = adRadio('bstGoal');
+  const places = bstPlat === 'tiktok' ? null : [...document.querySelectorAll('#bstPlaces input:checked')].map(i => i.value);
+  const bad = !bstPlat ? 'Choose the account first.' : !bstPost ? 'Choose the post to boost.' : !countries.length ? 'Add at least one country code (e.g. GB).'
+    : daily < BST_MIN[bstPlat] ? `The daily budget must be at least ${rpMoney(BST_MIN[bstPlat], 'GBP')}.` : places && !places.length ? 'Tick Instagram, Facebook or both.' : '';
+  if (bad){ say(st, bad, true); return; }
+  const gName = BST_GOALS[bstPlat].find(g => g[0] === goal)[1], pName = BST_PLATS.find(p => p[0] === bstPlat)[1];
+  if (!confirm(`Boost this ${pName} post now?\n\n“${(bstPost.title || '').slice(0, 80)}”\nGoal: ${gName}\nUp to ${rpMoney(daily, 'GBP')} a day for ${days} day${days === 1 ? '' : 's'} (${rpMoney(daily*days, 'GBP')} at most).\n\nIt goes live as soon as ${bstPlat === 'tiktok' ? 'TikTok' : 'Meta'} approves it.`)) return;
+  bstBusy = true; $('#bstGo').disabled = true;
+  const id = 'boost-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '') + '-' + Math.random().toString(36).slice(2, 6);
+  const r = { kind:'boost', name:`Boost ${pName}: ${(bstPost.title || bstPost.id).slice(0, 50)}`, platform:bstPlat, post:{ id:String(bstPost.id), url:bstPost.url || '', title:bstPost.title || '' }, goal, daily, days,
+    url:'https://download.monkeyvinerush.com/', placements:places,
+    audience:{ mode:custom ? 'custom' : 'auto', countries, ...(custom ? { ageMin:+$('#bstAgeMin').value || 18, ageMax:+$('#bstAgeMax').value || 65, gender:adRadio('bstGender') || 'all', interests:$('#bstInterests').value.split(',').map(x => x.trim()).filter(Boolean) } : {}) } };
+  try {
+    say(st, 'Saving…');
+    await writeFile(`ads/requests/${id}.json`, { id, at:new Date().toISOString(), ...r }, undefined, 'Boost request: ' + r.name);
+    await gh('/actions/workflows/ads.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ action:'boost', id } }) });
+    say(st, 'Setting up the boost (about a minute)…');
+    let done = null; for (let i = 0; i < 60 && !done; i++){ await new Promise(res => setTimeout(res, 8000)); try { done = (await readFile(`ads/created/${id}.json`)).data; } catch (e) {} }
+    if (!done) say(st, 'Still working on it: check “Your ads” below in a few minutes.');
+    else { const res = Object.values(done.results)[0] || {};
+      say(st, done.status === 'live' ? 'Done: the boost is set up and starts once it’s approved.' : 'It couldn’t be boosted: ' + (res.error || 'unknown error'), done.status !== 'live');
+      if (done.status === 'live') $('#bstForm').hidden = true; }
+    loadAds();
+  } catch (e) { say(st, 'Couldn’t boost it: ' + (e.message || e), true); }
+  bstBusy = false; $('#bstGo').disabled = false;
 };
 async function adAction(id, act, btn){
   const li = btn.closest('[data-ad]'), det = li.querySelector('.ad-det');
