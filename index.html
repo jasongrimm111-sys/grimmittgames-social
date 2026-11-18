@@ -734,7 +734,7 @@ main{max-width:none}
       <div class="vfilters pfilters">
         <div class="f"><label for="pSort">Sort by</label><select id="pSort"><option value="newest">Recently updated</option><option value="oldest">Least recently updated</option><option value="world">World (1 to 24)</option><option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option></select></div>
         <div class="f"><label for="pWorld">World</label><select id="pWorld"><option value="">All worlds</option></select></div>
-        <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+        <div class="f"><label for="pType">Type</label><select id="pType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="nm">No Mistakes</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
         <div class="f"><label for="pStatus">Status</label><select id="pStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
         <div class="f fbtn"><button type="button" id="pClear" class="ghost">Clear filters</button></div>
       </div><select id="pickVideo" hidden></select><div id="chosen" class="hint"></div>
@@ -861,7 +861,7 @@ main{max-width:none}
       <option value="type">Type (level play, Rush, boss)</option><option value="unposted">Not posted yet first</option><option value="posted">Most posted first</option>
     </select></div>
       <div class="f"><label for="vWorld">World</label><select id="vWorld"><option value="">All worlds</option></select></div>
-      <div class="f"><label for="vType">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
+      <div class="f"><label for="vType">Type</label><select id="vType"><option value="">All types</option><option value="levels">Level play</option><option value="rush">Rush chase</option><option value="boss">Boss fight</option><option value="perfect">Perfect Run</option><option value="nm">No Mistakes</option><option value="u">Your uploads</option><option value="f">Feature videos</option></select></div>
       <div class="f"><label for="vStatus">Status</label><select id="vStatus"><option value="">Any</option><option value="no">Not posted yet</option><option value="yes">Posted</option></select></div>
       <div class="f fbtn"><button type="button" id="vClear" class="ghost">Clear filters</button></div>
     </div>
@@ -1397,7 +1397,8 @@ function passes(id, p = 'v'){
   const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#' + p + 'World').value, t = $('#' + p + 'Type').value, st = $('#' + p + 'Status').value, m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id);
   const wNo = m ? m[1] : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
   if (w && wNo !== w) return false;
-  if (t === 'u' ? !id.startsWith('u-') : t === 'f' ? !id.startsWith('f-') : t && kind !== t) return false;
+  const nm = /^f-nm-|^f-no-mistakes$/.test(id);
+  if (t === 'u' ? !id.startsWith('u-') : t === 'nm' ? !nm : t === 'f' ? !id.startsWith('f-') || nm : t && kind !== t) return false;
   if (st === 'no' && timesPosted(id) > 0) return false;
   if (st === 'yes' && timesPosted(id) === 0) return false;
   return true;
@@ -2023,7 +2024,7 @@ async function renderHistory(){
 
 // ---------- schedule, platforms, captions, order ----------
 // the kinds of post a posting time can use (as on New post); unset = the Platforms tab defaults
-const VKINDS = [['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run'], ['feature', 'Feature'], ['custom', 'Your uploads']];
+const VKINDS = [['levels', 'Level play'], ['rush', 'Rush chase'], ['boss', 'Boss fight'], ['perfect', 'Perfect Run'], ['nomistakes', 'No Mistakes'], ['feature', 'Feature'], ['custom', 'Your uploads']];
 const SLOT_FORMATS = [['youtube', 'shorts', 'YouTube Shorts'], ['youtube', 'video', 'YouTube video'], ['facebook', 'reels', 'Facebook Reels'], ['facebook', 'video', 'Facebook video'], ['facebook', 'story', 'Facebook Story'], ['instagram', 'reels', 'Instagram Reels'], ['instagram', 'story', 'Instagram Story']];
 const slotPlaces = (s, k) => (s.places && s.places[k]) || ((cfg[k] || {}).places) || [k === 'youtube' ? 'shorts' : 'reels'];
 // ---------- what each posting time will do, in plain words (from its settings and the Rules section, read live) ----------
