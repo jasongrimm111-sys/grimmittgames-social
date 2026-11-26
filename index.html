@@ -930,7 +930,7 @@ main{max-width:none}
     <div class="pcards">
       <div class="pcard">
         <div class="phd"><span class="pi">⬇</span><b>Where to download</b></div>
-        <div class="setting"><div><b>Game available on</b><small>Sets the ending of every video and the store wording and links in every post.</small></div><select id="stores"><option value="apple">App Store (iPhone and iPad)</option><option value="google">Google Play</option><option value="both">App Store and Google Play</option></select></div>
+        <div class="setting"><div><b>Game available on</b><small>Sets the ending of every video and the store wording and links in every post. AI captions only ever mention the stores chosen here.</small></div><select id="stores"><option value="apple">App Store (iPhone and iPad)</option><option value="google">Google Play</option><option value="both">App Store and Google Play</option></select></div>
         <p class="hint">Previews on this site always show the App Store ending. Only choose Google Play once the game is live there.</p>
       </div>
       <div class="pcard">
@@ -2468,12 +2468,12 @@ $('#btnSuggest').onclick = async () => {
     const { default:Anthropic } = await stage('loading the AI library', () => import('https://cdn.jsdelivr.net/npm/@anthropic-ai/sdk@0.133.0/+esm'));
     const client = new Anthropic({ apiKey:aiKey, dangerouslyAllowBrowser:true });
     const res = await stage('asking the AI', () => client.beta.messages.create({ model:P.MODEL, max_tokens:16000, output_config:{ effort:'low', format:{ type:'json_schema', schema:P.SCHEMA } },
-      betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:P.SYSTEM,
-      messages:[{ role:'user', content:P.userPrompt(info, { voice:$('#aiVoice').value.trim() || (cfg.ai || {}).voice, prompt:$('#aiPrompt').value.trim(), extraHashtags:cfg.extraHashtags, askQuestion:cfg.askQuestion !== false }) }] }));
+      betas:['server-side-fallback-2026-07-01'], fallbacks:'default', system:P.systemFor ? P.systemFor(cfg.stores) : P.SYSTEM,
+      messages:[{ role:'user', content:P.userPrompt(info, { voice:$('#aiVoice').value.trim() || (cfg.ai || {}).voice, prompt:$('#aiPrompt').value.trim(), extraHashtags:cfg.extraHashtags, askQuestion:cfg.askQuestion !== false, stores:cfg.stores }) }] }));
     if (res.stop_reason === 'refusal') throw new Error('the AI declined this one; try rewording your request');
     const text = res.content.filter(b => b.type === 'text').map(b => b.text).join('');
     let data; try { data = JSON.parse(text); } catch(e){ try { data = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)); } catch(e2){ throw new Error('the AI\'s reply wasn\'t in the expected format (' + res.stop_reason + '); please try again'); } }
-    fill(P.finish(data));
+    fill(P.finish(data, cfg.stores));
     say(st, 'Here are the suggestions for ' + label(id) + '. Edit anything, then post now or save them for its scheduled post.');
   } catch(e){ say(st, 'Couldn\'t write captions: ' + (e.message || e), true); }
   $('#btnSuggest').disabled = false;
