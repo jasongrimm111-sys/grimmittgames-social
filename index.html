@@ -1934,14 +1934,28 @@ async function renderVideos(keepPage = false){
     poster(id).then(u => d.querySelector('.pv').style.backgroundImage = `url(${u})`).catch(() => {});
     d.querySelector('.pv').onclick = e => { const b = e.currentTarget; b.disabled = true; playVideo(id, v => { if (v){ v.controls = true; b.replaceWith(v); replayOnEnd(v); } else b.disabled = false; }, false, undefined, b); };
     const dl = (sel, path, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => { const t = btn.textContent; btn.textContent = 'Loading…'; try { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); } catch(err){} btn.textContent = t; }; };
-    dl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), 'monkey-vine-rush-' + (fileOf[id] || id + '.mp4').replace(/\.(mp4|mov)$/i, m => '-9x16' + m));
+    // downloads carry the ending for the stores that are on (user, 2026-11-27): library videos are made with the App Store
+    // ending, so for Google Play / both the site asks GitHub to lay the right ending over it (render.yml), then downloads that
+    const storesNow = ['google', 'both'].includes(cfg.stores) ? cfg.stores : 'apple';
+    const storeDl = (sel, plain, ready, name) => { const btn = d.querySelector(sel); if (!btn) return; btn.onclick = async () => {
+      const t = btn.textContent, go = async path => { const a = document.createElement('a'); a.href = await raw(path); a.download = name; a.click(); };
+      try {
+        if (storesNow === 'apple' || id.startsWith('u-')) { btn.textContent = 'Loading…'; await go(plain); btn.textContent = t; return; }
+        btn.textContent = 'Loading…'; try { await go(ready); btn.textContent = t; return; } catch (e) {}
+        btn.disabled = true; btn.textContent = `Making the ${storesNow === 'google' ? 'Google Play' : 'both-stores'} version…`;
+        await gh('/actions/workflows/render.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ video:id, stores:storesNow } }) });
+        for (let i = 0; i < 40; i++) { await new Promise(r => setTimeout(r, 10000)); try { await go(ready); btn.textContent = t; btn.disabled = false; toastOk('Downloaded with the ' + (storesNow === 'google' ? 'Google Play' : 'App Store and Google Play') + ' ending'); return; } catch (e) {} btn.textContent = `Making it… ${Math.min(95, (i + 1) * 8)}%`; }
+        throw new Error('it is taking longer than usual, try again in a few minutes');
+      } catch (err) { btn.textContent = t; btn.disabled = false; toastOk('Couldn’t download it: ' + (err.message || err)); }
+    }; };
+    storeDl('[data-a="dl"]', 'media/' + (fileOf[id] || id + '.mp4'), `media/ready/${storesNow}/${id}.mp4`, 'monkey-vine-rush-' + id + (storesNow === 'apple' ? '' : '-' + storesNow) + '-9x16.mp4');
     const rm = d.querySelector('[data-a="rm"]');
     if (rm) rm.onclick = async () => {
       if (rm.dataset.sure !== '1'){ rm.dataset.sure = '1'; rm.textContent = 'Sure? Delete'; setTimeout(() => { rm.dataset.sure = ''; rm.textContent = 'Delete'; }, 4000); return; }
       rm.disabled = true; rm.textContent = 'Deleting…';
       try { await removeUpload(id); await reloadVideos(); toastOk(label(id) + ' deleted. It won\'t be uploaded again.'); } catch(e){ rm.disabled = false; rm.textContent = 'Delete'; toastOk("Couldn't delete it: " + e.message); }
     };
-    dl('[data-a="dlx"]', 'media/x/' + id + '.mp4', 'monkey-vine-rush-' + id + '-4x5.mp4');
+    storeDl('[data-a="dlx"]', 'media/x/' + id + '.mp4', `media/ready/${storesNow}/x/${id}.mp4`, 'monkey-vine-rush-' + id + (storesNow === 'apple' ? '' : '-' + storesNow) + '-4x5.mp4');
     d.querySelector('[data-a="post"]').onclick = () => compose(id);
     songUI(d, id);
   }
