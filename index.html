@@ -2791,11 +2791,15 @@ $('#oSaveSettings').onclick = async () => {
     $('#oUnsub').value = unsubList.join('\n'); oCount(); say(st, 'Saved.');
   } catch(e){ say(st, 'Not saved: ' + e.message, true); }
 };
+// one post at a time (user, 2026-11-26: a double press posted the same video twice): a second press within 30 s is ignored
+let lastDispatch = 0;
 async function dispatch({ video = '', platform = '', captions = null, tiktok = null, meta = null, repost = false } = {}){
-  const st = $('#runStatus'); say(st, 'Starting the post…');
+  const st = $('#runStatus');
+  if (Date.now() - lastDispatch < 30000){ toastOk('That post is already starting. Follow it under Activity.'); return; }
+  lastDispatch = Date.now(); say(st, 'Starting the post…');
   try { await gh('/actions/workflows/post.yml/dispatches', { method:'POST', body:JSON.stringify({ ref:'main', inputs:{ dry_run:'false', platform, video, captions:captions ? b64(JSON.stringify(captions)) : '', tiktok:tiktok ? b64(JSON.stringify(tiktok)) : '', meta:meta && Object.keys(meta).length ? b64(JSON.stringify(meta)) : '', repost:String(!!repost) } }) });
     say(st, ''); showTab('dashboard'); toastOk((video ? label(video) : 'The next video') + ' is posting now. Follow it under Activity.'); setTimeout(renderHistory, 6000); }
-  catch(e){ say(st, 'Could not start: ' + e.message + '. The GitHub key needs Actions: Read and write.', true); }
+  catch(e){ lastDispatch = 0; say(st, 'Could not start: ' + e.message + '. The GitHub key needs Actions: Read and write.', true); }
 }
 // ---------- robot check on sign-in ----------
 // There's no server to verify a CAPTCHA, and the real protection is the encryption (each guess costs 600,000 rounds), so
