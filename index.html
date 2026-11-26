@@ -1393,9 +1393,13 @@ const VPAGE = 12; let vPage = 0, vFiles = [], vXs = new Set(), vFiltersRestored 
 const KIND_ORDER = { levels:0, rush:1, boss:2, perfect:3 };
 // filters: world, type and whether it's been posted
 const WORLD_NAMES = {};
+// No Mistakes and Perfect Run feature videos (f-nm-autumn-46, f-n001-perfect-jungle-5) carry their world and level in
+// the name: worked out here so they can be filtered by world and sorted in level order (user, 2026-11-27)
+const wIdx = () => { if (!wIdx.m || wIdx.n !== vFiles.length){ wIdx.m = new Map(); for (const id of vFiles){ const m = /^w(\d+)-([a-z]+)-/.exec(id); if (m) wIdx.m.set(m[2], m[1]); } wIdx.n = vFiles.length; } return wIdx.m; };
+const lvlParts = id => { const m = /^f-(?:nm|n\d+-perfect)-([a-z]+)-(\d+)$/.exec(id); return m && wIdx().has(m[1]) ? { world:wIdx().get(m[1]), lvl:+m[2] } : null; };
 function passes(id, p = 'v'){
   const tags = id.startsWith('u-') ? (customs[id] || {}) : null, w = $('#' + p + 'World').value, t = $('#' + p + 'Type').value, st = $('#' + p + 'Status').value, m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id);
-  const wNo = m ? m[1] : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
+  const lp = lvlParts(id), wNo = m ? m[1] : lp ? lp.world : tags && tags.world, kind = m ? m[3] : tags && tags.kind;
   if (w && wNo !== w) return false;
   const nm = /^f-nm-|^f-no-mistakes$/.test(id);
   if (t === 'u' ? !id.startsWith('u-') : t === 'nm' ? !nm : t === 'f' ? !id.startsWith('f-') || nm : t && kind !== t) return false;
@@ -1419,13 +1423,13 @@ for (const sel of ['#vWorld', '#vType', '#vStatus']) $(sel).onchange = () => { s
 for (const sel of ['#pSort', '#pWorld', '#pType', '#pStatus']) $(sel).onchange = () => renderPicker();
 $('#pClear').onclick = () => { $('#pWorld').value = $('#pType').value = $('#pStatus').value = ''; renderPicker(); };
 $('#vClear').onclick = () => { $('#vWorld').value = $('#vType').value = $('#vStatus').value = ''; saveFilters(); vPage = 0; renderVideos(true); };
-const vParts = id => { if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id); return m ? { w:+m[1], k:(KIND_ORDER[m[3]] ?? 3) + (m[4] ? +m[4]/100 : 0) } : { w:99, k:3 }; };
+const vParts = id => { const lp = lvlParts(id); if (lp) return { w:+lp.world, k:4 + lp.lvl / 1000 }; if (id.startsWith('u-')){ const c = customs[id] || {}; return { w:c.world ? +c.world : 98, k:c.kind ? KIND_ORDER[c.kind] : 3 }; } const m = /^w(\d+)-([a-z]+)-([a-z]+)(?:-(\d+))?$/.exec(id); return m ? { w:+m[1], k:(KIND_ORDER[m[3]] ?? 3) + (m[4] ? +m[4]/100 : 0) } : { w:99, k:3 }; };
 const timesPosted = id => Object.keys((state.posted || {})[id] || {}).length;
 function sortVideos(ids, mode){
   const newest = byNewest(ids);
   const by = f => [...newest].sort((a, b) => f(a, b) || newest.indexOf(a) - newest.indexOf(b));
   if (mode === 'oldest') return [...newest].reverse();
-  if (mode === 'name') return by((a, b) => label(a).localeCompare(label(b), undefined, { numeric:true, sensitivity:'base' }));   // by the name shown, so Level 2 comes before Level 10
+  if (mode === 'name') return by((a, b) => { const pa = lvlParts(a), pb = lvlParts(b); if (pa && pb) return +pa.world - +pb.world || pa.lvl - pb.lvl; return label(a).localeCompare(label(b), undefined, { numeric:true, sensitivity:'base' }); });   // No Mistakes / Perfect Runs: world order, then level number   // by the name shown, so Level 2 comes before Level 10
   if (mode === 'world') return by((a, b) => vParts(a).w - vParts(b).w || vParts(a).k - vParts(b).k);
   if (mode === 'type') return by((a, b) => vParts(a).k - vParts(b).k || vParts(a).w - vParts(b).w);
   if (mode === 'unposted') return by((a, b) => (timesPosted(a) > 0) - (timesPosted(b) > 0));
